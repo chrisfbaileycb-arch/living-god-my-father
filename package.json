@@ -1,0 +1,16 @@
+{
+  "name": "codex-geographica",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "node server.js",
+    "build": "node -e \"const fs=require('fs');const h=fs.readFileSync('public/index.html','utf8');const m=h.match(/<script>([\\s\\S]*?)<\\/script>/);if(!m)process.exit(1);new Function(m[1]);console.log('Syntax OK');\"",
+    "start": "node server.js",
+    "lint": "node --check server.js && npm run build"
+  },
+  "dependencies": {
+    "express": "^4.21.2",
+    "three": "^0.186.1"
+  }
+}

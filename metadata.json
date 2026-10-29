@@ -1,0 +1,8 @@
+{
+  "name": "Codex Geographica — Complete Biblical & Apocryphal Interactive Atlas",
+  "description": "Cumulative Interactive Space: Every Writer, Passage Breakdown, Canonical & Apocryphal Journey across 84 Books and a 36-Step Atlas.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
