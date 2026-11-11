@@ -1014,12 +1014,12 @@
             </span>
           </div>
           <div class="flex items-center gap-2">
-            <label class="inline-flex items-center gap-1.5 text-[11px] text-slate-300 cursor-pointer">
-              <input type="checkbox" id="mmShowLabelsChk" checked class="accent-teal-500 rounded" />
-              <span>Show Node &amp; Link Titles</span>
+            <label class="inline-flex items-center gap-1.5 text-[11px] text-slate-300 cursor-pointer" title="By default, only active pathway, hovered, and close-up nodes display labels to prevent visual clutter">
+              <input type="checkbox" id="mmShowLabelsChk" class="accent-teal-500 rounded" />
+              <span>Show All Labels (Override LOD)</span>
             </label>
             <button type="button" id="mmExpandSatellitesBtn" class="px-2 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-teal-300 border border-slate-700 text-[11px] font-medium">
-              ✓ Verse Nodes Active
+              + Spawn Verse Nodes
             </button>
           </div>
         </div>
@@ -1066,39 +1066,64 @@
             </button>
           </div>
 
-          <!-- COLLAPSIBLE BOTTOM INTERACTIVE 4-STAGE PATHWAY EXPLORER DOCK -->
-          <div class="absolute bottom-3 left-1/2 -translate-x-1/2 pointer-events-none flex flex-col items-center z-20 w-[min(960px,94vw)]">
-            <!-- Collapse / Expand Bottom HUD Toggle -->
-            <div class="pointer-events-auto flex items-center gap-2 mb-1">
-              <button type="button" id="mmToggleHudDockBtn"
-                class="px-2.5 py-0.5 rounded-t-md bg-slate-900/95 hover:bg-slate-800 text-teal-300 border border-b-0 border-slate-700 text-[11px] font-semibold shadow-lg">
-                ▾ Hide Pathway Dock (H)
-              </button>
-            </div>
+          <!-- STREAMLINED / AUTO-COMPACTED BOTTOM PATHWAY EXPLORER DOCK (MAX 44PX STRIP + EXPANDABLE FLYOUT + ZERO-OCCLUSION BEZEL TOGGLE) -->
+          <div id="mmBottomDockWrapper" class="absolute bottom-2 left-1/2 -translate-x-1/2 pointer-events-none flex flex-col items-center z-20 w-[min(1020px,96vw)] transition-all duration-300">
+            <!-- Zero-Occlusion Bottom Bezel Restore Tab (Visible only when dock is completely collapsed via H or arrow) -->
+            <button type="button" id="mmRestoreBezelDockBtn"
+              class="hidden pointer-events-auto px-3 py-0.5 rounded-t-md bg-slate-950/90 hover:bg-slate-900 text-teal-300 border border-b-0 border-slate-700/80 text-[10px] font-semibold tracking-wider uppercase shadow-lg backdrop-blur-md transition"
+              title="Restore Pathway Explorer Strip (Hotkey: H)">
+              ▴ Pathway Strip (H)
+            </button>
 
-            <!-- Interactive Pathway Dock Card -->
-            <div id="mmInteractivePathwayDock" class="pointer-events-auto w-full bg-slate-950/95 border border-slate-700/90 rounded-xl p-2.5 shadow-2xl space-y-2">
-              <!-- Live Clickable 4-Stage Pathway Strip (Filled dynamically on every click) -->
+            <!-- Expandable Flyout Tray (1st-Degree Neighbors, Tier Legend & Optional 4-Stage Detail Cards) -->
+            <div id="mmDockFlyoutTray"
+              class="hidden pointer-events-auto w-full mb-1.5 bg-slate-950/95 backdrop-blur-xl border border-slate-700/90 rounded-xl p-2.5 shadow-2xl space-y-2 transition-all duration-200">
+              <!-- Live Clickable 4-Stage Pathway Detail Cards -->
               <div id="mmInteractivePathwayStages" class="grid grid-cols-1 sm:grid-cols-4 gap-1.5 text-xs"></div>
+
+              <!-- 1st-Degree Ripple Neighbors Quick-Pivot Strip -->
+              <div id="mmDockNeighborsRow" class="pt-1 border-t border-slate-800/80 flex flex-wrap items-center gap-1.5 text-[11px]"></div>
 
               <!-- Interactive Clickable Tier Legend & Status Row -->
               <div class="pt-1.5 border-t border-slate-800/90 flex flex-wrap items-center justify-between gap-2 text-[11px] text-slate-300">
                 <div class="flex flex-wrap items-center gap-1.5">
                   <span class="text-[10px] uppercase tracking-wider text-slate-400 font-semibold mr-1">Click Tier to Trace:</span>
-                  <button type="button" data-mm-tier="OT" class="px-2 py-0.5 rounded bg-slate-900 hover:bg-slate-800 border border-slate-700 transition">
-                    <strong style="color:#E69F00">■</strong> OT Roots (39) <code class="text-[10px] text-slate-400">Z=-200</code>
+                  <button type="button" data-mm-tier="OT" class="px-2 py-0.5 rounded bg-slate-900 hover:bg-slate-800 border border-amber-500/50 text-amber-200 transition">
+                    <strong style="color:#f59e0b">■</strong> OT Roots (39) <code class="text-[10px] text-amber-300/80">Z=-200</code>
                   </button>
-                  <button type="button" data-mm-tier="HUB" class="px-2 py-0.5 rounded bg-slate-900 hover:bg-slate-800 border border-slate-700 transition">
-                    <strong style="color:#2dd4bf">❖</strong> Covenant Hubs (12) <code class="text-[10px] text-slate-400">Z=0</code>
+                  <button type="button" data-mm-tier="HUB" class="px-2 py-0.5 rounded bg-slate-900 hover:bg-slate-800 border border-cyan-400/50 text-cyan-200 transition">
+                    <strong style="color:#22d3ee">❖</strong> Covenant Hubs (12) <code class="text-[10px] text-cyan-300/80">Z=0</code>
                   </button>
-                  <button type="button" data-mm-tier="APOCRYPHA" class="px-2 py-0.5 rounded bg-slate-900 hover:bg-slate-800 border border-slate-700 transition">
-                    <strong style="color:#CC79A7">◆</strong> Apocrypha Bridge (18) <code class="text-[10px] text-slate-400">Z=+100</code>
+                  <button type="button" data-mm-tier="APOCRYPHA" class="px-2 py-0.5 rounded bg-slate-900 hover:bg-slate-800 border border-purple-400/50 text-purple-200 transition">
+                    <strong style="color:#c084fc">◆</strong> Apocrypha Bridge (18) <code class="text-[10px] text-purple-300/80">Z=+100</code>
                   </button>
-                  <button type="button" data-mm-tier="NT" class="px-2 py-0.5 rounded bg-slate-900 hover:bg-slate-800 border border-slate-700 transition">
-                    <strong style="color:#56B4E9">●</strong> NT Targets (27) <code class="text-[10px] text-slate-400">Z=+250</code>
+                  <button type="button" data-mm-tier="NT" class="px-2 py-0.5 rounded bg-slate-900 hover:bg-slate-800 border border-teal-400/50 text-teal-200 transition">
+                    <strong style="color:#2dd4bf">●</strong> NT Targets (27) <code class="text-[10px] text-teal-300/80">Z=+250</code>
                   </button>
                 </div>
-                <span class="text-slate-400 text-[10px] hidden md:inline">Click any 3D Node, Label, Ring, Spline Tube, or Stage Card to illuminate pathway</span>
+                <span class="text-slate-400 text-[10px] hidden md:inline">Click any glowing star-point, neighbor, or filament in the constellation to branch &amp; pivot</span>
+              </div>
+            </div>
+
+            <!-- Slim 44px Glassmorphism Inline Breadcrumb Strip -->
+            <div id="mmInteractivePathwayDock"
+              class="pointer-events-auto w-full h-[44px] max-h-[44px] bg-slate-950/85 backdrop-blur-md border border-slate-700/85 rounded-full px-3 shadow-2xl flex items-center justify-between gap-2 overflow-hidden">
+              <!-- Horizontal Inline 4-Stage Breadcrumb Ticker -->
+              <div id="mmCompactBreadcrumbTicker" class="flex items-center gap-1 sm:gap-1.5 overflow-x-auto no-scrollbar py-0.5 text-xs whitespace-nowrap flex-1 min-w-0"></div>
+
+              <!-- Right Controls: Flyout Tray Toggle (Neighbors & Tiers) + Bezel Collapse Button (H) -->
+              <div class="flex items-center gap-1.5 shrink-0">
+                <button type="button" id="mmDockFlyoutBtn"
+                  class="px-2.5 py-1 rounded-full bg-slate-900/95 hover:bg-slate-800 text-amber-300 border border-amber-500/40 text-[11px] font-semibold transition flex items-center gap-1"
+                  title="Hover or click to open 1st-Degree Neighbors, Tier Legend & Stage Details">
+                  <span>✦ Neighbors &amp; Tiers</span>
+                  <span id="mmDockFlyoutCaret">▴</span>
+                </button>
+                <button type="button" id="mmToggleHudDockBtn"
+                  class="w-7 h-7 rounded-full bg-slate-900/95 hover:bg-slate-800 text-slate-300 hover:text-teal-300 border border-slate-700 text-xs font-bold flex items-center justify-center transition"
+                  title="Collapse dock completely into bottom bezel (Hotkey: H)">
+                  ▾
+                </button>
               </div>
             </div>
           </div>
@@ -3607,8 +3632,8 @@
       ttsEngine: "webspeech",     // 'webspeech' | 'neural'
       lastNarrationText: "",
       activeAudio: null,
-      showEdgeTitles: true,
-      spawnSatellites: true,
+      showEdgeTitles: false,      // Default false: LOD culling suppresses background billboards unless active/hovered/close
+      spawnSatellites: false,     // Default false: keep active 4-stage spline uncluttered unless user spawns verse satellites
       windowExpanded: false,
       pageOffset: 0,
       pageSize: 45,
@@ -3657,15 +3682,52 @@
       updateCollapsiblePanelsUI();
     }
 
+    function toggleMindMapDockFlyout(forceState) {
+      mmState.dockFlyoutOpen = typeof forceState === "boolean" ? forceState : !mmState.dockFlyoutOpen;
+      const tray = $("mmDockFlyoutTray");
+      const caret = $("mmDockFlyoutCaret");
+      const btn = $("mmDockFlyoutBtn");
+      if (tray) {
+        tray.classList.toggle("hidden", !mmState.dockFlyoutOpen || mmState.hudDockCollapsed);
+      }
+      if (caret) {
+        caret.textContent = mmState.dockFlyoutOpen ? "▾" : "▴";
+      }
+      if (btn) {
+        btn.classList.toggle("bg-amber-500/20", mmState.dockFlyoutOpen);
+        btn.classList.toggle("border-amber-400", mmState.dockFlyoutOpen);
+      }
+    }
+
+    function compactMindMapDock() {
+      if (mmState.dockFlyoutOpen) {
+        toggleMindMapDockFlyout(false);
+      }
+    }
+
     function toggleMindMapHudDock(forceState) {
       mmState.hudDockCollapsed = typeof forceState === "boolean" ? forceState : !mmState.hudDockCollapsed;
       const dock = $("mmInteractivePathwayDock");
-      const btn = $("mmToggleHudDockBtn");
-      if (dock) {
-        dock.classList.toggle("hidden", mmState.hudDockCollapsed);
-      }
-      if (btn) {
-        btn.textContent = mmState.hudDockCollapsed ? "▴ Show Pathway Dock (H)" : "▾ Hide Pathway Dock (H)";
+      const tray = $("mmDockFlyoutTray");
+      const restoreBezelBtn = $("mmRestoreBezelDockBtn");
+      const wrapper = $("mmBottomDockWrapper");
+
+      if (mmState.hudDockCollapsed) {
+        if (dock) dock.classList.add("hidden");
+        if (tray) tray.classList.add("hidden");
+        if (restoreBezelBtn) restoreBezelBtn.classList.remove("hidden");
+        if (wrapper) {
+          wrapper.classList.remove("bottom-2");
+          wrapper.classList.add("bottom-0");
+        }
+      } else {
+        if (dock) dock.classList.remove("hidden");
+        if (tray) tray.classList.toggle("hidden", !mmState.dockFlyoutOpen);
+        if (restoreBezelBtn) restoreBezelBtn.classList.add("hidden");
+        if (wrapper) {
+          wrapper.classList.remove("bottom-0");
+          wrapper.classList.add("bottom-2");
+        }
       }
     }
 
@@ -3687,6 +3749,8 @@
         };
         mmState.leftPanelCollapsed = true;
         mmState.rightPanelCollapsed = true;
+        // Rule 5: Automatically compact the bottom Pathway Explorer Dock into the slim 44px strip on Full Screen
+        compactMindMapDock();
 
         if (wsEl) {
           wsEl.classList.add("fixed", "inset-0", "z-50", "max-w-none", "w-screen", "h-screen");
@@ -4014,9 +4078,41 @@
       return matches.length > 0 ? matches : CORRIDORS_67K;
     }
 
+    // Rich node summary for hover tooltips & 1st-degree neighbor ripple discovery
+    function getNodeCrossLinkSummary(nodeId) {
+      const corridors = getCorridorsForNode(nodeId);
+      const totalLinks = corridors.reduce((acc, c) => acc + c.count, 0);
+      const sampleCorr = corridors[0] || CORRIDORS_67K[0];
+      const sampleLink = getCrossLinkByNumber(sampleCorr.startId);
+      let primaryCite = sampleLink.apCite;
+      if (sampleCorr.otBook.id === nodeId) primaryCite = sampleLink.otCite;
+      else if (sampleCorr.ntBook.id === nodeId) primaryCite = sampleLink.ntCite;
+      else if (sampleCorr.hub.id === nodeId) primaryCite = `${sampleLink.otCite} → ${sampleLink.apCite} → ${sampleLink.ntCite}`;
+
+      const neighbors = new Set();
+      corridors.slice(0, 14).forEach(c => {
+        if (c.otBook.id !== nodeId) neighbors.add(c.otBook.id);
+        if (c.hub.id !== nodeId) neighbors.add(c.hub.id);
+        if (c.apocBook.id !== nodeId) neighbors.add(c.apocBook.id);
+        if (c.ntBook.id !== nodeId) neighbors.add(c.ntBook.id);
+      });
+
+      return {
+        corridors,
+        corridorCount: corridors.length,
+        totalLinks,
+        sampleLink,
+        primaryCite,
+        triadCite: `${sampleLink.otCite} → ${sampleLink.apCite} → ${sampleLink.ntCite}`,
+        neighbors
+      };
+    }
+
     function focusMindMapNode(nodeId, triggerAudio = true, cycleIfSame = true) {
       if (!nodeId) return;
-      const isSameNode = mmState.focusedNodeId === nodeId;
+      const prevNodeId = mmState.focusedNodeId;
+      const prevLink = getCrossLinkByNumber(mmState.selectedLinkId);
+      const isSameNode = prevNodeId === nodeId;
       mmState.focusedNodeId = nodeId;
       mmState.pathwayPinned = true;
       mmState.pageOffset = 0;
@@ -4032,6 +4128,17 @@
       const nodeCorridors = getCorridorsForNode(nodeId);
       if (isSameNode && cycleIfSame && nodeCorridors.length > 1) {
         mmState.nodeCorridorIndex = (mmState.nodeCorridorIndex + 1) % nodeCorridors.length;
+      } else if (!isSameNode && prevLink) {
+        // Branch / Pivot: if clicked node shares a direct corridor with the previously active node or pathway, pivot smoothly along that bridge first
+        const bridgeIdx = nodeCorridors.findIndex(c =>
+          c.otBook.id === prevNodeId ||
+          c.hub.id === prevNodeId ||
+          c.apocBook.id === prevNodeId ||
+          c.ntBook.id === prevNodeId ||
+          c.hub.id === prevLink.hub.id ||
+          c.apocBook.id === prevLink.apocBook.id
+        );
+        mmState.nodeCorridorIndex = bridgeIdx >= 0 ? bridgeIdx : 0;
       } else {
         mmState.nodeCorridorIndex = 0;
       }
@@ -4122,16 +4229,18 @@
       }
     }
 
-    // Render Right Top Inspector AND the Bottom Interactive 4-Stage Pathway Dock
+    // Render Right Top Inspector AND the Bottom Streamlined 4-Stage Pathway Strip + Flyout Tray
     function renderMindMapActiveLink() {
       const card = $("mmActiveLinkCard");
       const splineBadge = $("mmPinnedPathwayBadge");
       const pinBtn = $("mmPinPathwayBtn");
       const stagesEl = $("mmInteractivePathwayStages");
+      const tickerEl = $("mmCompactBreadcrumbTicker");
+      const neighborsRowEl = $("mmDockNeighborsRow");
       const lnk = getCrossLinkByNumber(mmState.selectedLinkId);
 
       if (splineBadge) {
-        splineBadge.textContent = `${mmState.pathwayPinned ? "📌 Pinned Spline:" : "Spline:"} ${lnk.otCite} (Z=-200) → ${lnk.hub.shortTitle} (Z=0) → ${lnk.apCite} (Z=+100) → ${lnk.ntCite} (Z=+250)`;
+        splineBadge.textContent = `${mmState.pathwayPinned ? "📌 Active Constellation Pathway:" : "Pathway:"} ${lnk.otCite} (Z=-200) → ${lnk.hub.shortTitle} (Z=0) → ${lnk.apCite} (Z=+100) → ${lnk.ntCite} (Z=+250)`;
       }
       if (pinBtn) {
         pinBtn.textContent = mmState.pathwayPinned ? "📌 Pathway Pinned" : "📍 Pin Pathway";
@@ -4144,47 +4253,71 @@
       const tAp = getTradition(lnk.apocBook.tradition);
       const tNt = getTradition(lnk.ntBook.tradition);
 
-      // Populate Interactive 4-Stage Pathway Explorer Dock on the Canvas
-      if (stagesEl) {
-        const stages = [
-          {
-            num: "1",
-            tier: "OT ROOT · Z=-200",
-            nodeId: lnk.otBook.id,
-            cite: lnk.otCite,
-            sub: lnk.otBook.title,
-            color: tOt.color,
-            symbol: tOt.symbol
-          },
-          {
-            num: "2",
-            tier: "COVENANT HUB · Z=0",
-            nodeId: lnk.hub.id,
-            cite: lnk.hub.shortTitle,
-            sub: `${lnk.hub.count.toLocaleString()} Cross-Links`,
-            color: "#2dd4bf",
-            symbol: "❖"
-          },
-          {
-            num: "3",
-            tier: "APOCRYPHA BRIDGE · Z=+100",
-            nodeId: lnk.apocBook.id,
-            cite: lnk.apCite,
-            sub: lnk.apocBook.canon.split(" /")[0],
-            color: tAp.color,
-            symbol: tAp.symbol
-          },
-          {
-            num: "4",
-            tier: "NT TARGET · Z=+250",
-            nodeId: lnk.ntBook.id,
-            cite: lnk.ntCite,
-            sub: lnk.ntBook.title,
-            color: tNt.color,
-            symbol: tNt.symbol
-          }
-        ];
+      const stages = [
+        {
+          num: "1",
+          tier: "OT ROOT · Z=-200",
+          nodeId: lnk.otBook.id,
+          cite: lnk.otCite,
+          sub: lnk.otBook.title,
+          color: "#f59e0b",
+          symbol: tOt.symbol
+        },
+        {
+          num: "2",
+          tier: "COVENANT HUB · Z=0",
+          nodeId: lnk.hub.id,
+          cite: lnk.hub.shortTitle,
+          sub: `${lnk.hub.count.toLocaleString()} Cross-Links`,
+          color: "#22d3ee",
+          symbol: "❖"
+        },
+        {
+          num: "3",
+          tier: "APOCRYPHA BRIDGE · Z=+100",
+          nodeId: lnk.apocBook.id,
+          cite: lnk.apCite,
+          sub: lnk.apocBook.canon.split(" /")[0],
+          color: "#c084fc",
+          symbol: tAp.symbol
+        },
+        {
+          num: "4",
+          tier: "NT TARGET · Z=+250",
+          nodeId: lnk.ntBook.id,
+          cite: lnk.ntCite,
+          sub: lnk.ntBook.title,
+          color: "#2dd4bf",
+          symbol: tNt.symbol
+        }
+      ];
 
+      // Rule 5: Populate Slim 44px Horizontal Inline Breadcrumb/Ticker
+      if (tickerEl) {
+        tickerEl.innerHTML = stages.map((st, idx) => {
+          const isFocused = mmState.focusedNodeId === st.nodeId;
+          return `
+            <button type="button" data-mm-ticker-node="${st.nodeId}"
+              style="border-color:${st.color}; box-shadow:${isFocused ? `0 0 12px ${st.color}55` : "none"}"
+              class="px-2.5 py-1 rounded-full border text-[11px] font-semibold transition flex items-center gap-1 shrink-0 ${isFocused ? "bg-slate-800 text-white" : "bg-slate-900/90 hover:bg-slate-800/90 text-slate-100"}"
+              title="${st.tier} — ${st.sub} (Click to focus & cycle stage)">
+              <span class="font-mono font-bold" style="color:${st.color}">${st.num}.</span>
+              <span class="truncate max-w-[165px]">${st.cite}</span>
+            </button>
+            ${idx < 3 ? `<span class="text-slate-400 text-[11px] font-bold px-0.5 select-none">➔</span>` : ""}
+          `;
+        }).join("");
+
+        tickerEl.querySelectorAll("[data-mm-ticker-node]").forEach(btn => {
+          btn.addEventListener("click", () => {
+            const nid = btn.getAttribute("data-mm-ticker-node");
+            focusMindMapNode(nid, true, true);
+          });
+        });
+      }
+
+      // Populate Expandable Flyout 4-Stage Detail Cards
+      if (stagesEl) {
         stagesEl.innerHTML = stages.map((st, idx) => {
           const isFocused = mmState.focusedNodeId === st.nodeId;
           return `
@@ -4206,6 +4339,41 @@
             focusMindMapNode(nid, true, true);
           });
         });
+      }
+
+      // Populate 1st-Degree Ripple Neighbors Row so users can see & pivot to connected neighbors with 1 click
+      if (neighborsRowEl) {
+        const activeSet = new Set([lnk.otBook.id, lnk.hub.id, lnk.apocBook.id, lnk.ntBook.id]);
+        const summary = getNodeCrossLinkSummary(mmState.focusedNodeId || lnk.apocBook.id);
+        const neighborList = Array.from(summary.neighbors)
+          .filter(nid => !activeSet.has(nid))
+          .slice(0, 7);
+
+        if (neighborList.length > 0) {
+          neighborsRowEl.innerHTML = `
+            <span class="text-[10px] uppercase tracking-wider text-amber-300/90 font-semibold mr-1">✦ 1st-Degree Neighbors (Click to Branch):</span>
+            ${neighborList.map(nid => {
+              const b = BOOKS.find(x => x.id === nid);
+              const h = MINDMAP_HUBS.find(x => x.id === nid);
+              const label = h ? `❖ ${h.shortTitle}` : (b ? b.title.split(" (")[0] : nid);
+              const col = h ? "#2dd4bf" : (b ? getTradition(b.tradition).color : "#94a3b8");
+              return `
+                <button type="button" data-mm-branch-node="${nid}"
+                  class="px-2 py-0.5 rounded bg-slate-900/90 hover:bg-slate-800 border border-slate-700/90 text-[10px] font-medium text-slate-200 transition flex items-center gap-1">
+                  <span style="color:${col}">●</span> ${label}
+                </button>
+              `;
+            }).join("")}
+          `;
+          neighborsRowEl.querySelectorAll("[data-mm-branch-node]").forEach(btn => {
+            btn.addEventListener("click", () => {
+              const nid = btn.getAttribute("data-mm-branch-node");
+              focusMindMapNode(nid, true, false);
+            });
+          });
+        } else {
+          neighborsRowEl.innerHTML = "";
+        }
       }
 
       if (!card) return;
@@ -4361,7 +4529,7 @@
 
     // =========================================================
     // UPGRADES 2 & 3: 3D INTERACTIVE MIND MAP (THREE.JS / WEBGL)
-    // + 3D LUMINOUS SPLINE PATHWAY TRACING & PINNING
+    // + LIVING CONSTELLATION, RIPPLE NEIGHBORS & SPLINE TRACING
     // =========================================================
     const mm3D = {
       initialized: false,
@@ -4373,11 +4541,14 @@
       pointer: null,
       nodeGroup: null,
       splineGroup: null,
+      hoverLinesGroup: null,
       planeGuidesGroup: null,
-      nodeMap3D: new Map(),     // id -> { id, kind, pos, group, coreMesh, ringMesh, labelSprite, data, color }
-      pickables: [],            // meshes for raycasting
+      starGlowTexture: null,
+      nodeMap3D: new Map(),     // id -> { id, kind, pos, group, coreMesh, starHalo, ringMesh, labelSprite, data, color, isPinnedNode, isNeighborNode, baseOpacity, baseEmissive }
+      pickables: [],            // meshes, hit-spheres & hairlines for raycasting
       pulseOrbs: [],            // animated traveling spheres along pinned CatmullRomCurve3 spline
       hoveredMesh: null,
+      hoveredNodeId: null,
       cameraLerpActive: false,
       desiredCamPos: null,
       desiredTarget: null,
@@ -4385,44 +4556,80 @@
       isSoftwareGl: false
     };
 
-    function createLabelSprite(THREE, text, subText, borderColor, isHub) {
+    // Crisp pinprick radial star-glow texture (tight core, no bloated plate falloff)
+    function getStarGlowTexture(THREE) {
+      if (mm3D.starGlowTexture) return mm3D.starGlowTexture;
       const canvas = document.createElement("canvas");
-      canvas.width = 512;
+      canvas.width = 128;
       canvas.height = 128;
       const ctx = canvas.getContext("2d");
+      const grad = ctx.createRadialGradient(64, 64, 1.5, 64, 64, 56);
+      grad.addColorStop(0.0, "rgba(255, 255, 255, 1.0)");
+      grad.addColorStop(0.18, "rgba(255, 255, 255, 0.55)");
+      grad.addColorStop(0.45, "rgba(255, 255, 255, 0.12)");
+      grad.addColorStop(1.0, "rgba(255, 255, 255, 0.0)");
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, 128, 128);
+      const tex = new THREE.CanvasTexture(canvas);
+      tex.colorSpace = THREE.SRGBColorSpace;
+      mm3D.starGlowTexture = tex;
+      return tex;
+    }
 
-      // Rounded dark slate badge with glowing border
-      ctx.fillStyle = "rgba(9, 13, 22, 0.90)";
-      ctx.strokeStyle = borderColor || "#2dd4bf";
-      ctx.lineWidth = isHub ? 5 : 3.5;
+    // Tier-based constellation star & badge border color (Gold for OT, Cyan for Covenant, Purple for Apocrypha, Teal for NT)
+    function getConstellationTierColor(kind, tradition) {
+      if (kind === "hub") return "#22d3ee";            // Luminous Covenant Hub Cyan
+      if (tradition === "OT") return "#f59e0b";        // Warm OT Gold
+      if (tradition === "APOCRYPHA") return "#c084fc"; // Glowing Apocrypha Purple / Amethyst
+      return "#2dd4bf";                                // Celestial NT Teal
+    }
 
-      const rx = 18;
-      const pad = 8;
+    // Rule 1: Elegant 3D Floating Pill Billboards with glowing tier-colored capsule borders
+    function createLabelSprite(THREE, text, subText, borderColor, isHub) {
+      const canvas = document.createElement("canvas");
+      canvas.width = 640;
+      canvas.height = 148;
+      const ctx = canvas.getContext("2d");
+
+      const pad = 16;
       const w = canvas.width - pad * 2;
       const h = canvas.height - pad * 2;
+      const rx = h / 2; // True capsule / pill geometry
+
+      // Outer neon glow pass
+      ctx.save();
+      ctx.shadowColor = borderColor || "#22d3ee";
+      ctx.shadowBlur = 16;
+      ctx.fillStyle = "rgba(7, 11, 20, 0.94)";
+      ctx.strokeStyle = borderColor || "#22d3ee";
+      ctx.lineWidth = isHub ? 5.5 : 4.5;
+
       ctx.beginPath();
       ctx.moveTo(pad + rx, pad);
       ctx.lineTo(pad + w - rx, pad);
-      ctx.quadraticCurveTo(pad + w, pad, pad + w, pad + rx);
-      ctx.lineTo(pad + w, pad + h - rx);
-      ctx.quadraticCurveTo(pad + w, pad + h, pad + w - rx, pad + h);
+      ctx.arc(pad + w - rx, pad + rx, rx, -Math.PI / 2, Math.PI / 2);
       ctx.lineTo(pad + rx, pad + h);
-      ctx.quadraticCurveTo(pad, pad + h, pad, pad + h - rx);
-      ctx.lineTo(pad, pad + rx);
-      ctx.quadraticCurveTo(pad, pad, pad + rx, pad);
+      ctx.arc(pad + rx, pad + rx, rx, Math.PI / 2, -Math.PI / 2);
       ctx.closePath();
       ctx.fill();
       ctx.stroke();
+      ctx.restore();
 
+      // Subtle inner highlight rim
+      ctx.strokeStyle = "rgba(255, 255, 255, 0.16)";
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+
+      // Crisp primary scripture / hub title
       ctx.textAlign = "center";
-      ctx.fillStyle = "#f8fafc";
-      ctx.font = isHub ? "bold 34px system-ui, sans-serif" : "bold 30px system-ui, sans-serif";
-      ctx.fillText(String(text).slice(0, 28), canvas.width / 2, subText ? 56 : 74);
+      ctx.fillStyle = "#ffffff";
+      ctx.font = "bold 33px system-ui, -apple-system, sans-serif";
+      ctx.fillText(String(text).slice(0, 32), canvas.width / 2, subText ? 66 : 84);
 
       if (subText) {
         ctx.fillStyle = borderColor || "#94a3b8";
-        ctx.font = "600 22px monospace";
-        ctx.fillText(String(subText).slice(0, 34), canvas.width / 2, 94);
+        ctx.font = "700 20px ui-monospace, SFMono-Regular, monospace";
+        ctx.fillText(String(subText).slice(0, 38), canvas.width / 2, 104);
       }
 
       const texture = new THREE.CanvasTexture(canvas);
@@ -4433,73 +4640,140 @@
         depthWrite: false
       });
       const sprite = new THREE.Sprite(material);
-      sprite.scale.set(isHub ? 42 : 32, isHub ? 10.5 : 8, 1);
+      sprite.scale.set(isHub ? 44 : 38, isHub ? 10.2 : 8.8, 1);
+      return sprite;
+    }
+
+    // Rule 2: Subtle, stylish 3D stratum watermarks in the background margin for historical era progression
+    function createStratumWatermarkSprite(THREE, eraNum, titleText, subEraText, colorHex) {
+      const canvas = document.createElement("canvas");
+      canvas.width = 768;
+      canvas.height = 192;
+      const ctx = canvas.getContext("2d");
+
+      ctx.textAlign = "left";
+      ctx.fillStyle = colorHex || "#38bdf8";
+      ctx.globalAlpha = 0.85;
+      ctx.font = "900 22px ui-monospace, SFMono-Regular, monospace";
+      ctx.fillText(`STRATUM ${eraNum} · ${subEraText}`, 24, 54);
+
+      ctx.fillStyle = "#f8fafc";
+      ctx.font = "800 42px system-ui, -apple-system, sans-serif";
+      ctx.fillText(titleText, 24, 108);
+
+      ctx.strokeStyle = colorHex || "#38bdf8";
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.moveTo(24, 132);
+      ctx.lineTo(460, 132);
+      ctx.stroke();
+
+      const texture = new THREE.CanvasTexture(canvas);
+      texture.colorSpace = THREE.SRGBColorSpace;
+      const material = new THREE.SpriteMaterial({
+        map: texture,
+        transparent: true,
+        opacity: 0.28,
+        depthWrite: false
+      });
+      const sprite = new THREE.Sprite(material);
+      sprite.scale.set(92, 23, 1);
       return sprite;
     }
 
     function compute3DNodeCoordinates(id, kind, index, totalInTier, tradition) {
-      // Mode A: 3D Depth Planes (Z-Stratified: OT = -200, Hubs = 0, Apocrypha = +100, NT = +250)
+      // Mode A: 3D Depth Planes at canonical Z-planes (Z=-200 OT Roots, Z=0 Covenant Hubs, Z=+100 Apocrypha, Z=+250 NT Targets)
       if (mmState.layout === "3d-planes") {
         if (kind === "hub") {
-          // 12 Thematic Hubs arranged in a luminous central ring at Z = 0
+          // Center Stratum Clearance — wide elliptical ring + subtle Z-offsets around Z=0 so Covenant Hubs never intersect
           const angle = (index / totalInTier) * Math.PI * 2 - Math.PI / 2;
-          const radius = 115;
+          const radialStagger = (index % 2 === 0) ? 178 : 142;
+          const zStagger = ((index % 3) - 1) * 18;
           return {
-            x: Math.cos(angle) * radius,
-            y: Math.sin(angle) * radius * 0.78,
-            z: 0
+            x: Math.cos(angle) * radialStagger,
+            y: Math.sin(angle) * (radialStagger * 0.76),
+            z: zStagger
           };
         }
         if (tradition === "OT") {
-          // 39 OT Books arranged in a 7x6 grid plane at Z = -200
+          // 39 OT Books arranged in a well-spaced 7x6 grid plane at Z = -200
           const cols = 7;
           const col = index % cols;
           const row = Math.floor(index / cols);
           return {
-            x: (col - 3) * 64,
-            y: (2.5 - row) * 44,
+            x: (col - 3) * 74 + ((row % 2) * 14 - 7),
+            y: (2.5 - row) * 50,
             z: -200
           };
         }
         if (tradition === "APOCRYPHA") {
-          // 18 Apocrypha & Ethiopian Books arranged in a 6x3 bridge plane at Z = +100
+          // 18 Apocrypha & Ethiopian Books arranged in a well-spaced 6x3 bridge plane at Z = +100
           const cols = 6;
           const col = index % cols;
           const row = Math.floor(index / cols);
           return {
-            x: (col - 2.5) * 66,
-            y: (1 - row) * 58,
+            x: (col - 2.5) * 76 + ((row % 2) * 16 - 8),
+            y: (1 - row) * 66,
             z: 100
           };
         }
-        // 27 NT Books arranged in a 7x4 target plane at Z = +250
+        // 27 NT Books arranged in a well-spaced 7x4 target plane at Z = +250
         const cols = 7;
         const col = index % cols;
         const row = Math.floor(index / cols);
         return {
-          x: (col - 3) * 60,
-          y: (1.5 - row) * 52,
+          x: (col - 3) * 70 + ((row % 2) * 14 - 7),
+          y: (1.5 - row) * 58,
           z: 250
         };
       }
 
-      // Mode B: 3D Celestial Cylinder / Sphere
+      // Mode B: 3D Celestial Cylinder / Sphere with Hub Clearance
       if (kind === "hub") {
         const angle = (index / totalInTier) * Math.PI * 2;
+        const rHub = (index % 2 === 0) ? 115 : 88;
         return {
-          x: Math.cos(angle) * 75,
-          y: ((index % 3) - 1) * 32,
-          z: Math.sin(angle) * 75
+          x: Math.cos(angle) * rHub,
+          y: ((index % 3) - 1) * 44,
+          z: Math.sin(angle) * rHub
         };
       }
-      const tierRadius = tradition === "OT" ? 260 : (tradition === "APOCRYPHA" ? 175 : 220);
-      const tierYOffset = tradition === "OT" ? -95 : (tradition === "APOCRYPHA" ? 0 : 95);
+      const tierRadius = tradition === "OT" ? 280 : (tradition === "APOCRYPHA" ? 190 : 235);
+      const tierYOffset = tradition === "OT" ? -105 : (tradition === "APOCRYPHA" ? 0 : 105);
       const angle = (index / totalInTier) * Math.PI * 2;
       return {
         x: Math.cos(angle) * tierRadius,
-        y: tierYOffset + Math.sin(index * 1.7) * 28,
+        y: tierYOffset + Math.sin(index * 1.7) * 34,
         z: Math.sin(angle) * tierRadius
       };
+    }
+
+    // Force-separation pass to guarantee minimum spacing between nodes and eliminate center hotspots
+    function apply3DForceSeparation(nodeSpecs, minClearance = 44) {
+      const iterations = 6;
+      for (let iter = 0; iter < iterations; iter++) {
+        for (let i = 0; i < nodeSpecs.length; i++) {
+          for (let j = i + 1; j < nodeSpecs.length; j++) {
+            const a = nodeSpecs[i].pos;
+            const b = nodeSpecs[j].pos;
+            const dz = a.z - b.z;
+            if (Math.abs(dz) > 65) continue;
+            const dx = b.x - a.x;
+            const dy = b.y - a.y;
+            const dist = Math.hypot(dx, dy) || 0.001;
+            const reqDist = (nodeSpecs[i].kind === "hub" || nodeSpecs[j].kind === "hub") ? minClearance * 1.25 : minClearance;
+            if (dist < reqDist) {
+              const push = (reqDist - dist) * 0.5;
+              const nx = dx / dist;
+              const ny = dy / dist;
+              a.x -= nx * push;
+              a.y -= ny * push;
+              b.x += nx * push;
+              b.y += ny * push;
+            }
+          }
+        }
+      }
     }
 
     function initMindMap3D() {
@@ -4515,11 +4789,12 @@
       const height = container.clientHeight || 680;
 
       const scene = new THREE.Scene();
-      scene.background = new THREE.Color(0x070b14);
-      scene.fog = new THREE.FogExp2(0x070b14, 0.00085);
+      scene.background = new THREE.Color(0x060a12);
+      scene.fog = new THREE.FogExp2(0x060a12, 0.00048);
 
-      const camera = new THREE.PerspectiveCamera(48, width / height, 1, 3000);
-      camera.position.set(160, 95, 540);
+      // Rule 4: Dynamic 3/4 Isometric Perspective (elevated top-down pitch & oblique angle so Z-planes are immediately felt)
+      const camera = new THREE.PerspectiveCamera(46, width / height, 1, 3600);
+      camera.position.set(295, 225, 560);
 
       const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: "high-performance" });
       const gl = renderer.getContext();
@@ -4530,7 +4805,7 @@
       renderer.setPixelRatio(mm3D.isSoftwareGl ? 1 : Math.min(window.devicePixelRatio || 1, 2));
       renderer.setSize(width, height);
       renderer.toneMapping = THREE.ACESFilmicToneMapping;
-      renderer.toneMappingExposure = 1.12;
+      renderer.toneMappingExposure = 1.18;
       renderer.outputColorSpace = THREE.SRGBColorSpace;
 
       container.innerHTML = "";
@@ -4547,23 +4822,24 @@
       scene.add(hemiLight);
 
       const keyLight = new THREE.DirectionalLight(0xfffbeb, 1.8);
-      keyLight.position.set(220, 340, 280);
+      keyLight.position.set(240, 360, 290);
       scene.add(keyLight);
 
-      const rimLight = new THREE.PointLight(0x2dd4bf, 2.2, 900);
+      const rimLight = new THREE.PointLight(0x2dd4bf, 2.0, 950);
       rimLight.position.set(-220, -120, 40);
       scene.add(rimLight);
 
       const controls = new OrbitControls(camera, renderer.domElement);
       controls.enableDamping = true;
       controls.dampingFactor = 0.06;
-      controls.maxDistance = 1350;
-      controls.minDistance = 45;
-      controls.target.set(0, 0, 25);
+      controls.maxDistance = 1600;
+      controls.minDistance = 55;
+      controls.target.set(0, -10, 35);
 
-      // Cancel automatic camera lerp when the user grabs the scene to orbit/pan
+      // Cancel automatic camera lerp & auto-compact bottom dock flyout when user begins active camera navigation
       controls.addEventListener("start", () => {
         mm3D.cameraLerpActive = false;
+        compactMindMapDock();
       });
 
       mm3D.scene = scene;
@@ -4574,16 +4850,82 @@
       mm3D.pointer = new THREE.Vector2();
       mm3D.nodeGroup = new THREE.Group();
       mm3D.splineGroup = new THREE.Group();
+      mm3D.hoverLinesGroup = new THREE.Group();
       mm3D.planeGuidesGroup = new THREE.Group();
-      mm3D.desiredCamPos = new THREE.Vector3(160, 95, 540);
-      mm3D.desiredTarget = new THREE.Vector3(0, 0, 25);
+      mm3D.desiredCamPos = new THREE.Vector3(295, 225, 560);
+      mm3D.desiredTarget = new THREE.Vector3(0, -10, 35);
       mm3D.clock = new THREE.Clock();
 
       scene.add(mm3D.planeGuidesGroup);
       scene.add(mm3D.splineGroup);
+      scene.add(mm3D.hoverLinesGroup);
       scene.add(mm3D.nodeGroup);
 
-      // Pointer click & hover raycasting on ALL 3D objects (nodes, labels, rings, corridor tubes, spline stages, stratum headers)
+      mm3D.raycaster.params.Line.threshold = 4.5;
+
+      // Hover-Only Local Expansion — Only the hovered node scales up by 1.5x and gently illuminates its immediate connecting lines
+      function setHovered3DNode(newHoverId) {
+        if (mm3D.hoveredNodeId === newHoverId) return;
+        mm3D.hoveredNodeId = newHoverId;
+        mm3D.hoverLinesGroup.clear();
+
+        mm3D.nodeMap3D.forEach((entry) => {
+          entry.group.scale.set(1, 1, 1);
+          if (entry.coreMesh) {
+            entry.coreMesh.material.color.set(entry.color);
+            entry.coreMesh.material.emissive.set(entry.color);
+            entry.coreMesh.material.emissiveIntensity = entry.baseEmissive;
+            entry.coreMesh.material.opacity = entry.baseOpacity;
+          }
+          if (entry.starHalo) {
+            entry.starHalo.material.opacity = entry.baseHaloOpacity;
+          }
+        });
+
+        if (!newHoverId || !mm3D.nodeMap3D.has(newHoverId)) return;
+
+        const hoveredEntry = mm3D.nodeMap3D.get(newHoverId);
+        hoveredEntry.group.scale.set(1.5, 1.5, 1.5);
+        if (hoveredEntry.coreMesh) {
+          hoveredEntry.coreMesh.material.color.setHex(0xfffbeb);
+          hoveredEntry.coreMesh.material.emissive.set(hoveredEntry.color);
+          hoveredEntry.coreMesh.material.emissiveIntensity = 1.0;
+          hoveredEntry.coreMesh.material.opacity = 1.0;
+        }
+        if (hoveredEntry.starHalo) {
+          hoveredEntry.starHalo.material.opacity = 0.65;
+        }
+
+        const hoverCorridors = getCorridorsForNode(newHoverId).slice(0, 8);
+        hoverCorridors.forEach((c, idx) => {
+          const otE = mm3D.nodeMap3D.get(c.otBook.id);
+          const hubE = mm3D.nodeMap3D.get(c.hub.id);
+          const apE = mm3D.nodeMap3D.get(c.apocBook.id);
+          const ntE = mm3D.nodeMap3D.get(c.ntBook.id);
+          if (!otE || !hubE || !apE || !ntE) return;
+
+          const curve = new THREE.CatmullRomCurve3([
+            new THREE.Vector3(otE.pos.x, otE.pos.y, otE.pos.z),
+            new THREE.Vector3(hubE.pos.x, hubE.pos.y, hubE.pos.z),
+            new THREE.Vector3(apE.pos.x, apE.pos.y, apE.pos.z),
+            new THREE.Vector3(ntE.pos.x, ntE.pos.y, ntE.pos.z)
+          ]);
+          const pts = curve.getPoints(32);
+          const lineGeo = new THREE.BufferGeometry().setFromPoints(pts);
+          const lineMat = new THREE.LineBasicMaterial({
+            color: idx === 0 ? 0xfef08a : 0x5eead4,
+            transparent: true,
+            opacity: idx === 0 ? 0.65 : 0.35,
+            depthTest: false,
+            depthWrite: false
+          });
+          const hoverLine = new THREE.Line(lineGeo, lineMat);
+          hoverLine.renderOrder = 990;
+          mm3D.hoverLinesGroup.add(hoverLine);
+        });
+      }
+
+      // Pointer click & hover raycasting on ALL 3D objects
       let downPos = { x: 0, y: 0 };
       renderer.domElement.addEventListener("pointerdown", (e) => {
         downPos = { x: e.clientX, y: e.clientY };
@@ -4601,6 +4943,8 @@
           const hitObj = hits[0].object;
           const meta = hitObj.userData;
           renderer.domElement.style.cursor = "pointer";
+          setHovered3DNode(meta?.id || null);
+
           if (tooltip && meta) {
             if (meta.kind === "verse") {
               tooltip.innerHTML = `
@@ -4611,42 +4955,46 @@
               `;
             } else if (meta.kind === "corridor") {
               tooltip.innerHTML = `
-                <div class="font-bold text-sky-300">3D Pathway Corridor (${meta.corridor.count.toLocaleString()} Links)</div>
+                <div class="font-bold text-sky-300">Pathway Corridor (${meta.corridor.count.toLocaleString()} Cross-Links)</div>
                 <div class="text-[11px] font-mono text-teal-300 mt-0.5">${meta.data.otCite} → ${meta.corridor.hub.shortTitle} → ${meta.data.apCite} → ${meta.data.ntCite}</div>
                 <div class="text-[11px] text-slate-200 mt-1">${meta.data.title}</div>
-                <div class="text-[10px] text-amber-300 mt-1">Click tube to activate &amp; trace this 4-stage spline</div>
+                <div class="text-[10px] text-amber-300 mt-1">Click filament to pivot &amp; trace this 4-stage spline</div>
               `;
             } else if (meta.kind === "pathway-stage") {
               tooltip.innerHTML = `
-                <div class="font-bold text-amber-300">📌 Active Spline: ${meta.stageTitle}</div>
+                <div class="font-bold text-amber-300">📌 Active Energy Spline: ${meta.stageTitle}</div>
                 <div class="text-[11px] font-mono text-teal-300 mt-0.5">${meta.data.otCite} → ${meta.data.hub.shortTitle} → ${meta.data.apCite} → ${meta.data.ntCite}</div>
                 <div class="text-[10px] text-slate-300 mt-1">Click to focus stage &amp; cycle connected pathways</div>
               `;
             } else if (meta.kind === "tier") {
               tooltip.innerHTML = `
                 <div class="font-bold text-teal-300">${meta.title}</div>
-                <div class="text-[11px] text-slate-300 mt-0.5">Click stratum banner to cycle pathways across this canonical tier</div>
+                <div class="text-[11px] text-slate-300 mt-0.5">Click stratum watermark to cycle pathways across this canonical tier</div>
               `;
-            } else if (meta.kind === "hub") {
+            } else if (meta.kind === "hub" && meta.data) {
+              const sum = getNodeCrossLinkSummary(meta.id);
               tooltip.innerHTML = `
-                <div class="font-bold text-teal-300">❖ ${meta.data.title} (Z=0 Hub)</div>
-                <div class="text-[11px] font-mono text-slate-300">${meta.data.count.toLocaleString()} Cross-Links</div>
-                <div class="text-[11px] text-slate-400 mt-1">${meta.data.desc}</div>
-                <div class="text-[10px] text-amber-300 mt-1">Click to illuminate hub pathways (click again to cycle)</div>
+                <div class="font-bold text-cyan-300">❖ ${meta.data.title} <span class="text-[10px] font-mono text-slate-400">(Z=0 Hub)</span></div>
+                <div class="text-[11px] font-mono text-amber-300 mt-0.5">${sum.triadCite}</div>
+                <div class="text-[11px] font-mono text-slate-200 mt-0.5">${meta.data.count.toLocaleString()} Cross-Links · ${sum.corridorCount} Corridors</div>
+                <div class="text-[10px] text-teal-300 mt-1">Click to branch &amp; pivot pathway explorer to this hub</div>
               `;
             } else if (meta.data) {
-              const zDepth = meta.data.tradition === "OT" ? "Z = -200" : (meta.data.tradition === "APOCRYPHA" ? "Z = +100" : "Z = +250");
+              const sum = getNodeCrossLinkSummary(meta.id);
+              const zDepth = meta.data.tradition === "OT" ? "OT Root · Z=-200" : (meta.data.tradition === "APOCRYPHA" ? "Apocrypha Bridge · Z=+100" : "NT Target · Z=+250");
               tooltip.innerHTML = `
                 <div class="font-bold text-white">${meta.data.title} <span class="text-teal-300 font-mono text-[10px]">(${zDepth})</span></div>
-                <div class="text-[11px] text-teal-300">${meta.data.writerTrad} · ${meta.data.date}</div>
-                <div class="text-[11px] text-slate-400 mt-0.5">${meta.data.canon} — Click to trace 4-stage spline (click again for next pathway)</div>
+                <div class="text-[11px] font-mono text-amber-300 mt-0.5">Ref: ${sum.primaryCite} <span class="text-slate-400">(${sum.triadCite})</span></div>
+                <div class="text-[11px] font-mono text-slate-200 mt-0.5">${sum.totalLinks.toLocaleString()} Cross-Links across ${sum.corridorCount} Corridors</div>
+                <div class="text-[10px] text-teal-300 mt-1">Click star-point to branch &amp; pivot pathway explorer here</div>
               `;
             }
             tooltip.classList.remove("hidden");
-            tooltip.style.left = `${Math.min(rect.width - 260, e.clientX - rect.left + 14)}px`;
+            tooltip.style.left = `${Math.min(rect.width - 280, e.clientX - rect.left + 14)}px`;
             tooltip.style.top = `${Math.max(12, e.clientY - rect.top - 12)}px`;
           }
         } else {
+          setHovered3DNode(null);
           renderer.domElement.style.cursor = "grab";
           if (tooltip) tooltip.classList.add("hidden");
         }
@@ -4654,7 +5002,7 @@
 
       renderer.domElement.addEventListener("pointerup", (e) => {
         const dist = Math.hypot(e.clientX - downPos.x, e.clientY - downPos.y);
-        if (dist > 6) return; // Ignore orbit drag
+        if (dist > 6) return;
         const rect = renderer.domElement.getBoundingClientRect();
         mm3D.pointer.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
         mm3D.pointer.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
@@ -4678,7 +5026,7 @@
       window.addEventListener("resize", resizeMindMap3D);
       mm3D.initialized = true;
 
-      // Start 3D animation loop
+      // Start 3D animation loop with Flowing Energy Particle Splines & Active Path Pill Billboards
       function animate3D() {
         requestAnimationFrame(animate3D);
         if (state.workspace !== "mindmap" || !mmState.layout.startsWith("3d")) return;
@@ -4686,7 +5034,7 @@
         const dt = Math.min(mm3D.clock.getDelta(), 0.1);
         const elapsed = mm3D.clock.getElapsedTime();
 
-        // Smoothly damp camera and target toward focused node or pinned spline
+        // Smoothly damp camera and target toward elevated 3/4 isometric framing
         if (mm3D.cameraLerpActive && mm3D.desiredCamPos && mm3D.desiredTarget) {
           const damp = THREE.MathUtils.damp;
           mm3D.camera.position.x = damp(mm3D.camera.position.x, mm3D.desiredCamPos.x, 3.8, dt);
@@ -4702,17 +5050,37 @@
           }
         }
 
-        // Animate luminous pulse spheres traveling along the pinned OT -> Hub -> Apocrypha -> NT spline
+        // Rule 3: Animate flowing energy light pulses sequentially from Stage 1 (OT Gold) -> Stage 2 (Cyan) -> Stage 3 (Purple) -> Stage 4 (Teal)
         mm3D.pulseOrbs.forEach((orbObj) => {
           const t = (elapsed * orbObj.speed + orbObj.offset) % 1;
           const pt = orbObj.curve.getPointAt(t);
           orbObj.mesh.position.copy(pt);
+          if (orbObj.colorStops && orbObj.spriteMat) {
+            // Interpolate tier color smoothly along t (0 -> 0.33 -> 0.66 -> 1.0)
+            const scaled = t * (orbObj.colorStops.length - 1);
+            const idx = Math.min(orbObj.colorStops.length - 2, Math.floor(scaled));
+            const frac = scaled - idx;
+            orbObj.spriteMat.color.copy(orbObj.colorStops[idx]).lerp(orbObj.colorStops[idx + 1], frac);
+          }
+          // Subtle radiant breathing pulse scale
+          const pulseScale = orbObj.baseScale * (0.85 + 0.30 * Math.sin(elapsed * 6.0 + orbObj.offset * Math.PI * 4));
+          if (orbObj.haloSprite) {
+            orbObj.haloSprite.scale.set(pulseScale, pulseScale, 1);
+          }
         });
 
-        // Subtle rotation on hub rings
+        // Rule 1: Strictly display 3D Floating Pill Billboards on the 4 Active Pathway Nodes (plus hovered node or explicit toggle)
         mm3D.nodeMap3D.forEach((entry) => {
           if (entry.ringMesh) {
-            entry.ringMesh.rotation.z = elapsed * 0.45;
+            entry.ringMesh.rotation.z = elapsed * 0.48;
+          }
+          if (entry.labelSprite) {
+            const isHovered = mm3D.hoveredNodeId === entry.id;
+            const shouldShowLabel = entry.isPinnedNode || isHovered || mmState.showEdgeTitles;
+            entry.labelSprite.visible = shouldShowLabel;
+            if (shouldShowLabel) {
+              entry.labelSprite.material.opacity = (entry.isPinnedNode || isHovered) ? 1.0 : 0.45;
+            }
           }
         });
 
@@ -4740,9 +5108,11 @@
       focus3DCameraOnPathway(activeLink, nodeId);
     }
 
-    // Frame both the clicked node and its complete 4-stage glowing pathway across Z=-200 .. Z=+250
+    // Rule 4 & Rule 5: Frame active pathway from a dynamic 3/4 isometric perspective and auto-compact the bottom dock
     function focus3DCameraOnPathway(lnk, highlightNodeId) {
       if (!mm3D.initialized || !window.THREE || !lnk) return;
+      compactMindMapDock();
+      const THREE = window.THREE;
       const otEntry = mm3D.nodeMap3D.get(lnk.otBook.id);
       const hubEntry = mm3D.nodeMap3D.get(lnk.hub.id);
       const apEntry = mm3D.nodeMap3D.get(lnk.apocBook.id);
@@ -4750,22 +5120,43 @@
       const clickedEntry = highlightNodeId ? mm3D.nodeMap3D.get(highlightNodeId) : null;
 
       if (otEntry && hubEntry && apEntry && ntEntry) {
-        const cx = (otEntry.pos.x + hubEntry.pos.x + apEntry.pos.x + ntEntry.pos.x) / 4;
-        const cy = (otEntry.pos.y + hubEntry.pos.y + apEntry.pos.y + ntEntry.pos.y) / 4;
-        const cz = (otEntry.pos.z + hubEntry.pos.z + apEntry.pos.z + ntEntry.pos.z) / 4;
+        const box = new THREE.Box3();
+        [otEntry.pos, hubEntry.pos, apEntry.pos, ntEntry.pos].forEach((p) => {
+          box.expandByPoint(new THREE.Vector3(p.x, p.y, p.z));
+        });
+        box.min.y -= 28;
+        box.max.y += 48;
 
-        // Blend centroid with clicked node so the clicked node is prominent while all 4 stages stay visible
-        const tx = clickedEntry ? (cx * 0.65 + clickedEntry.pos.x * 0.35) : cx;
-        const ty = clickedEntry ? (cy * 0.65 + clickedEntry.pos.y * 0.35) : cy;
-        const tz = clickedEntry ? (cz * 0.75 + clickedEntry.pos.z * 0.25) : cz;
+        const center = new THREE.Vector3();
+        box.getCenter(center);
 
-        mm3D.desiredTarget.set(tx, ty, tz);
-        mm3D.desiredCamPos.set(tx + 165, ty + 75, tz + 440);
+        const sphere = new THREE.Sphere();
+        box.getBoundingSphere(sphere);
+        const radius = Math.max(185, sphere.radius);
+
+        const vFovRad = THREE.MathUtils.degToRad(mm3D.camera.fov || 46);
+        const aspect = Math.max(0.75, mm3D.camera.aspect || 1.5);
+        const hFovRad = 2 * Math.atan(Math.tan(vFovRad / 2) * aspect);
+        const limitingFov = Math.min(vFovRad, hFovRad);
+        const fitDist = Math.min(760, Math.max(510, (radius / Math.sin(limitingFov / 2)) * 1.30));
+
+        if (clickedEntry) {
+          center.lerp(new THREE.Vector3(clickedEntry.pos.x, clickedEntry.pos.y, clickedEntry.pos.z), 0.14);
+        }
+        center.lerp(new THREE.Vector3(0, -8, 35), 0.38);
+
+        // Elevated 3/4 isometric camera offset so Z-planes (-200, 0, +100, +250) read with clear dimensional depth
+        mm3D.desiredTarget.copy(center);
+        mm3D.desiredCamPos.set(
+          center.x + fitDist * 0.46,
+          center.y + fitDist * 0.34,
+          center.z + fitDist * 0.82
+        );
         mm3D.cameraLerpActive = true;
       } else if (clickedEntry) {
         const p = clickedEntry.pos;
-        mm3D.desiredTarget.set(p.x, p.y, p.z);
-        mm3D.desiredCamPos.set(p.x * 0.85 + 95, p.y * 0.85 + 45, p.z + 290);
+        mm3D.desiredTarget.set(p.x * 0.6, p.y * 0.6, p.z * 0.6);
+        mm3D.desiredCamPos.set(p.x * 0.6 + 240, p.y * 0.6 + 185, p.z * 0.6 + 480);
         mm3D.cameraLerpActive = true;
       }
     }
@@ -4778,145 +5169,290 @@
       // Clear previous meshes & splines cleanly
       mm3D.nodeGroup.clear();
       mm3D.splineGroup.clear();
+      mm3D.hoverLinesGroup.clear();
       mm3D.planeGuidesGroup.clear();
       mm3D.nodeMap3D.clear();
       mm3D.pickables = [];
       mm3D.pulseOrbs = [];
+      mm3D.hoveredNodeId = null;
 
       const activeLink = getCrossLinkByNumber(mmState.selectedLinkId);
       const pinnedIds = new Set([
-        mmState.focusedNodeId,
         activeLink.otBook.id,
         activeLink.hub.id,
         activeLink.apocBook.id,
         activeLink.ntBook.id
       ]);
 
-      // Draw translucent Z-depth reference frames in 3D Depth Planes mode
+      // Rule 2: Stratum Depth & Dimensional Grounding at Z=-200, Z=0, Z=+100, Z=+250 (opacity: 0.06 wireframe grids + orbital rings + margin watermarks)
       if (mmState.layout === "3d-planes") {
         const planes = [
-          { z: -200, tier: "OT",        color: 0xe69f00, title: "OLD TESTAMENT ROOTS (Z = -200)" },
-          { z: 0,    tier: "HUB",       color: 0x2dd4bf, title: "12 COVENANT HUBS (Z = 0)" },
-          { z: 100,  tier: "APOCRYPHA", color: 0xcc79a7, title: "APOCRYPHA & ETHIOPIAN BRIDGE (Z = +100)" },
-          { z: 250,  tier: "NT",        color: 0x56b4e9, title: "NEW TESTAMENT TARGETS (Z = +250)" }
+          { z: -200, eraNum: "I",   tier: "OT",        color: 0xf59e0b, hex: "#f59e0b", title: "OLD TESTAMENT ROOTS",      subEra: "Z = -200 · 39 BOOKS" },
+          { z: 0,    eraNum: "II",  tier: "HUB",       color: 0x22d3ee, hex: "#22d3ee", title: "12 COVENANT HUBS",         subEra: "Z = 0 · PROPHETIC AXIS" },
+          { z: 100,  eraNum: "III", tier: "APOCRYPHA", color: 0xc084fc, hex: "#c084fc", title: "APOCRYPHA BRIDGE",         subEra: "Z = +100 · SECOND TEMPLE" },
+          { z: 250,  eraNum: "IV",  tier: "NT",        color: 0x2dd4bf, hex: "#2dd4bf", title: "NEW TESTAMENT TARGETS",    subEra: "Z = +250 · APOSTOLIC ERA" }
         ];
-        planes.forEach((pl) => {
-          const frameGeo = new THREE.EdgesGeometry(new THREE.PlaneGeometry(460, 290));
-          const frameMat = new THREE.LineBasicMaterial({
-            color: pl.color,
-            transparent: true,
-            opacity: 0.22
-          });
-          const frame = new THREE.LineSegments(frameGeo, frameMat);
-          frame.position.set(0, 0, pl.z);
-          mm3D.planeGuidesGroup.add(frame);
 
-          const hdrSprite = createLabelSprite(THREE, pl.title, "Click to cycle tier pathways", `#${pl.color.toString(16).padStart(6, "0")}`, true);
-          hdrSprite.position.set(0, 162, pl.z);
-          hdrSprite.scale.set(58, 12, 1);
-          hdrSprite.userData = { kind: "tier", tier: pl.tier, title: pl.title };
-          mm3D.planeGuidesGroup.add(hdrSprite);
-          mm3D.pickables.push(hdrSprite);
+        // Subtle horizontal floor grid connecting all 4 historical strata at Y = -175
+        const floorGrid = new THREE.GridHelper(640, 16, 0x334155, 0x1e293b);
+        floorGrid.position.set(0, -175, 25);
+        floorGrid.material.transparent = true;
+        floorGrid.material.opacity = 0.06;
+        floorGrid.material.depthWrite = false;
+        mm3D.planeGuidesGroup.add(floorGrid);
+
+        planes.forEach((pl) => {
+          // Low-opacity (0.06) ambient wireframe stratum grid at each canonical Z-plane
+          const stratumGrid = new THREE.GridHelper(520, 12, pl.color, pl.color);
+          stratumGrid.rotation.x = Math.PI / 2;
+          stratumGrid.position.set(0, 0, pl.z);
+          stratumGrid.scale.set(1.0, 1.0, 0.65);
+          stratumGrid.material.transparent = true;
+          stratumGrid.material.opacity = 0.06;
+          stratumGrid.material.depthWrite = false;
+          mm3D.planeGuidesGroup.add(stratumGrid);
+
+          // Concentric translucent orbital rings at each Z-plane (opacity: 0.06)
+          [145, 225].forEach((r) => {
+            const ringPts = [];
+            const segs = 72;
+            for (let s = 0; s <= segs; s++) {
+              const a = (s / segs) * Math.PI * 2;
+              ringPts.push(new THREE.Vector3(Math.cos(a) * r * 1.15, Math.sin(a) * r * 0.75, pl.z));
+            }
+            const ringGeo = new THREE.BufferGeometry().setFromPoints(ringPts);
+            const ringMat = new THREE.LineBasicMaterial({
+              color: pl.color,
+              transparent: true,
+              opacity: 0.06,
+              depthWrite: false
+            });
+            const orbitalRing = new THREE.Line(ringGeo, ringMat);
+            mm3D.planeGuidesGroup.add(orbitalRing);
+          });
+
+          // Stylish 3D Stratum Watermark in the background outer margin so historical progression is felt without center clutter
+          const watermark = createStratumWatermarkSprite(THREE, pl.eraNum, pl.title, pl.subEra, pl.hex);
+          watermark.position.set(-245, 168, pl.z);
+          watermark.userData = { kind: "tier", tier: pl.tier, title: `${pl.title} (${pl.subEra})` };
+          mm3D.planeGuidesGroup.add(watermark);
+          mm3D.pickables.push(watermark);
         });
       }
 
       const otBooks = BOOKS.filter(b => b.tradition === "OT");
       const apocBooks = BOOKS.filter(b => b.tradition === "APOCRYPHA");
       const ntBooks = BOOKS.filter(b => b.tradition !== "OT" && b.tradition !== "APOCRYPHA");
+      const glowTex = getStarGlowTexture(THREE);
+
+      // Build all node specs with clean Stage 1..4 titles for the active 4 pathway nodes
+      const nodeSpecs = [];
+      otBooks.forEach((b, idx) => {
+        const isAct = b.id === activeLink.otBook.id;
+        nodeSpecs.push({
+          id: b.id,
+          kind: "book",
+          label: isAct ? `1. ${activeLink.otCite}` : b.title.split(" (")[0],
+          subLabel: isAct ? "OT ROOT · Z=-200" : `${b.chapters} ch · Z=-200`,
+          colorHex: getConstellationTierColor("book", "OT"),
+          pos: compute3DNodeCoordinates(b.id, "book", idx, otBooks.length, "OT"),
+          data: b
+        });
+      });
+      MINDMAP_HUBS.forEach((h, idx) => {
+        const isAct = h.id === activeLink.hub.id;
+        nodeSpecs.push({
+          id: h.id,
+          kind: "hub",
+          label: isAct ? `2. ${h.shortTitle}` : h.shortTitle,
+          subLabel: isAct ? "COVENANT HUB · Z=0" : `${h.count.toLocaleString()} links · Z=0`,
+          colorHex: getConstellationTierColor("hub", "HUB"),
+          pos: compute3DNodeCoordinates(h.id, "hub", idx, MINDMAP_HUBS.length, "HUB"),
+          data: h
+        });
+      });
+      apocBooks.forEach((b, idx) => {
+        const isAct = b.id === activeLink.apocBook.id;
+        nodeSpecs.push({
+          id: b.id,
+          kind: "book",
+          label: isAct ? `3. ${activeLink.apCite}` : b.title.split(" (")[0],
+          subLabel: isAct ? "APOCRYPHA BRIDGE · Z=+100" : `Bridge · Z=+100`,
+          colorHex: getConstellationTierColor("book", "APOCRYPHA"),
+          pos: compute3DNodeCoordinates(b.id, "book", idx, apocBooks.length, "APOCRYPHA"),
+          data: b
+        });
+      });
+      ntBooks.forEach((b, idx) => {
+        const isAct = b.id === activeLink.ntBook.id;
+        nodeSpecs.push({
+          id: b.id,
+          kind: "book",
+          label: isAct ? `4. ${activeLink.ntCite}` : b.title.split(" (")[0],
+          subLabel: isAct ? "NT TARGET · Z=+250" : `${b.chapters} ch · Z=+250`,
+          colorHex: getConstellationTierColor("book", "NT"),
+          pos: compute3DNodeCoordinates(b.id, "book", idx, ntBooks.length, "NT"),
+          data: b
+        });
+      });
+
+      // Guarantee minimum spacing so no hubs or books physically intersect
+      apply3DForceSeparation(nodeSpecs, 46);
 
       function add3DNode(id, kind, label, subLabel, colorHex, pos, data) {
-        const isPinnedNode = pinnedIds.has(id);
-        const dimmed = mmState.pathwayPinned && !isPinnedNode && kind !== "verse";
-        const opacityVal = dimmed ? 0.30 : 1.0;
+        const isPinnedNode = pinnedIds.has(id) || kind === "verse";
+
+        const baseOpacity = isPinnedNode ? 1.0 : 0.58;
+        const baseEmissive = isPinnedNode ? 1.2 : 0.42;
+        const baseHaloOpacity = isPinnedNode ? 0.92 : 0.15;
+        const displayColor = new THREE.Color(colorHex);
 
         const group = new THREE.Group();
         group.position.set(pos.x, pos.y, pos.z);
 
-        // Multi-part composite node geometry: Core + Equatorial Collar Ring + Pedestal
-        const radius = kind === "hub" ? 8.2 : (kind === "verse" ? 4.8 : (isPinnedNode ? 7.2 : 5.8));
+        const radius = isPinnedNode
+          ? (kind === "hub" ? 9.4 : (kind === "verse" ? 4.8 : 7.8))
+          : (kind === "hub" ? 2.35 : 1.75);
+
         const coreGeo = kind === "hub"
           ? new THREE.OctahedronGeometry(radius, 1)
           : (data?.tradition === "APOCRYPHA"
               ? new THREE.OctahedronGeometry(radius, 0)
-              : new THREE.SphereGeometry(radius, 20, 20));
+              : new THREE.SphereGeometry(radius, 18, 18));
 
         const coreMat = new THREE.MeshStandardMaterial({
-          color: new THREE.Color(colorHex),
-          emissive: new THREE.Color(colorHex),
-          emissiveIntensity: isPinnedNode ? 0.78 : (dimmed ? 0.14 : 0.34),
-          roughness: 0.25,
-          metalness: 0.45,
+          color: isPinnedNode ? new THREE.Color(0xffffff).lerp(displayColor, 0.65) : displayColor,
+          emissive: displayColor,
+          emissiveIntensity: baseEmissive,
+          roughness: isPinnedNode ? 0.12 : 0.35,
+          metalness: isPinnedNode ? 0.45 : 0.20,
           transparent: true,
-          opacity: opacityVal
+          opacity: baseOpacity,
+          depthWrite: isPinnedNode,
+          depthTest: !isPinnedNode
         });
 
         const nodeMeta = { id, kind, data, linkId: data?.id };
         const coreMesh = new THREE.Mesh(coreGeo, coreMat);
         coreMesh.userData = nodeMeta;
+        if (isPinnedNode) {
+          coreMesh.renderOrder = 1005;
+        }
         group.add(coreMesh);
         mm3D.pickables.push(coreMesh);
 
-        // Equatorial metallic ring on hubs and pinned pathway endpoints (also clickable!)
+        // Pinprick background halo discs at 0.15 opacity vs glowing active node bloom
+        const haloMat = new THREE.SpriteMaterial({
+          map: glowTex,
+          color: displayColor,
+          transparent: true,
+          opacity: baseHaloOpacity,
+          blending: isPinnedNode ? THREE.AdditiveBlending : THREE.NormalBlending,
+          depthTest: !isPinnedNode,
+          depthWrite: false
+        });
+        const starHalo = new THREE.Sprite(haloMat);
+        const haloScale = isPinnedNode ? radius * 4.4 : (kind === "hub" ? 4.4 : 3.4);
+        starHalo.scale.set(haloScale, haloScale, 1);
+        if (isPinnedNode) {
+          starHalo.renderOrder = 1004;
+        }
+        starHalo.userData = nodeMeta;
+        group.add(starHalo);
+        mm3D.pickables.push(starHalo);
+
+        // Generous invisible raycast hit-sphere so every crisp pinprick star remains effortlessly clickable
+        const hitGeo = new THREE.SphereGeometry(isPinnedNode ? radius + 5.0 : 8.5, 10, 10);
+        const hitMat = new THREE.MeshBasicMaterial({
+          transparent: true,
+          opacity: 0.0,
+          depthWrite: false
+        });
+        const hitMesh = new THREE.Mesh(hitGeo, hitMat);
+        hitMesh.userData = nodeMeta;
+        group.add(hitMesh);
+        mm3D.pickables.push(hitMesh);
+
+        // Equatorial metallic ring & subtle vertical anchor stem ONLY on the 4 active pathway nodes
         let ringMesh = null;
-        if (kind === "hub" || isPinnedNode) {
-          const ringGeo = new THREE.TorusGeometry(radius + 3.4, isPinnedNode ? 0.85 : 0.5, 12, 32);
+        if (isPinnedNode) {
+          const ringGeo = new THREE.TorusGeometry(radius + 3.8, 0.95, 12, 36);
           const ringMat = new THREE.MeshStandardMaterial({
-            color: isPinnedNode ? 0xfbbf24 : new THREE.Color(colorHex),
-            emissive: isPinnedNode ? 0xf59e0b : new THREE.Color(colorHex),
-            emissiveIntensity: isPinnedNode ? 0.85 : 0.38,
-            roughness: 0.2,
-            metalness: 0.8,
+            color: displayColor,
+            emissive: displayColor,
+            emissiveIntensity: 1.1,
+            roughness: 0.15,
+            metalness: 0.85,
             transparent: true,
-            opacity: dimmed ? 0.30 : 0.98
+            opacity: 1.0,
+            depthTest: false,
+            depthWrite: false
           });
           ringMesh = new THREE.Mesh(ringGeo, ringMat);
+          ringMesh.renderOrder = 1006;
           ringMesh.userData = nodeMeta;
           group.add(ringMesh);
           mm3D.pickables.push(ringMesh);
+
+          // Subtle vertical stem connecting node crown to elevated floating pill billboard so connecting lines are never occluded
+          const stemGeo = new THREE.BufferGeometry().setFromPoints([
+            new THREE.Vector3(0, radius + 3.8, 0),
+            new THREE.Vector3(0, radius + 12.0, 0)
+          ]);
+          const stemMat = new THREE.LineBasicMaterial({
+            color: displayColor,
+            transparent: true,
+            opacity: 0.65,
+            depthTest: false,
+            depthWrite: false
+          });
+          const stemLine = new THREE.Line(stemGeo, stemMat);
+          stemLine.renderOrder = 1012;
+          group.add(stemLine);
         }
 
-        // Title Sprite above each 3D node (also clickable in mm3D.pickables!)
-        if (mmState.showEdgeTitles || isPinnedNode || kind === "hub") {
-          const sprite = createLabelSprite(THREE, label, subLabel, colorHex, kind === "hub" || isPinnedNode);
-          sprite.position.set(0, radius + 8.0, 0);
-          sprite.material.opacity = dimmed ? 0.38 : 1.0;
-          sprite.userData = nodeMeta;
-          group.add(sprite);
-          mm3D.pickables.push(sprite);
+        // Rule 1: Elegant 3D Floating Pill Billboard anchored cleanly above the node (y = radius + 16.5)
+        const labelSprite = createLabelSprite(THREE, label, subLabel, colorHex, kind === "hub" || isPinnedNode);
+        labelSprite.position.set(0, radius + 16.5, 0);
+        labelSprite.material.depthTest = false;
+        labelSprite.material.depthWrite = false;
+        labelSprite.renderOrder = isPinnedNode ? 1015 : 995;
+        labelSprite.visible = isPinnedNode || mmState.showEdgeTitles;
+        labelSprite.material.opacity = isPinnedNode ? 1.0 : 0.0;
+        labelSprite.userData = nodeMeta;
+        group.add(labelSprite);
+        if (isPinnedNode) {
+          mm3D.pickables.push(labelSprite);
         }
 
         mm3D.nodeGroup.add(group);
-        mm3D.nodeMap3D.set(id, { id, kind, pos, group, coreMesh, ringMesh, data, color: colorHex });
+        mm3D.nodeMap3D.set(id, {
+          id,
+          kind,
+          pos,
+          group,
+          coreMesh,
+          starHalo,
+          ringMesh,
+          labelSprite,
+          data,
+          color: colorHex,
+          isPinnedNode,
+          isNeighborNode: false,
+          baseOpacity,
+          baseEmissive,
+          baseHaloOpacity
+        });
       }
 
-      // 1. Add 39 OT Root Books (Z = -200)
-      otBooks.forEach((b, idx) => {
-        const pos = compute3DNodeCoordinates(b.id, "book", idx, otBooks.length, "OT");
-        add3DNode(b.id, "book", b.title.split(" (")[0], `${b.chapters} ch · Z=-200`, getTradition(b.tradition).color, pos, b);
+      nodeSpecs.forEach((spec) => {
+        add3DNode(spec.id, spec.kind, spec.label, spec.subLabel, spec.colorHex, spec.pos, spec.data);
       });
 
-      // 2. Add 12 Covenant Hubs (Z = 0)
-      MINDMAP_HUBS.forEach((h, idx) => {
-        const pos = compute3DNodeCoordinates(h.id, "hub", idx, MINDMAP_HUBS.length, "HUB");
-        add3DNode(h.id, "hub", h.shortTitle, `${h.count.toLocaleString()} links · Z=0`, "#2dd4bf", pos, h);
-      });
-
-      // 3. Add 18 Apocrypha & Ethiopian Bridge Books (Z = +100)
-      apocBooks.forEach((b, idx) => {
-        const pos = compute3DNodeCoordinates(b.id, "book", idx, apocBooks.length, "APOCRYPHA");
-        add3DNode(b.id, "book", b.title.split(" (")[0], `Bridge · Z=+100`, getTradition(b.tradition).color, pos, b);
-      });
-
-      // 4. Add 27 New Testament Target Books (Z = +250)
-      ntBooks.forEach((b, idx) => {
-        const pos = compute3DNodeCoordinates(b.id, "book", idx, ntBooks.length, "NT");
-        add3DNode(b.id, "book", b.title.split(" (")[0], `${b.chapters} ch · Z=+250`, getTradition(b.tradition).color, pos, b);
-      });
-
-      // 5. Optional Verse-Level Satellite Nodes orbiting the focused node in 3D space
+      // Optional Verse-Level Satellite Nodes orbiting the focused node in 3D space
       const focusedEntry = mm3D.nodeMap3D.get(mmState.focusedNodeId) || mm3D.nodeMap3D.get("1EN");
       if (mmState.spawnSatellites && focusedEntry) {
-        const satCorridors = getFocusedStreamCorridors().slice(0, 6);
+        const satCorridors = getFocusedStreamCorridors().slice(0, 4);
         satCorridors.forEach((c, idx) => {
           const lnk = getCrossLinkByNumber(c.startId);
           const angle = (idx / satCorridors.length) * Math.PI * 2;
@@ -4928,30 +5464,44 @@
           const satId = `SAT_${lnk.id}`;
           add3DNode(satId, "verse", `#${lnk.id.toLocaleString()} ${lnk.apCite}`, `→ ${lnk.ntCite}`, "#F0E442", satPos, lnk);
 
-          const satCurve = new THREE.CatmullRomCurve3([
+          const satPts = [
             new THREE.Vector3(focusedEntry.pos.x, focusedEntry.pos.y, focusedEntry.pos.z),
             new THREE.Vector3(satPos.x, satPos.y, satPos.z)
-          ]);
-          const satGeo = new THREE.TubeGeometry(satCurve, 12, 0.65, 6, false);
-          const satMat = new THREE.MeshBasicMaterial({ color: 0xf0e442, transparent: true, opacity: 0.72 });
-          const satMesh = new THREE.Mesh(satGeo, satMat);
-          satMesh.userData = { kind: "verse", linkId: lnk.id, data: lnk };
-          mm3D.splineGroup.add(satMesh);
-          mm3D.pickables.push(satMesh);
+          ];
+          const satLineGeo = new THREE.BufferGeometry().setFromPoints(satPts);
+          const satLineMat = new THREE.LineBasicMaterial({
+            color: 0xf0e442,
+            transparent: true,
+            opacity: 0.55,
+            depthTest: false
+          });
+          const satLine = new THREE.Line(satLineGeo, satLineMat);
+          satLine.renderOrder = 995;
+          satLine.userData = { kind: "verse", linkId: lnk.id, data: lnk };
+          mm3D.splineGroup.add(satLine);
+          mm3D.pickables.push(satLine);
         });
       }
 
-      // 6. Draw Clickable 3D Context Corridor Tubes for the Focused Node's Connected Pathways
-      const focusCorridors = getFocusedStreamCorridors().slice(0, 18);
-      focusCorridors.forEach((c) => {
+      // Rule 3: Hairline background filaments at 0.15 opacity
+      const focusCorridors = getFocusedStreamCorridors().slice(0, 14);
+      const focusCorridorIds = new Set(focusCorridors.map(c => c.corridorId));
+      const ambientStep = Math.max(1, Math.floor(CORRIDORS_67K.length / 44));
+      const backgroundCorridors = [...focusCorridors];
+      for (let i = 0; i < CORRIDORS_67K.length; i += ambientStep) {
+        const c = CORRIDORS_67K[i];
+        if (!focusCorridorIds.has(c.corridorId)) {
+          backgroundCorridors.push(c);
+        }
+      }
+
+      backgroundCorridors.forEach((c) => {
+        if (c.corridorId === activeLink.corridorId) return;
         const otE = mm3D.nodeMap3D.get(c.otBook.id);
         const hubE = mm3D.nodeMap3D.get(c.hub.id);
         const apE = mm3D.nodeMap3D.get(c.apocBook.id);
         const ntE = mm3D.nodeMap3D.get(c.ntBook.id);
         if (!otE || !hubE || !apE || !ntE) return;
-
-        const isPinned = c.corridorId === activeLink.corridorId;
-        if (isPinned) return; // Drawn below as high-luminance multi-stage spline
 
         const curve = new THREE.CatmullRomCurve3([
           new THREE.Vector3(otE.pos.x, otE.pos.y, otE.pos.z),
@@ -4959,24 +5509,26 @@
           new THREE.Vector3(apE.pos.x, apE.pos.y, apE.pos.z),
           new THREE.Vector3(ntE.pos.x, ntE.pos.y, ntE.pos.z)
         ]);
-        const corrGeo = new THREE.TubeGeometry(curve, 28, 0.72, 6, false);
-        const corrMat = new THREE.MeshBasicMaterial({
-          color: 0x38bdf8,
+        const pts = curve.getPoints(28);
+        const lineGeo = new THREE.BufferGeometry().setFromPoints(pts);
+        const lineMat = new THREE.LineBasicMaterial({
+          color: 0x64748b,
           transparent: true,
-          opacity: mmState.pathwayPinned ? 0.24 : 0.42
+          opacity: 0.15,
+          depthWrite: false
         });
-        const corrMesh = new THREE.Mesh(corrGeo, corrMat);
-        corrMesh.userData = {
+        const hairline = new THREE.Line(lineGeo, lineMat);
+        hairline.userData = {
           kind: "corridor",
           linkId: c.startId,
           corridor: c,
           data: getCrossLinkByNumber(c.startId)
         };
-        mm3D.splineGroup.add(corrMesh);
-        mm3D.pickables.push(corrMesh);
+        mm3D.splineGroup.add(hairline);
+        mm3D.pickables.push(hairline);
       });
 
-      // 7. Highlighted & Pinned 4-Stage Luminous Spline (OT Z=-200 -> Hub Z=0 -> Apocrypha Z=+100 -> NT Z=+250)
+      // Rule 3: Flowing Energy / Particle Splines with Tier-Color Gradient & Soft Bloom (Stage 1 Gold -> Stage 2 Cyan -> Stage 3 Purple -> Stage 4 Teal)
       const pOt = mm3D.nodeMap3D.get(activeLink.otBook.id);
       const pHub = mm3D.nodeMap3D.get(activeLink.hub.id);
       const pApoc = mm3D.nodeMap3D.get(activeLink.apocBook.id);
@@ -4988,68 +5540,165 @@
         const vApoc = new THREE.Vector3(pApoc.pos.x, pApoc.pos.y, pApoc.pos.z);
         const vNt = new THREE.Vector3(pNt.pos.x, pNt.pos.y, pNt.pos.z);
 
-        // Segment 1: OT Root -> Covenant Hub (Warm Amber Gold)
         const c1 = new THREE.CatmullRomCurve3([
           vOt,
-          new THREE.Vector3((vOt.x + vHub.x) * 0.5, (vOt.y + vHub.y) * 0.5 + 18, (vOt.z + vHub.z) * 0.5),
+          new THREE.Vector3((vOt.x + vHub.x) * 0.5, (vOt.y + vHub.y) * 0.5 + 16, (vOt.z + vHub.z) * 0.5),
           vHub
         ]);
-        // Segment 2: Covenant Hub -> Apocrypha Bridge (Luminous Amethyst/Teal)
         const c2 = new THREE.CatmullRomCurve3([
           vHub,
           new THREE.Vector3((vHub.x + vApoc.x) * 0.5, (vHub.y + vApoc.y) * 0.5 + 14, (vHub.z + vApoc.z) * 0.5),
           vApoc
         ]);
-        // Segment 3: Apocrypha Bridge -> NT Target (Radiant Sky Cyan)
         const c3 = new THREE.CatmullRomCurve3([
           vApoc,
-          new THREE.Vector3((vApoc.x + vNt.x) * 0.5, (vApoc.y + vNt.y) * 0.5 + 18, (vApoc.z + vNt.z) * 0.5),
+          new THREE.Vector3((vApoc.x + vNt.x) * 0.5, (vApoc.y + vNt.y) * 0.5 + 16, (vApoc.z + vNt.z) * 0.5),
           vNt
         ]);
 
+        const colOt = new THREE.Color(0xf59e0b);   // Stage 1: OT Gold
+        const colHub = new THREE.Color(0x22d3ee);  // Stage 2: Covenant Cyan
+        const colApoc = new THREE.Color(0xc084fc); // Stage 3: Apocrypha Purple
+        const colNt = new THREE.Color(0x2dd4bf);   // Stage 4: NT Teal
+
         [
-          { curve: c1, color: 0xe69f00, nodeId: activeLink.otBook.id, stageTitle: `${activeLink.otCite} → ${activeLink.hub.shortTitle}` },
-          { curve: c2, color: 0xcc79a7, nodeId: activeLink.apocBook.id, stageTitle: `${activeLink.hub.shortTitle} → ${activeLink.apCite}` },
-          { curve: c3, color: 0x56b4e9, nodeId: activeLink.ntBook.id, stageTitle: `${activeLink.apCite} → ${activeLink.ntCite}` }
+          { curve: c1, startCol: colOt, endCol: colHub, nodeId: activeLink.otBook.id, stageTitle: `${activeLink.otCite} → ${activeLink.hub.shortTitle}` },
+          { curve: c2, startCol: colHub, endCol: colApoc, nodeId: activeLink.apocBook.id, stageTitle: `${activeLink.hub.shortTitle} → ${activeLink.apCite}` },
+          { curve: c3, startCol: colApoc, endCol: colNt, nodeId: activeLink.ntBook.id, stageTitle: `${activeLink.apCite} → ${activeLink.ntCite}` }
         ].forEach((seg) => {
-          const tubeGeo = new THREE.TubeGeometry(seg.curve, 36, 2.05, 12, false);
-          const tubeMat = new THREE.MeshStandardMaterial({
-            color: seg.color,
-            emissive: seg.color,
-            emissiveIntensity: 0.92,
-            roughness: 0.18,
-            metalness: 0.35
-          });
-          const segMesh = new THREE.Mesh(tubeGeo, tubeMat);
-          segMesh.userData = {
+          const segMeta = {
             kind: "pathway-stage",
             id: seg.nodeId,
             linkId: activeLink.id,
             data: activeLink,
             stageTitle: seg.stageTitle
           };
-          mm3D.splineGroup.add(segMesh);
-          mm3D.pickables.push(segMesh);
+
+          // Build vertex-colored gradient geometry along the segment
+          const segPoints = seg.curve.getPoints(56);
+          const positions = [];
+          const colors = [];
+          const tmpColor = new THREE.Color();
+
+          for (let i = 0; i < segPoints.length; i++) {
+            const pt = segPoints[i];
+            positions.push(pt.x, pt.y, pt.z);
+            const t = i / (segPoints.length - 1);
+            tmpColor.copy(seg.startCol).lerp(seg.endCol, t);
+            colors.push(tmpColor.r, tmpColor.g, tmpColor.b);
+          }
+
+          const gradGeo = new THREE.BufferGeometry();
+          gradGeo.setAttribute("position", new THREE.Float32BufferAttribute(positions, 3));
+          gradGeo.setAttribute("color", new THREE.Float32BufferAttribute(colors, 3));
+
+          // Radiant gradient core filament (renderOrder: 1002, depthTest: false)
+          const coreLineMat = new THREE.LineBasicMaterial({
+            vertexColors: true,
+            transparent: true,
+            opacity: 0.96,
+            blending: THREE.AdditiveBlending,
+            depthTest: false,
+            depthWrite: false
+          });
+          const coreLine = new THREE.Line(gradGeo, coreLineMat);
+          coreLine.renderOrder = 1002;
+          coreLine.userData = segMeta;
+          mm3D.splineGroup.add(coreLine);
+
+          // Soft translucent gradient bloom aura around the energy line (renderOrder: 999, depthTest: false)
+          const bloomTubeGeo = new THREE.TubeGeometry(seg.curve, 36, 2.2, 10, false);
+          const bloomVertCount = bloomTubeGeo.attributes.position.count;
+          const bloomColors = new Float32Array(bloomVertCount * 3);
+          const uvAttr = bloomTubeGeo.attributes.uv;
+          for (let i = 0; i < bloomVertCount; i++) {
+            const u = uvAttr ? uvAttr.getX(i) : (i / bloomVertCount);
+            tmpColor.copy(seg.startCol).lerp(seg.endCol, u);
+            bloomColors[i * 3] = tmpColor.r;
+            bloomColors[i * 3 + 1] = tmpColor.g;
+            bloomColors[i * 3 + 2] = tmpColor.b;
+          }
+          bloomTubeGeo.setAttribute("color", new THREE.BufferAttribute(bloomColors, 3));
+
+          const bloomTubeMat = new THREE.MeshBasicMaterial({
+            vertexColors: true,
+            transparent: true,
+            opacity: 0.16,
+            blending: THREE.AdditiveBlending,
+            depthTest: false,
+            depthWrite: false
+          });
+          const bloomTube = new THREE.Mesh(bloomTubeGeo, bloomTubeMat);
+          bloomTube.renderOrder = 999;
+          bloomTube.userData = segMeta;
+          mm3D.splineGroup.add(bloomTube);
+          mm3D.pickables.push(bloomTube);
         });
 
-        // Full continuous spline for traveling luminous energy pulses
-        const fullSpline = new THREE.CatmullRomCurve3([vOt, vHub, vApoc, vNt]);
-        for (let i = 0; i < 4; i++) {
-          const orbGeo = new THREE.SphereGeometry(3.1, 14, 14);
-          const orbMat = new THREE.MeshBasicMaterial({ color: 0xfef08a });
-          const orbMesh = new THREE.Mesh(orbGeo, orbMat);
-          orbMesh.userData = {
+        // Continuous 4-stage spline with 28 flowing energy particle pulses traveling sequentially Stage 1 -> 2 -> 3 -> 4
+        const fullSpline = new THREE.CatmullRomCurve3([
+          vOt,
+          new THREE.Vector3((vOt.x + vHub.x) * 0.5, (vOt.y + vHub.y) * 0.5 + 16, (vOt.z + vHub.z) * 0.5),
+          vHub,
+          new THREE.Vector3((vHub.x + vApoc.x) * 0.5, (vHub.y + vApoc.y) * 0.5 + 14, (vHub.z + vApoc.z) * 0.5),
+          vApoc,
+          new THREE.Vector3((vApoc.x + vNt.x) * 0.5, (vApoc.y + vNt.y) * 0.5 + 16, (vApoc.z + vNt.z) * 0.5),
+          vNt
+        ]);
+
+        const colorStops = [colOt, colHub, colApoc, colNt];
+        const totalPulses = 28;
+        for (let i = 0; i < totalPulses; i++) {
+          const isLeadPulse = (i % 7 === 0);
+          const pulseGroup = new THREE.Group();
+          pulseGroup.renderOrder = 1008;
+
+          // Bright white-hot energy core bead
+          const coreRadius = isLeadPulse ? 1.85 : 1.05;
+          const orbGeo = new THREE.SphereGeometry(coreRadius, 10, 10);
+          const orbMat = new THREE.MeshBasicMaterial({
+            color: 0xffffff,
+            transparent: true,
+            opacity: isLeadPulse ? 1.0 : 0.85,
+            depthTest: false,
+            depthWrite: false
+          });
+          const coreBead = new THREE.Mesh(orbGeo, orbMat);
+          coreBead.renderOrder = 1009;
+          pulseGroup.add(coreBead);
+
+          // Additive tier-colored radiant sprite halo
+          const spriteMat = new THREE.SpriteMaterial({
+            map: glowTex,
+            color: colOt.clone(),
+            transparent: true,
+            opacity: isLeadPulse ? 0.95 : 0.72,
+            blending: THREE.AdditiveBlending,
+            depthTest: false,
+            depthWrite: false
+          });
+          const haloSprite = new THREE.Sprite(spriteMat);
+          const baseScale = isLeadPulse ? 13.5 : 7.5;
+          haloSprite.scale.set(baseScale, baseScale, 1);
+          haloSprite.renderOrder = 1008;
+          pulseGroup.add(haloSprite);
+
+          pulseGroup.userData = {
             kind: "verse",
             linkId: activeLink.id,
             data: activeLink
           };
-          mm3D.splineGroup.add(orbMesh);
-          mm3D.pickables.push(orbMesh);
+          mm3D.splineGroup.add(pulseGroup);
+
           mm3D.pulseOrbs.push({
-            mesh: orbMesh,
+            mesh: pulseGroup,
+            haloSprite,
+            spriteMat,
+            colorStops,
+            baseScale,
             curve: fullSpline,
-            speed: 0.22,
-            offset: i * 0.25
+            speed: 0.16,
+            offset: i / totalPulses
           });
         }
       }
@@ -5124,7 +5773,7 @@
 
       const tooltip = $("mmTooltip");
       const activeLink = getCrossLinkByNumber(mmState.selectedLinkId);
-      const focusCorridors = getFocusedStreamCorridors().slice(0, 28);
+      const focusCorridors = getFocusedStreamCorridors().slice(0, 22);
 
       // Build Node Set for the Mind Map
       const otBooks = BOOKS.filter(b => b.tradition === "OT");
@@ -5136,63 +5785,60 @@
 
       // Position nodes according to selected layout: 'tripartite' | 'radial' | 'force'
       if (mmState.layout === "tripartite") {
-        // Column 1: 39 OT Books (two staggered sub-columns so every label is legible & clickable)
         otBooks.forEach((b, idx) => {
           const colOffset = idx % 2 === 0 ? 75 : 175;
           const y = 38 + Math.floor(idx / 2) * 31.5;
-          const n = { id: b.id, kind: "book", label: b.title, sub: `${b.chapters} ch`, tradition: b.tradition, color: getTradition(b.tradition).color, x: colOffset, y, r: 6.5, data: b };
+          const n = { id: b.id, kind: "book", label: b.title, sub: `${b.chapters} ch`, tradition: b.tradition, color: getConstellationTierColor("book", "OT"), x: colOffset, y, r: 3.2, data: b };
           nodes.push(n);
           nodeMap.set(n.id, n);
         });
 
-        // Column 2A: 12 Theological Hubs
         MINDMAP_HUBS.forEach((h, idx) => {
+          const xOffset = 395 + ((idx % 2) * 28 - 14);
           const y = 52 + idx * 51;
-          const n = { id: h.id, kind: "hub", label: h.shortTitle, sub: `${h.count.toLocaleString()} links`, tradition: "APOCRYPHA", color: "#2dd4bf", x: 395, y, r: 9, data: h };
+          const n = { id: h.id, kind: "hub", label: h.shortTitle, sub: `${h.count.toLocaleString()} links`, tradition: "APOCRYPHA", color: "#2dd4bf", x: xOffset, y, r: 4.0, data: h };
           nodes.push(n);
           nodeMap.set(n.id, n);
         });
 
-        // Column 2B: 18 Apocrypha & Ethiopian Bridge Books
         apocBooks.forEach((b, idx) => {
           const y = 45 + idx * 34.5;
-          const n = { id: b.id, kind: "book", label: b.title.split(" (")[0], sub: b.canon.split(" /")[0], tradition: b.tradition, color: getTradition(b.tradition).color, x: 625, y, r: 8, data: b };
+          const n = { id: b.id, kind: "book", label: b.title.split(" (")[0], sub: b.canon.split(" /")[0], tradition: b.tradition, color: getConstellationTierColor("book", "APOCRYPHA"), x: 625, y, r: 3.4, data: b };
           nodes.push(n);
           nodeMap.set(n.id, n);
         });
 
-        // Column 3: 27 New Testament Books
         ntBooks.forEach((b, idx) => {
           const y = 38 + idx * 23.2;
-          const n = { id: b.id, kind: "book", label: b.title.split(" (")[0], sub: `${b.chapters} ch`, tradition: b.tradition, color: getTradition(b.tradition).color, x: 915, y, r: 7, data: b };
+          const n = { id: b.id, kind: "book", label: b.title.split(" (")[0], sub: `${b.chapters} ch`, tradition: b.tradition, color: getConstellationTierColor("book", "NT"), x: 915, y, r: 3.2, data: b };
           nodes.push(n);
           nodeMap.set(n.id, n);
         });
       } else if (mmState.layout === "radial") {
         const cx = mmWidth / 2;
         const cy = mmHeight / 2;
-        const outerR = 285;
-        const innerR = 135;
+        const outerR = 290;
+        const innerR = 155;
 
         BOOKS.forEach((b, idx) => {
           const angle = (idx / BOOKS.length) * Math.PI * 2 - Math.PI / 2;
           const x = cx + Math.cos(angle) * outerR;
           const y = cy + Math.sin(angle) * outerR;
-          const n = { id: b.id, kind: "book", label: b.title.split(" (")[0], sub: `${b.chapters} ch`, tradition: b.tradition, color: getTradition(b.tradition).color, x, y, angle, r: 6.5, data: b };
+          const n = { id: b.id, kind: "book", label: b.title.split(" (")[0], sub: `${b.chapters} ch`, tradition: b.tradition, color: getConstellationTierColor("book", b.tradition), x, y, angle, r: 3.2, data: b };
           nodes.push(n);
           nodeMap.set(n.id, n);
         });
 
         MINDMAP_HUBS.forEach((h, idx) => {
           const angle = (idx / MINDMAP_HUBS.length) * Math.PI * 2 - Math.PI / 2;
-          const x = cx + Math.cos(angle) * innerR;
-          const y = cy + Math.sin(angle) * innerR;
-          const n = { id: h.id, kind: "hub", label: h.shortTitle, sub: `${h.count.toLocaleString()}`, tradition: "APOCRYPHA", color: "#2dd4bf", x, y, r: 9.5, data: h };
+          const rStagger = innerR + (idx % 2 === 0 ? 16 : -16);
+          const x = cx + Math.cos(angle) * rStagger;
+          const y = cy + Math.sin(angle) * rStagger;
+          const n = { id: h.id, kind: "hub", label: h.shortTitle, sub: `${h.count.toLocaleString()}`, tradition: "APOCRYPHA", color: "#2dd4bf", x, y, r: 4.0, data: h };
           nodes.push(n);
           nodeMap.set(n.id, n);
         });
       } else {
-        // Force-directed layout: seed initial positions by group
         BOOKS.forEach((b, idx) => {
           const groupX = b.tradition === "OT" ? 230 : (b.tradition === "APOCRYPHA" ? 520 : 810);
           const angle = (idx / 28) * Math.PI * 2;
@@ -5202,10 +5848,10 @@
             label: b.title.split(" (")[0],
             sub: `${b.chapters} ch`,
             tradition: b.tradition,
-            color: getTradition(b.tradition).color,
+            color: getConstellationTierColor("book", b.tradition),
             x: groupX + Math.cos(angle) * 110,
             y: mmHeight / 2 + Math.sin(angle) * 210,
-            r: b.id === mmState.focusedNodeId ? 11 : 7,
+            r: 3.4,
             data: b
           };
           nodes.push(n);
@@ -5220,9 +5866,9 @@
             sub: `${h.count.toLocaleString()}`,
             tradition: "APOCRYPHA",
             color: "#2dd4bf",
-            x: 490 + ((idx % 2) * 60 - 30),
+            x: 490 + ((idx % 2) * 72 - 36),
             y: 75 + idx * 48,
-            r: 10,
+            r: 4.2,
             data: h
           };
           nodes.push(n);
@@ -5230,7 +5876,7 @@
         });
       }
 
-      // Optionally spawn clickable Verse-Level Cross-Link Satellite Nodes around the focused node!
+      // Optionally spawn clickable Verse-Level Cross-Link Satellite Nodes around the focused node
       const focusedCenterNode = nodeMap.get(mmState.focusedNodeId) || nodeMap.get("1EN");
       const satelliteEdges = [];
       if (mmState.spawnSatellites && focusedCenterNode) {
@@ -5252,7 +5898,7 @@
             color: "#F0E442",
             x: sx,
             y: sy,
-            r: 5.5,
+            r: 5.0,
             data: lnk
           };
           nodes.push(satNode);
@@ -5269,8 +5915,35 @@
         });
       }
 
-      // Build Mind Map Edges connecting OT -> Hub -> Apocrypha -> NT
+      const pinned2DSet = new Set([
+        activeLink.otBook.id,
+        activeLink.hub.id,
+        activeLink.apocBook.id,
+        activeLink.ntBook.id
+      ]);
+
+      // Build Mind Map Edges: 1px hairline web filaments at 0.08 opacity + Active 4-Stage Neon Pathway at 1.0 opacity
       const edges = [];
+      const focusCorrIds = new Set(focusCorridors.map(c => c.corridorId));
+      const step2D = Math.max(1, Math.floor(CORRIDORS_67K.length / 36));
+      for (let i = 0; i < CORRIDORS_67K.length; i += step2D) {
+        const c = CORRIDORS_67K[i];
+        if (focusCorrIds.has(c.corridorId)) continue;
+        const otNode = nodeMap.get(c.otBook.id);
+        const hubNode = nodeMap.get(c.hub.id);
+        const apocNode = nodeMap.get(c.apocBook.id);
+        const ntNode = nodeMap.get(c.ntBook.id);
+        if (otNode && hubNode) {
+          edges.push({ id: `AMB_OH_${i}`, source: otNode, target: hubNode, linkId: c.startId, color: "#475569", weight: 1.0, opacity: 0.08, isHighlighted: false });
+        }
+        if (hubNode && apocNode) {
+          edges.push({ id: `AMB_HA_${i}`, source: hubNode, target: apocNode, linkId: c.startId, color: "#475569", weight: 1.0, opacity: 0.08, isHighlighted: false });
+        }
+        if (apocNode && ntNode) {
+          edges.push({ id: `AMB_AN_${i}`, source: apocNode, target: ntNode, linkId: c.startId, color: "#475569", weight: 1.0, opacity: 0.08, isHighlighted: false });
+        }
+      }
+
       focusCorridors.forEach((c, idx) => {
         const otNode = nodeMap.get(c.otBook.id);
         const hubNode = nodeMap.get(c.hub.id);
@@ -5286,9 +5959,10 @@
             linkId: c.startId,
             corridor: c,
             title: `${c.otBook.id} → ${c.hub.shortTitle}`,
-            color: "#E69F00",
-            weight: isHighlighted ? 2.8 : 1.1,
-            opacity: isHighlighted ? 0.95 : (mmState.pathwayPinned ? 0.16 : 0.32),
+            color: isHighlighted ? "#ffb703" : "#475569",
+            weight: isHighlighted ? 3.5 : 1.0,
+            opacity: isHighlighted ? 1.0 : 0.08,
+            isHighlighted,
             showTitle: isHighlighted
           });
         }
@@ -5300,10 +5974,11 @@
             linkId: c.startId,
             corridor: c,
             title: `${c.apocBook.title.split(" (")[0]} (${c.count.toLocaleString()})`,
-            color: "#CC79A7",
-            weight: isHighlighted ? 3.0 : 1.35,
-            opacity: isHighlighted ? 0.95 : (mmState.pathwayPinned ? 0.18 : 0.45),
-            showTitle: isHighlighted || idx < 4
+            color: isHighlighted ? "#d946ef" : "#475569",
+            weight: isHighlighted ? 3.6 : 1.0,
+            opacity: isHighlighted ? 1.0 : 0.08,
+            isHighlighted,
+            showTitle: isHighlighted
           });
         }
         if (apocNode && ntNode) {
@@ -5314,23 +5989,24 @@
             linkId: c.startId,
             corridor: c,
             title: `#${c.startId.toLocaleString()} ${c.apocBook.id} → ${c.ntBook.id} (${c.count})`,
-            color: getTradition(c.ntBook.tradition).color,
-            weight: isHighlighted ? 3.4 : 1.6,
-            opacity: isHighlighted ? 1 : (mmState.pathwayPinned ? 0.22 : 0.58),
-            showTitle: mmState.showEdgeTitles && (isHighlighted || idx < 9)
+            color: isHighlighted ? "#00f5d4" : "#475569",
+            weight: isHighlighted ? 3.8 : 1.0,
+            opacity: isHighlighted ? 1.0 : 0.08,
+            isHighlighted,
+            showTitle: isHighlighted || mmState.showEdgeTitles
           });
         }
       });
 
-      const allEdges = [...edges, ...satelliteEdges];
+      const allEdges = [...edges.sort((a, b) => (a.isHighlighted ? 1 : 0) - (b.isHighlighted ? 1 : 0)), ...satelliteEdges];
 
-      // Clickable Column headers in tripartite layout
+      // Clickable Column headers in tripartite layout (0.35 baseline opacity)
       if (mmState.layout === "tripartite") {
         const headers = [
-          { x: 125, tier: "OT",        text: "OLD TESTAMENT ROOTS (39)", color: "#E69F00" },
+          { x: 125, tier: "OT",        text: "OLD TESTAMENT ROOTS (39)", color: "#f59e0b" },
           { x: 395, tier: "HUB",       text: "12 COVENANT HUBS", color: "#2dd4bf" },
-          { x: 625, tier: "APOCRYPHA", text: "APOCRYPHA & ETHIOPIAN BRIDGE (18)", color: "#CC79A7" },
-          { x: 915, tier: "NT",        text: "NEW TESTAMENT TARGETS (27)", color: "#56B4E9" }
+          { x: 625, tier: "APOCRYPHA", text: "APOCRYPHA & ETHIOPIAN BRIDGE (18)", color: "#c084fc" },
+          { x: 915, tier: "NT",        text: "NEW TESTAMENT TARGETS (27)", color: "#38bdf8" }
         ];
         mmState.rootG.append("g")
           .selectAll("text.mm-col-hdr")
@@ -5341,6 +6017,7 @@
           .attr("y", 18)
           .attr("text-anchor", "middle")
           .attr("fill", d => d.color)
+          .attr("opacity", mmState.showEdgeTitles ? 0.85 : 0.35)
           .attr("font-size", "10px")
           .attr("font-weight", "700")
           .text(d => d.text)
@@ -5351,6 +6028,8 @@
       }
 
       const edgeGroup = mmState.rootG.append("g").attr("class", "mm-edges");
+      const hoverEdgeGroup = mmState.rootG.append("g").attr("class", "mm-hover-edges");
+      const activeEdgeGroup = mmState.rootG.append("g").attr("class", "mm-active-edges");
       const edgeLabelGroup = mmState.rootG.append("g").attr("class", "mm-edge-labels");
       const nodeGroup = mmState.rootG.append("g").attr("class", "mm-nodes");
 
@@ -5369,22 +6048,49 @@
         return `M ${sx},${sy} A ${dr},${dr} 0 0,1 ${tx},${ty}`;
       }
 
-      const edgePaths = edgeGroup.selectAll("path.mm-edge")
-        .data(allEdges, d => d.id)
+      const bgEdges = allEdges.filter(d => !d.isHighlighted);
+      const actEdges = allEdges.filter(d => d.isHighlighted);
+
+      edgeGroup.selectAll("path.mm-edge")
+        .data(bgEdges, d => d.id)
         .join("path")
         .attr("class", "mm-edge cursor-pointer")
         .attr("fill", "none")
         .attr("stroke", d => d.color)
-        .attr("stroke-width", d => d.weight || 1.8)
+        .attr("stroke-width", 1.0)
         .attr("stroke-dasharray", d => d.isSatellite ? "3,2" : null)
-        .attr("opacity", d => d.opacity || 0.75)
+        .attr("opacity", 0.08)
         .attr("d", edgePath)
         .on("click", (event, d) => {
           event.stopPropagation();
           if (d.linkId) selectCrossLinkNumber(d.linkId, false, true);
         });
 
-      // Clickable Edge Titles directly on the Mind Map
+      // Outer neon bloom + saturated core on active 2D pathway so it always sits on top
+      activeEdgeGroup.selectAll("path.mm-edge-bloom")
+        .data(actEdges, d => `${d.id}_bloom`)
+        .join("path")
+        .attr("class", "mm-edge-bloom pointer-events-none")
+        .attr("fill", "none")
+        .attr("stroke", d => d.color)
+        .attr("stroke-width", 8.5)
+        .attr("opacity", 0.25)
+        .attr("d", edgePath);
+
+      const edgePaths = activeEdgeGroup.selectAll("path.mm-edge-active")
+        .data(actEdges, d => d.id)
+        .join("path")
+        .attr("class", "mm-edge-active cursor-pointer")
+        .attr("fill", "none")
+        .attr("stroke", d => d.color)
+        .attr("stroke-width", d => d.weight || 3.5)
+        .attr("opacity", 1.0)
+        .attr("d", edgePath)
+        .on("click", (event, d) => {
+          event.stopPropagation();
+          if (d.linkId) selectCrossLinkNumber(d.linkId, false, true);
+        });
+
       const visibleLabelEdges = allEdges.filter(d => d.showTitle);
       const edgeLabels = edgeLabelGroup.selectAll("g.mm-edge-lbl")
         .data(visibleLabelEdges, d => d.id)
@@ -5403,9 +6109,9 @@
         .attr("height", 15)
         .attr("rx", 3)
         .attr("fill", "#090d16")
-        .attr("fill-opacity", 0.88)
+        .attr("fill-opacity", 0.94)
         .attr("stroke", d => d.color)
-        .attr("stroke-width", 0.7);
+        .attr("stroke-width", 0.9);
 
       edgeLabels.append("text")
         .attr("text-anchor", "middle")
@@ -5415,7 +6121,7 @@
         .attr("font-family", "monospace")
         .text(d => d.title);
 
-      // Draw Interactive Titled & Clickable Nodes
+      // Draw Interactive Constellation Nodes (Crisp pinprick stars in background, 1.5x local expansion ONLY on hover)
       const nodeEls = nodeGroup.selectAll("g.mm-node")
         .data(nodes, d => d.id)
         .join("g")
@@ -5426,10 +6132,41 @@
           if (d.kind === "verse" && d.linkId) {
             selectCrossLinkNumber(d.linkId, false, true);
           } else {
-            focusMindMapNode(d.id, true);
+            focusMindMapNode(d.id, true, true);
           }
         })
-        .on("mouseenter", (event, d) => {
+        .on("mouseenter", function (event, d) {
+          const isAct = pinned2DSet.has(d.id) || d.kind === "verse";
+          const baseR = isAct ? d.r + 3.8 : d.r;
+          d3.select(this).select("circle.mm-core-dot")
+            .attr("r", baseR * 1.5)
+            .attr("opacity", 1.0)
+            .attr("fill", "#fffbeb");
+          d3.select(this).select("circle.mm-star-halo")
+            .attr("r", baseR * 2.2)
+            .attr("opacity", 0.55);
+          d3.select(this).select("text.mm-node-lbl").attr("display", "block").attr("opacity", 1);
+
+          // Gently illuminate immediate connecting lines on hover
+          hoverEdgeGroup.selectAll("*").remove();
+          const hCorridors = getCorridorsForNode(d.id).slice(0, 8);
+          hCorridors.forEach((c, idx) => {
+            const oN = nodeMap.get(c.otBook.id);
+            const hN = nodeMap.get(c.hub.id);
+            const aN = nodeMap.get(c.apocBook.id);
+            const nN = nodeMap.get(c.ntBook.id);
+            [[oN, hN], [hN, aN], [aN, nN]].forEach(([s, t]) => {
+              if (!s || !t) return;
+              hoverEdgeGroup.append("path")
+                .attr("fill", "none")
+                .attr("stroke", idx === 0 ? "#fef08a" : "#5eead4")
+                .attr("stroke-width", idx === 0 ? 1.8 : 1.1)
+                .attr("opacity", idx === 0 ? 0.65 : 0.35)
+                .attr("pointer-events", "none")
+                .attr("d", edgePath({ source: s, target: t }));
+            });
+          });
+
           if (!tooltip) return;
           if (d.kind === "verse") {
             tooltip.innerHTML = `
@@ -5438,60 +6175,84 @@
               <div class="text-[11px] text-slate-200 mt-1">${d.data.title}</div>
             `;
           } else if (d.kind === "hub") {
+            const sum = getNodeCrossLinkSummary(d.id);
             tooltip.innerHTML = `
               <div class="font-bold text-teal-300">❖ ${d.data.title}</div>
-              <div class="text-[11px] font-mono text-slate-300">${d.data.count.toLocaleString()} Cross-Links</div>
-              <div class="text-[11px] text-slate-400 mt-1">${d.data.desc}</div>
+              <div class="text-[11px] font-mono text-amber-300 mt-0.5">${sum.triadCite}</div>
+              <div class="text-[11px] font-mono text-slate-200 mt-0.5">${d.data.count.toLocaleString()} Cross-Links · ${sum.corridorCount} Corridors</div>
+              <div class="text-[10px] text-teal-300 mt-1">Click to branch &amp; pivot pathway explorer here</div>
             `;
           } else {
+            const sum = getNodeCrossLinkSummary(d.id);
             tooltip.innerHTML = `
               <div class="font-bold text-white">${d.data.title}</div>
-              <div class="text-[11px] text-teal-300">${d.data.writerTrad} · ${d.data.date}</div>
-              <div class="text-[11px] text-slate-400 mt-0.5">${d.data.canon} (${d.data.chapters} ch) — Click to expand mind map links</div>
+              <div class="text-[11px] font-mono text-amber-300 mt-0.5">Ref: ${sum.primaryCite} <span class="text-slate-400">(${sum.triadCite})</span></div>
+              <div class="text-[11px] font-mono text-slate-200 mt-0.5">${sum.totalLinks.toLocaleString()} Cross-Links across ${sum.corridorCount} Corridors</div>
+              <div class="text-[10px] text-teal-300 mt-1">Click star-point to branch &amp; pivot pathway explorer here</div>
             `;
           }
           tooltip.classList.remove("hidden");
           const rect = $("mmCanvasContainer")?.getBoundingClientRect();
           if (rect) {
-            tooltip.style.left = `${Math.min(rect.width - 240, event.clientX - rect.left + 12)}px`;
+            tooltip.style.left = `${Math.min(rect.width - 260, event.clientX - rect.left + 12)}px`;
             tooltip.style.top = `${Math.max(12, event.clientY - rect.top - 10)}px`;
           }
         })
-        .on("mouseleave", () => {
+        .on("mouseleave", function (event, d) {
+          hoverEdgeGroup.selectAll("*").remove();
+          const isAct = pinned2DSet.has(d.id) || d.kind === "verse";
+          const baseR = isAct ? d.r + 3.8 : d.r;
+          d3.select(this).select("circle.mm-core-dot")
+            .attr("r", baseR)
+            .attr("opacity", isAct ? 1.0 : 0.62)
+            .attr("fill", d.color);
+          d3.select(this).select("circle.mm-star-halo")
+            .attr("r", isAct ? baseR * 2.1 : baseR * 1.35)
+            .attr("opacity", isAct ? 0.45 : 0.20);
+          if (!isAct && !mmState.showEdgeTitles) {
+            d3.select(this).select("text.mm-node-lbl").attr("display", "none");
+          }
           if (tooltip) tooltip.classList.add("hidden");
         });
 
-      // Highlight ring on focused node or active link endpoints
-      nodeEls.filter(d =>
-        d.id === mmState.focusedNodeId ||
-        d.id === activeLink.otBook.id ||
-        d.id === activeLink.apocBook.id ||
-        d.id === activeLink.ntBook.id ||
-        d.id === activeLink.hub.id
-      )
+      // Tiny 25%-scale halo (0.20 opacity) on background nodes, prominent neon halo on the 4 active pathway nodes
+      nodeEls.append("circle")
+        .attr("class", "mm-star-halo")
+        .attr("r", d => (pinned2DSet.has(d.id) || d.kind === "verse") ? (d.r + 3.8) * 2.1 : d.r * 1.35)
+        .attr("fill", d => d.color)
+        .attr("opacity", d => (pinned2DSet.has(d.id) || d.kind === "verse") ? 0.45 : 0.20);
+
+      // Highlight ring ONLY on the 4 active pathway endpoints
+      nodeEls.filter(d => pinned2DSet.has(d.id) || d.kind === "verse")
         .append("circle")
-        .attr("r", d => d.r + 5)
+        .attr("r", d => d.r + 7.5)
         .attr("fill", "none")
-        .attr("stroke", "#2dd4bf")
-        .attr("stroke-width", 2);
+        .attr("stroke", "#00f5d4")
+        .attr("stroke-opacity", 1.0)
+        .attr("stroke-width", 2.0);
 
       nodeEls.append("circle")
-        .attr("r", d => d.r)
+        .attr("class", "mm-core-dot")
+        .attr("r", d => (pinned2DSet.has(d.id) || d.kind === "verse") ? d.r + 3.8 : d.r)
         .attr("fill", d => d.color)
+        .attr("opacity", d => (pinned2DSet.has(d.id) || d.kind === "verse") ? 1.0 : 0.62)
         .attr("stroke", "#090d16")
-        .attr("stroke-width", 1.5);
+        .attr("stroke-width", 1.0);
 
       nodeEls.append("text")
+        .attr("class", "mm-node-lbl")
         .attr("x", d => {
           if (mmState.layout === "tripartite" && d.tradition === "OT") return -9;
-          return d.r + 5;
+          return d.r + 7;
         })
         .attr("y", 3)
         .attr("text-anchor", d => (mmState.layout === "tripartite" && d.tradition === "OT") ? "end" : "start")
-        .attr("fill", d => (d.id === mmState.focusedNodeId || d.kind === "hub" || d.kind === "verse") ? "#ffffff" : "#cbd5e1")
-        .attr("font-size", d => d.kind === "hub" ? "10.5px" : (d.kind === "verse" ? "9.5px" : "9px"))
-        .attr("font-weight", d => (d.id === mmState.focusedNodeId || d.kind === "hub" || d.kind === "verse") ? "700" : "500")
-        .style("text-shadow", "0 1px 3px #000, 0 0 5px #000")
+        .attr("fill", "#ffffff")
+        .attr("opacity", 1.0)
+        .attr("font-size", d => (pinned2DSet.has(d.id) || d.kind === "hub") ? "10.5px" : "9px")
+        .attr("font-weight", d => (pinned2DSet.has(d.id) || d.kind === "hub") ? "700" : "500")
+        .attr("display", d => (pinned2DSet.has(d.id) || d.kind === "verse" || mmState.showEdgeTitles) ? "block" : "none")
+        .style("text-shadow", "0 1px 3px #000, 0 0 6px #000")
         .text(d => d.label);
 
       // Physical node dragging for all 2D layouts
@@ -6392,12 +7153,20 @@
         renderLibrary();
       });
 
-      // Collapsible / Retractable Side Panels (Left & Right) + Bottom Pathway Dock
+      // Collapsible / Retractable Side Panels (Left & Right) + Streamlined Bottom Pathway Strip & Flyout Tray
       bindOn("mmCollapseLeftBtn", "click", () => toggleLeftMindMapPanel(true));
       bindOn("mmRestoreLeftBtn", "click", () => toggleLeftMindMapPanel(false));
       bindOn("mmCollapseRightBtn", "click", () => toggleRightMindMapPanel(true));
       bindOn("mmRestoreRightBtn", "click", () => toggleRightMindMapPanel(false));
-      bindOn("mmToggleHudDockBtn", "click", () => toggleMindMapHudDock());
+      bindOn("mmToggleHudDockBtn", "click", () => toggleMindMapHudDock(true));
+      bindOn("mmRestoreBezelDockBtn", "click", () => toggleMindMapHudDock(false));
+      bindOn("mmDockFlyoutBtn", "click", () => toggleMindMapDockFlyout());
+      bindOn("mmDockFlyoutBtn", "mouseenter", () => {
+        if (!mmState.hudDockCollapsed) toggleMindMapDockFlyout(true);
+      });
+      bindOn("mmBottomDockWrapper", "mouseleave", () => {
+        if (mmState.dockFlyoutOpen) toggleMindMapDockFlyout(false);
+      });
 
       // Pathway Pinning & Node Pathway Cycling Controls
       bindOn("mmPinPathwayBtn", "click", () => {
@@ -6509,8 +7278,8 @@
 
       bindOn("mmResetViewBtn", "click", () => {
         if (mmState.layout.startsWith("3d") && mm3D.initialized) {
-          mm3D.desiredTarget.set(0, 0, 25);
-          mm3D.desiredCamPos.set(160, 95, 540);
+          mm3D.desiredTarget.set(0, -10, 35);
+          mm3D.desiredCamPos.set(295, 225, 560);
           mm3D.cameraLerpActive = true;
         } else if (mmState.svg && mmState.zoomBehavior) {
           mmState.svg.transition().duration(400).call(mmState.zoomBehavior.transform, d3.zoomIdentity);
