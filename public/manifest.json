@@ -1,0 +1,39 @@
+{
+  "id": "/",
+  "name": "Codex Geographica — Biblical & Apocryphal Atlas",
+  "short_name": "CodexAtlas",
+  "description": "Cumulative Interactive Space: Every Writer, Passage Breakdown, Canonical & Apocryphal Journey across 84 Books, 36-Step GIS Atlas, and 67,000 Cross-Links 3D Mind Map.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#090d16",
+  "theme_color": "#090d16",
+  "categories": ["education", "reference", "books", "navigation"],
+  "icons": [
+    {
+      "src": "/pwa-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/pwa-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/pwa-maskable-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}

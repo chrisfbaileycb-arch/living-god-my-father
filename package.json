@@ -10,6 +10,7 @@
     "lint": "node --check server.js && npm run build"
   },
   "dependencies": {
+    "@google/genai": "^3.1.0",
     "express": "^4.21.2",
     "three": "^0.186.1"
   }

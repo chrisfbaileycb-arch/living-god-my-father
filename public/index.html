@@ -2,11 +2,20 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>Codex Geographica — Complete Biblical & Apocryphal Interactive Atlas</title>
   <meta name="description" content="Cumulative Interactive Space: Every Writer, Passage Breakdown, Canonical & Apocryphal Journey across 84 Books and a 36-Step Atlas." />
   <meta property="og:title" content="Codex Geographica — Complete Biblical & Apocryphal Interactive Atlas" />
   <meta property="og:description" content="Cumulative Interactive Space: Every Writer, Passage Breakdown, Canonical & Apocryphal Journey across 84 Books and a 36-Step Atlas." />
+  <!-- Progressive Web App (PWA) & Mobile Standalone Metadata -->
+  <meta name="theme-color" content="#090d16" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="CodexAtlas" />
+  <link rel="manifest" href="/manifest.json" />
+  <link rel="icon" type="image/svg+xml" href="/icon.svg" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://d3js.org/d3.v7.min.js"></script>
   <script src="https://unpkg.com/topojson-client@3"></script>
@@ -46,11 +55,17 @@
       color: #e2e8f0;
       font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
       overflow-x: hidden;
+      -webkit-tap-highlight-color: transparent;
+    }
+    button, select, input, a {
+      touch-action: manipulation;
     }
     .custom-scroll::-webkit-scrollbar { width: 6px; height: 6px; }
     .custom-scroll::-webkit-scrollbar-track { background: #0b1120; }
     .custom-scroll::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
     .custom-scroll::-webkit-scrollbar-thumb:hover { background: #475569; }
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     .map-surface {
       background: radial-gradient(circle at 50% 45%, #13203d 0%, #070b14 100%);
     }
@@ -76,6 +91,107 @@
     .panel-collapsed-right {
       transform: translateX(102%);
       pointer-events: none;
+    }
+
+    /* Mobile + PC Responsive Ergonomics & Safe-Area Support */
+    .pb-safe-bottom {
+      padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 0.35rem);
+    }
+
+    /* Desktop Atlas Layout Modes (Spacious 2-Col Default vs 3-Col Split vs Full-Width Map) */
+    @media (min-width: 1024px) {
+      #ws-journey[data-atlas-layout="spacious"] #journeyLeftAside {
+        display: none;
+      }
+      #ws-journey[data-atlas-layout="spacious"] #journeyCenterSection {
+        grid-column: span 8 / span 8;
+      }
+      #ws-journey[data-atlas-layout="spacious"] #journeyRightAside {
+        grid-column: span 4 / span 4;
+      }
+      #ws-journey[data-atlas-layout="fullmap"] #journeyLeftAside,
+      #ws-journey[data-atlas-layout="fullmap"] #journeyRightAside {
+        display: none;
+      }
+      #ws-journey[data-atlas-layout="fullmap"] #journeyCenterSection {
+        grid-column: span 12 / span 12;
+        border-right: none;
+      }
+    }
+
+    /* Right Inspector Sub-Tabs Filtering (Eliminates vertical crowding of 5 stacked cards) */
+    #journeyRightAside[data-insp-tab="step"] .insp-pane-item:not([data-insp-pane="step"]) {
+      display: none;
+    }
+    #journeyRightAside[data-insp-tab="grounding"] .insp-pane-item:not([data-insp-pane="grounding"]) {
+      display: none;
+    }
+    #journeyRightAside[data-insp-tab="book"] .insp-pane-item:not([data-insp-pane="book"]) {
+      display: none;
+    }
+    #journeyRightAside[data-insp-tab="links"] .insp-pane-item:not([data-insp-pane="links"]) {
+      display: none;
+    }
+
+    /* Writers & Canon Loom Sub-Tabs */
+    #ws-loom[data-loom-tab="writers"] #loomCanonCard {
+      display: none;
+    }
+    #ws-loom[data-loom-tab="writers"] #loomGridWrap {
+      grid-template-columns: repeat(1, minmax(0, 1fr));
+    }
+    #ws-loom[data-loom-tab="canon"] #loomWritersCard {
+      display: none;
+    }
+    #ws-loom[data-loom-tab="canon"] #loomGridWrap {
+      grid-template-columns: repeat(1, minmax(0, 1fr));
+    }
+
+    @media (max-width: 1023px) {
+      body {
+        padding-bottom: calc(64px + env(safe-area-inset-bottom, 0px));
+      }
+      /* Mobile sub-panel switching for Codex Geographica (#ws-journey) */
+      #ws-journey[data-mobile-pane="map"] #journeyLeftAside,
+      #ws-journey[data-mobile-pane="map"] #journeyRightAside {
+        display: none !important;
+      }
+      #ws-journey[data-mobile-pane="books"] #journeyCenterSection,
+      #ws-journey[data-mobile-pane="books"] #journeyRightAside {
+        display: none !important;
+      }
+      #ws-journey[data-mobile-pane="inspector"] #journeyLeftAside,
+      #ws-journey[data-mobile-pane="inspector"] #journeyCenterSection {
+        display: none !important;
+      }
+      #journeyLeftAside,
+      #journeyCenterSection,
+      #journeyRightAside {
+        height: calc(100dvh - 188px) !important;
+        min-height: 480px;
+      }
+      #ws-journey[data-mobile-pane="stack"] #journeyLeftAside,
+      #ws-journey[data-mobile-pane="stack"] #journeyCenterSection,
+      #ws-journey[data-mobile-pane="stack"] #journeyRightAside {
+        display: flex !important;
+        height: 76vh !important;
+      }
+    }
+    @media (max-width: 639px) {
+      /* On phone viewports, allow collapsing floating HUD overlays so map touch area is maximized */
+      #mapContainer.mobile-hud-compact #gisStepOverlayWrap .mobile-hud-details {
+        display: none;
+      }
+      #gisStepOverlayWrap {
+        max-width: calc(100vw - 1.5rem) !important;
+        right: 0.75rem;
+      }
+      #gisLayerControlCard {
+        top: 3.25rem !important;
+        right: 0.75rem !important;
+        left: 0.75rem !important;
+        width: auto !important;
+      }
     }
 
     /* Historical Cartography & Period Tile Shading Filters */
@@ -149,70 +265,110 @@
 </head>
 <body class="min-h-screen flex flex-col selection:bg-teal-500 selection:text-slate-950">
 
-  <!-- TOP NAVIGATION & WORKSPACE MODES -->
-  <header id="mainAppHeader" class="border-b border-slate-800 bg-slate-900/95 backdrop-blur sticky top-0 z-40 px-4 py-2.5 transition-all">
-    <div class="max-w-[1840px] mx-auto flex flex-wrap items-center justify-between gap-3">
-      <div class="flex items-center gap-3">
-        <div class="w-9 h-9 rounded-lg bg-teal-500/15 border border-teal-400/40 flex items-center justify-center text-teal-300 font-bold text-lg shadow-inner">
+  <!-- OFFLINE RESILIENCE BANNER (Auto-shown when device goes offline) -->
+  <div id="offlineStatusBanner" class="hidden bg-amber-950/95 border-b border-amber-500/40 px-4 py-1.5 text-center text-xs text-amber-200 font-medium z-50">
+    ⚡ Offline Mode Active — All 84 Books, 36 Journey Steps, 67,000 Cross-Links &amp; Cached Map Tiles Available Offline
+  </div>
+
+  <!-- STREAMLINED TOP NAVIGATION & 7 DEDICATED WORKSPACE TABS -->
+  <header id="mainAppHeader" class="border-b border-slate-800 bg-slate-900/95 backdrop-blur sticky top-0 z-40 px-3 sm:px-4 py-2 transition-all">
+    <div class="max-w-[1840px] mx-auto flex flex-wrap items-center justify-between gap-2.5">
+      <!-- Brand Identity -->
+      <div class="flex items-center gap-2.5 min-w-0">
+        <div class="w-9 h-9 rounded-lg bg-teal-500/15 border border-teal-400/40 flex items-center justify-center text-teal-300 font-bold text-lg shadow-inner shrink-0">
           ⊕
         </div>
-        <div>
-          <div class="flex items-center gap-2 flex-wrap">
-            <h1 class="text-base sm:text-lg font-bold tracking-tight text-white">
+        <div class="min-w-0">
+          <div class="flex items-center gap-2">
+            <h1 class="text-sm sm:text-base font-bold tracking-tight text-white truncate">
               Codex Geographica
             </h1>
-            <span class="text-[11px] font-medium px-2 py-0.5 rounded bg-teal-950/90 text-teal-300 border border-teal-700/50">
-              84 Books • 39 OT • 27 NT • 18 Apocrypha • 36-Step GIS Atlas
+            <span class="hidden xl:inline-block text-[10px] font-mono px-2 py-0.5 rounded bg-teal-950/90 text-teal-300 border border-teal-700/50">
+              84 Books • 36 Steps • 67K Links
             </span>
           </div>
-          <p class="text-xs text-slate-400">
-            Cumulative Interactive Space: Every Writer, Passage Breakdown, Canonical &amp; Apocryphal Journey
+          <p class="text-[11px] text-slate-400 truncate hidden sm:block">
+            Interactive Biblical, Apocryphal &amp; Historical GIS Cartography Studio
           </p>
         </div>
       </div>
 
-      <!-- Primary Workspace Mode Tabs (JOURNEY / LIBRARY / LOOM / LINKS / MIND MAP) -->
-      <nav aria-label="Workspace views" class="flex items-center gap-1 bg-slate-950 p-1 rounded-lg border border-slate-800">
-        <button data-workspace="journey" class="ws-tab px-3 py-1.5 rounded-md text-xs font-semibold transition bg-teal-600 text-white shadow">
-          🗺️ CODEX GEOGRAPHICA
+      <!-- 7 Primary Workspace Tabs (Spacious Dedicated Environments) -->
+      <nav aria-label="Workspace views" class="flex items-center gap-1 bg-slate-950 p-1 rounded-xl border border-slate-800 overflow-x-auto no-scrollbar max-w-full">
+        <button data-workspace="journey" class="ws-tab px-3 py-1.5 rounded-lg text-xs font-semibold transition bg-teal-600 text-white shadow whitespace-nowrap shrink-0">
+          🗺️ ATLAS MAP
         </button>
-        <button data-workspace="library" class="ws-tab px-3 py-1.5 rounded-md text-xs font-semibold transition text-slate-300 hover:text-white hover:bg-slate-800/70">
-          📖 LIBRARY (84)
+        <button data-workspace="steps" class="ws-tab px-3 py-1.5 rounded-lg text-xs font-semibold transition text-slate-300 hover:text-white hover:bg-slate-800/70 whitespace-nowrap shrink-0">
+          🧭 36-STEP EXPEDITION
         </button>
-        <button data-workspace="loom" class="ws-tab px-3 py-1.5 rounded-md text-xs font-semibold transition text-slate-300 hover:text-white hover:bg-slate-800/70">
-          🧵 LOOM (Writers &amp; Canon)
+        <button data-workspace="reader" class="ws-tab px-3 py-1.5 rounded-lg text-xs font-semibold transition text-slate-300 hover:text-white hover:bg-slate-800/70 whitespace-nowrap shrink-0">
+          📜 BOOK &amp; PASSAGE STUDIO
         </button>
-        <button data-workspace="links" class="ws-tab px-3 py-1.5 rounded-md text-xs font-semibold transition text-slate-300 hover:text-white hover:bg-slate-800/70 whitespace-nowrap shrink-0">
-          🔗 LINKS (Cross-Text)
+        <button data-workspace="library" class="ws-tab px-3 py-1.5 rounded-lg text-xs font-semibold transition text-slate-300 hover:text-white hover:bg-slate-800/70 whitespace-nowrap shrink-0">
+          📖 84-BOOK TABLE
         </button>
-        <button data-workspace="mindmap" class="ws-tab px-3 py-1.5 rounded-md text-xs font-semibold transition text-slate-300 hover:text-white hover:bg-slate-800/70 whitespace-nowrap shrink-0">
-          🕸️ MIND MAP (67,000)
+        <button data-workspace="loom" class="ws-tab px-3 py-1.5 rounded-lg text-xs font-semibold transition text-slate-300 hover:text-white hover:bg-slate-800/70 whitespace-nowrap shrink-0">
+          🧵 WRITERS &amp; CANON
+        </button>
+        <button data-workspace="links" class="ws-tab px-3 py-1.5 rounded-lg text-xs font-semibold transition text-slate-300 hover:text-white hover:bg-slate-800/70 whitespace-nowrap shrink-0">
+          🔗 INTERTEXTUAL
+        </button>
+        <button data-workspace="mindmap" class="ws-tab px-3 py-1.5 rounded-lg text-xs font-semibold transition text-slate-300 hover:text-white hover:bg-slate-800/70 whitespace-nowrap shrink-0">
+          🕸️ 3D MIND MAP (67K)
         </button>
       </nav>
 
-      <!-- Perceptual & Tradition Filters -->
-      <div class="flex flex-wrap items-center gap-1.5" role="group" aria-label="Tradition filters">
-        <button data-tradition="ALL" class="trad-btn active px-2.5 py-1 rounded text-xs font-medium bg-slate-100 text-slate-900 transition">
-          All (84)
-        </button>
-        <button data-tradition="OT" class="trad-btn px-2.5 py-1 rounded text-xs font-medium bg-slate-800/90 text-amber-300 border border-amber-500/40 hover:bg-slate-700 transition">
-          ■ Old Testament (39)
-        </button>
-        <button data-tradition="NT_GOSPEL" class="trad-btn px-2.5 py-1 rounded text-xs font-medium bg-slate-800/90 text-sky-300 border border-sky-500/40 hover:bg-slate-700 transition">
-          ● Gospels (4)
-        </button>
-        <button data-tradition="NT_EPISTLE" class="trad-btn px-2.5 py-1 rounded text-xs font-medium bg-slate-800/90 text-emerald-300 border border-emerald-500/40 hover:bg-slate-700 transition">
-          ▲ Acts &amp; Epistles (22)
-        </button>
-        <button data-tradition="APOCRYPHA" class="trad-btn px-2.5 py-1 rounded text-xs font-medium bg-slate-800/90 text-pink-300 border border-pink-500/40 hover:bg-slate-700 transition">
-          ◆ Apocrypha &amp; Ethiopian (18)
-        </button>
-        <button data-tradition="PROPHECY" class="trad-btn px-2.5 py-1 rounded text-xs font-medium bg-slate-800/90 text-yellow-200 border border-yellow-400/40 hover:bg-slate-700 transition">
-          ★ Revelation (1)
+      <!-- Right Action Controls: Collapsible Tradition Filters Drawer Toggle + PWA Install -->
+      <div class="flex items-center gap-1.5 shrink-0">
+        <button type="button" id="toggleTraditionDrawerBtn"
+          class="px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-medium transition flex items-center gap-1.5"
+          title="Filter by Scriptural Tradition or Color Vision Simulation">
+          <span>🎯</span>
+          <span class="hidden sm:inline">Tradition Filters:</span>
+          <span id="activeTraditionPillText" class="font-mono text-teal-300 text-[11px]">All (84)</span>
+          <span class="text-[10px] text-slate-400">▾</span>
         </button>
 
-        <select id="cvdSelect" aria-label="Color vision simulation" class="ml-1 bg-slate-900 border border-slate-700 text-[11px] text-slate-300 rounded px-2 py-1">
-          <option value="normal">Vision: Default (Okabe-Ito Safe)</option>
+        <button type="button" id="pwaInstallBtn"
+          class="px-2.5 py-1.5 rounded-lg bg-teal-500/20 hover:bg-teal-500/30 text-teal-300 border border-teal-500/40 text-xs font-semibold transition flex items-center gap-1.5 shadow-sm"
+          title="Install Codex Geographica as a standalone app on your phone or PC">
+          <span>📲</span>
+          <span class="hidden sm:inline">Install App</span>
+        </button>
+        <span id="pwaInstalledBadge" class="hidden px-2 py-1 rounded bg-emerald-950/80 text-emerald-300 border border-emerald-700/50 text-[10px] font-mono">
+          ✓ Installed
+        </span>
+      </div>
+    </div>
+
+    <!-- Collapsible Tradition & Accessibility Filter Drawer (Hidden by default to keep header un-crowded) -->
+    <div id="headerTraditionDrawer" class="hidden max-w-[1840px] mx-auto pt-2.5 mt-2 border-t border-slate-800/80 flex flex-wrap items-center justify-between gap-2">
+      <div class="flex items-center gap-1.5 overflow-x-auto no-scrollbar max-w-full py-0.5" role="group" aria-label="Tradition filters">
+        <span class="text-[11px] font-semibold uppercase tracking-wider text-slate-400 mr-1">Filter Corpus:</span>
+        <button data-tradition="ALL" class="trad-btn active px-2.5 py-1 rounded text-xs font-medium bg-slate-100 text-slate-900 transition whitespace-nowrap shrink-0">
+          All (84)
+        </button>
+        <button data-tradition="OT" class="trad-btn px-2.5 py-1 rounded text-xs font-medium bg-slate-800/90 text-amber-300 border border-amber-500/40 hover:bg-slate-700 transition whitespace-nowrap shrink-0">
+          ■ Old Testament (39)
+        </button>
+        <button data-tradition="NT_GOSPEL" class="trad-btn px-2.5 py-1 rounded text-xs font-medium bg-slate-800/90 text-sky-300 border border-sky-500/40 hover:bg-slate-700 transition whitespace-nowrap shrink-0">
+          ● Gospels (4)
+        </button>
+        <button data-tradition="NT_EPISTLE" class="trad-btn px-2.5 py-1 rounded text-xs font-medium bg-slate-800/90 text-emerald-300 border border-emerald-500/40 hover:bg-slate-700 transition whitespace-nowrap shrink-0">
+          ▲ Acts &amp; Epistles (22)
+        </button>
+        <button data-tradition="APOCRYPHA" class="trad-btn px-2.5 py-1 rounded text-xs font-medium bg-slate-800/90 text-pink-300 border border-pink-500/40 hover:bg-slate-700 transition whitespace-nowrap shrink-0">
+          ◆ Apocrypha &amp; Ethiopian (18)
+        </button>
+        <button data-tradition="PROPHECY" class="trad-btn px-2.5 py-1 rounded text-xs font-medium bg-slate-800/90 text-yellow-200 border border-yellow-400/40 hover:bg-slate-700 transition whitespace-nowrap shrink-0">
+          ★ Revelation (1)
+        </button>
+      </div>
+
+      <div class="flex items-center gap-2">
+        <label for="cvdSelect" class="text-[11px] text-slate-400">Color Vision:</label>
+        <select id="cvdSelect" aria-label="Color vision simulation" class="bg-slate-950 border border-slate-700 text-xs text-slate-200 rounded-md px-2.5 py-1 shrink-0">
+          <option value="normal">Default (Okabe-Ito Colorblind-Safe)</option>
           <option value="deuteranopia">Simulate Deuteranopia (Red-Green CVD)</option>
           <option value="grayscale">Simulate Grayscale</option>
         </select>
@@ -221,20 +377,43 @@
   </header>
 
   <!-- ========================================================= -->
-  <!-- WORKSPACE 1: 🗺️ CODEX GEOGRAPHICA (Interactive GIS Historical Cartography Engine) -->
+  <!-- WORKSPACE 1: 🗺️ ATLAS MAP (Spacious Interactive GIS Historical Cartography Engine) -->
   <!-- ========================================================= -->
-  <main id="ws-journey" class="flex-1 max-w-[1840px] w-full mx-auto grid grid-cols-1 lg:grid-cols-12 gap-0 border-x border-slate-800/80 relative">
+  <main id="ws-journey" data-mobile-pane="map" data-atlas-layout="spacious" class="flex-1 max-w-[1840px] w-full mx-auto grid grid-cols-1 lg:grid-cols-12 gap-0 border-x border-slate-800/80 relative">
 
-    <!-- LEFT SIDEBAR: 84-Book & Writer Navigator -->
+    <!-- MOBILE SUB-VIEW SWITCHER BAR (Visible on Phone/Tablet <1024px) -->
+    <div id="mobileJourneySubNav" class="lg:hidden col-span-1 bg-slate-950 border-b border-slate-800 px-2.5 py-1.5 flex items-center justify-between gap-1 z-30">
+      <div class="grid grid-cols-4 gap-1 w-full" role="tablist" aria-label="Mobile Atlas Panels">
+        <button type="button" data-journey-pane="map" class="journey-pane-btn min-h-[40px] px-2 py-1.5 rounded-lg text-xs font-bold bg-teal-600 text-white shadow flex items-center justify-center gap-1">
+          <span>🗺️</span><span>Map</span>
+        </button>
+        <button type="button" data-journey-pane="inspector" class="journey-pane-btn min-h-[40px] px-2 py-1.5 rounded-lg text-xs font-semibold bg-slate-900 text-slate-300 border border-slate-800 flex items-center justify-center gap-1">
+          <span>🔍</span><span>Stop Info</span>
+        </button>
+        <button type="button" data-journey-pane="books" class="journey-pane-btn min-h-[40px] px-2 py-1.5 rounded-lg text-xs font-semibold bg-slate-900 text-slate-300 border border-slate-800 flex items-center justify-center gap-1">
+          <span>📚</span><span>84 Books</span>
+        </button>
+        <button type="button" data-journey-pane="stack" class="journey-pane-btn min-h-[40px] px-2 py-1.5 rounded-lg text-xs font-semibold bg-slate-900 text-slate-300 border border-slate-800 flex items-center justify-center gap-1" title="Stack all 3 panels vertically">
+          <span>↕</span><span>All 3</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- LEFT SIDEBAR: 84-Book & Writer Navigator (Docked when 3-Column mode is active, or accessible in Book Studio tab) -->
     <aside id="journeyLeftAside" class="lg:col-span-3 border-r border-slate-800 bg-slate-900/60 flex flex-col h-[86vh] transition-all">
       <div class="p-3 border-b border-slate-800 space-y-2">
         <div class="flex items-center justify-between">
           <h2 class="text-xs font-bold uppercase tracking-wider text-slate-400">
             Scriptural &amp; Apocryphal Catalog
           </h2>
-          <span id="bookCountBadge" class="text-[11px] font-mono text-teal-300 bg-teal-950/80 px-2 py-0.5 rounded border border-teal-800/60">
-            84 books
-          </span>
+          <div class="flex items-center gap-1.5">
+            <span id="bookCountBadge" class="text-[11px] font-mono text-teal-300 bg-teal-950/80 px-2 py-0.5 rounded border border-teal-800/60">
+              84 books
+            </span>
+            <button type="button" id="closeLeftBookDrawerBtn" class="hidden lg:inline-flex px-1.5 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 text-[11px]" title="Hide Book Drawer to widen map">
+              ✕
+            </button>
+          </div>
         </div>
 
         <input id="bookSearchInput" type="search" placeholder="Search book, writer (Paul, Moses, Enoch...), city..."
@@ -251,34 +430,53 @@
       <div id="bookCatalogList" class="flex-1 overflow-y-auto custom-scroll divide-y divide-slate-800/60" role="listbox" aria-label="Books of the Bible and Apocrypha"></div>
     </aside>
 
-    <!-- CENTER: Interactive GIS Tile Map / 3D Globe + 36-Step Journey Scrubber -->
+    <!-- CENTER: Spacious Interactive GIS Tile Map / 3D Globe + 36-Step Journey Scrubber -->
     <section id="journeyCenterSection" class="lg:col-span-6 flex flex-col h-[86vh] border-r border-slate-800 bg-slate-950 relative transition-all">
-      <!-- Map Toolbar -->
+      <!-- Clean Map Toolbar with Layout Density Switcher -->
       <div class="px-3 py-2 border-b border-slate-800 bg-slate-900/90 flex flex-wrap items-center justify-between gap-2 z-20">
-        <div class="flex items-center gap-1.5 flex-wrap">
-          <span class="text-[11px] font-semibold uppercase tracking-wider text-slate-400 mr-1">Route Layer:</span>
-          <button data-route="ALL" class="route-pill px-2 py-1 rounded text-xs font-medium bg-teal-600 text-white">All Journeys</button>
-          <button data-route="OT_PATRIARCHS" class="route-pill px-2 py-1 rounded text-xs font-medium bg-slate-800 text-slate-300 hover:bg-slate-700">OT Patriarchs &amp; Exodus</button>
-          <button data-route="NT_JESUS" class="route-pill px-2 py-1 rounded text-xs font-medium bg-slate-800 text-slate-300 hover:bg-slate-700">Gospels &amp; Galilee</button>
-          <button data-route="APOC_EGYPT" class="route-pill px-2 py-1 rounded text-xs font-medium bg-slate-800 text-slate-300 hover:bg-slate-700">Holy Family in Egypt &amp; Aksum</button>
-          <button data-route="NT_PAUL" class="route-pill px-2 py-1 rounded text-xs font-medium bg-slate-800 text-slate-300 hover:bg-slate-700">Acts &amp; Apostolic Missions</button>
+        <div class="flex items-center gap-1.5 overflow-x-auto no-scrollbar max-w-full py-0.5">
+          <span class="text-[11px] font-semibold uppercase tracking-wider text-slate-400 mr-1 shrink-0">Route:</span>
+          <button data-route="ALL" class="route-pill px-2.5 py-1 rounded-md text-xs font-medium bg-teal-600 text-white whitespace-nowrap shrink-0">All Journeys</button>
+          <button data-route="OT_PATRIARCHS" class="route-pill px-2.5 py-1 rounded-md text-xs font-medium bg-slate-800 text-slate-300 hover:bg-slate-700 whitespace-nowrap shrink-0">OT Patriarchs &amp; Exodus</button>
+          <button data-route="NT_JESUS" class="route-pill px-2.5 py-1 rounded-md text-xs font-medium bg-slate-800 text-slate-300 hover:bg-slate-700 whitespace-nowrap shrink-0">Gospels &amp; Galilee</button>
+          <button data-route="APOC_EGYPT" class="route-pill px-2.5 py-1 rounded-md text-xs font-medium bg-slate-800 text-slate-300 hover:bg-slate-700 whitespace-nowrap shrink-0">Egypt &amp; Aksum</button>
+          <button data-route="NT_PAUL" class="route-pill px-2.5 py-1 rounded-md text-xs font-medium bg-slate-800 text-slate-300 hover:bg-slate-700 whitespace-nowrap shrink-0">Apostolic Missions</button>
         </div>
 
         <div class="flex items-center gap-1.5 flex-wrap">
+          <!-- Desktop Panel Layout Selector (Spacious 2-Col vs 3-Col Split vs Full-Width Map) -->
+          <div class="hidden lg:flex items-center gap-0.5 bg-slate-950 p-0.5 rounded-lg border border-slate-800 mr-1" role="group" aria-label="Atlas workspace layout">
+            <button type="button" data-atlas-mode="spacious" class="atlas-mode-btn px-2 py-1 rounded text-[11px] font-semibold bg-teal-600 text-white" title="Spacious Map + Tabbed Inspector (Default)">
+              🗺️ Spacious
+            </button>
+            <button type="button" data-atlas-mode="split" class="atlas-mode-btn px-2 py-1 rounded text-[11px] font-medium text-slate-300 hover:text-white" title="Dock 84-Book Sidebar + Map + Inspector">
+              📚 +84 Books
+            </button>
+            <button type="button" data-atlas-mode="fullmap" class="atlas-mode-btn px-2 py-1 rounded text-[11px] font-medium text-slate-300 hover:text-white" title="Full-Width Map Canvas">
+              ↔ Wide Map
+            </button>
+          </div>
+
+          <button type="button" id="mobileHudToggleBtn" class="sm:hidden px-2.5 py-1 rounded text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-teal-300 border border-teal-500/40 transition">
+            🎛️ Info
+          </button>
           <button id="toggleProjectionBtn" class="px-2.5 py-1 rounded text-xs font-medium bg-slate-800 hover:bg-slate-700 text-teal-300 border border-teal-500/30 transition" title="Switch between Multi-Zoom GIS Tile Map and 3D Orthographic Globe">
-            🌐 3D Globe View
+            🌐 3D Globe
           </button>
           <button id="resetZoomBtn" class="px-2 py-1 rounded text-xs font-medium bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700">
-            Reset View
+            Reset
           </button>
           <button id="zenMapToggleBtn" class="px-2.5 py-1 rounded text-xs font-semibold bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 transition flex items-center gap-1" title="Maximize Map / Full Immersion Zen Mode (Shortcut: M or Esc)">
-            <span>⛶ Maximize Map</span>
+            <span>⛶ Zen Map</span>
           </button>
         </div>
       </div>
 
-      <!-- Interactive GIS Leaflet Canvas + Optional 3D Globe SVG -->
-      <div id="mapContainer" class="relative flex-1 map-surface overflow-hidden select-none">
+      <!-- Interactive Google Maps Platform / GIS Leaflet Canvas + Optional 3D Globe SVG -->
+      <div id="mapContainer" class="relative flex-1 map-surface overflow-hidden select-none mobile-hud-compact">
+        <!-- Google Maps Platform Interactive Canvas (Maps JS API + AdvancedMarkerElement) -->
+        <div id="gmpMapCanvas" class="hidden w-full h-full z-10" style="min-height: 400px;" role="region" aria-label="Google Maps Platform Interactive Biblical Atlas"></div>
+
         <!-- Leaflet GIS Interactive Tile Map -->
         <div id="gisLeafletMap" class="w-full h-full z-10 gis-style-parchment" role="region" aria-label="Interactive GIS Historical Biblical Map"></div>
 
@@ -292,97 +490,117 @@
           <kbd class="kbd text-[10px] text-slate-300">Esc / M</kbd>
         </button>
 
-        <!-- Active Step & Historical Context Banner Overlay (Top-Left) -->
+        <!-- Compact Active Step Pill & Expandable Context Banner (Top-Left) -->
         <div id="gisStepOverlayWrap" class="absolute top-3 left-3 z-[400] pointer-events-none flex flex-col gap-2 max-w-md">
-          <div class="pointer-events-auto bg-slate-900/95 border border-slate-700/80 rounded-xl px-3.5 py-2.5 shadow-2xl">
+          <div class="pointer-events-auto bg-slate-900/95 backdrop-blur-md border border-slate-700/80 rounded-xl px-3 py-2 shadow-2xl">
             <div class="flex items-center justify-between gap-2 flex-wrap">
-              <div class="flex items-center gap-2">
+              <div class="flex items-center gap-1.5">
                 <span id="activeStepBadge" class="text-[10px] font-bold uppercase px-1.5 py-0.5 rounded bg-teal-500/20 text-teal-300 border border-teal-500/40">
                   STEP 1 / 36
                 </span>
-                <span id="activeStepEra" class="text-xs text-amber-300 font-mono">c. 2000 BCE • Genesis 11–12</span>
+                <span id="activeStepEra" class="text-[11px] text-amber-300 font-mono">c. 2000 BCE • Genesis 11–12</span>
               </div>
-              <button type="button" id="narrateActiveStepBtn"
-                class="px-2 py-0.5 rounded bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 text-[11px] font-semibold transition"
-                title="Narrate this historical journey step with the Deep Discovery voice">
-                🎙️ Narrate Step
-              </button>
+              <div class="flex items-center gap-1">
+                <button type="button" id="groundActiveStepBtn"
+                  class="px-2 py-0.5 rounded bg-teal-500/20 hover:bg-teal-500/30 text-teal-300 border border-teal-500/40 text-[11px] font-semibold transition"
+                  title="Ground this biblical stop with Gemini + Google Maps">
+                  ✨ Ground
+                </button>
+                <button type="button" id="narrateActiveStepBtn"
+                  class="px-2 py-0.5 rounded bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 text-[11px] font-semibold transition"
+                  title="Narrate this historical journey step with the Deep Discovery voice">
+                  🎙️ Narrate
+                </button>
+                <button type="button" id="toggleStepBannerDetailsBtn"
+                  class="px-1.5 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 text-[10px] font-mono"
+                  title="Collapse or expand step description">
+                  ▾ Info
+                </button>
+              </div>
             </div>
-            <h3 id="activeStepTitle" class="text-sm font-bold text-white mt-1">
+            <h3 id="activeStepTitle" class="text-xs sm:text-sm font-bold text-white mt-1">
               Ur of the Chaldees to Harran &amp; Canaan
             </h3>
-            <p id="activeStepDesc" class="text-xs text-slate-300 mt-0.5 leading-relaxed">
-              Abram journeys from Ur in Mesopotamia up the Euphrates to Harran, then south through Shechem, Bethel, and Hebron.
-            </p>
-            <div id="activeStepEraTerritory" class="text-[11px] font-mono text-teal-300 mt-1.5 pt-1 border-t border-slate-800/90 flex items-center justify-between gap-2">
-              <span>🏛️ Era: Bronze Age / Patriarchal Fertile Crescent</span>
-              <span id="activeStepModernCoords" class="text-slate-400">Ur → Harran</span>
+            <div id="stepBannerCollapsibleBody" class="mobile-hud-details mt-1">
+              <p id="activeStepDesc" class="text-xs text-slate-300 leading-relaxed">
+                Abram journeys from Ur in Mesopotamia up the Euphrates to Harran, then south through Shechem, Bethel, and Hebron.
+              </p>
+              <div id="activeStepEraTerritory" class="text-[11px] font-mono text-teal-300 mt-1.5 pt-1 border-t border-slate-800/90 flex items-center justify-between gap-2">
+                <span>🏛️ Era: Bronze Age / Patriarchal Fertile Crescent</span>
+                <span id="activeStepModernCoords" class="text-slate-400">Ur → Harran</span>
+              </div>
             </div>
           </div>
         </div>
 
-        <!-- TOP-RIGHT FLOATING GIS MAP STYLE & HISTORICAL PERIOD SWITCHER -->
-        <div id="gisLayerControlCard" class="absolute top-3 right-3 z-[400] bg-slate-900/95 border border-slate-700/90 rounded-xl p-2.5 shadow-2xl w-72 space-y-2 text-xs">
-          <div class="flex items-center justify-between border-b border-slate-800 pb-1.5">
-            <span class="font-bold text-white flex items-center gap-1.5">
-              <span>🗺️ Cartography &amp; Era Layers</span>
+        <!-- TOP-RIGHT FLOATING CARTOGRAPHY & ERA POPOVER TRIGGER + DRAWER (Collapsed by default so map is un-crowded!) -->
+        <div class="absolute top-3 right-3 z-[400] flex flex-col items-end gap-1.5">
+          <button type="button" id="toggleGisLayersPopoverBtn"
+            class="bg-slate-900/95 hover:bg-slate-800 backdrop-blur-md border border-slate-700/90 rounded-xl px-3 py-2 shadow-2xl text-xs font-bold text-white flex items-center gap-2 transition">
+            <span>🗺️ Map Style &amp; Era Layers</span>
+            <span id="gmpStatusBadge" class="text-[9px] font-mono text-emerald-300 bg-emerald-950/80 px-1.5 py-0.5 rounded border border-emerald-700/60">
+              GMP + Gemini
             </span>
             <span id="gisZoomLevelBadge" class="text-[10px] font-mono text-teal-300 bg-slate-950 px-1.5 py-0.5 rounded border border-slate-800">
               Zoom 5x
             </span>
-          </div>
+            <span id="gisLayersChevron" class="text-slate-400 text-[10px]">▾</span>
+          </button>
 
-          <!-- Base Map Style Switcher -->
-          <div>
-            <label for="gisBaseStyleSelect" class="block text-[10px] font-semibold uppercase tracking-wider text-slate-400 mb-1">
-              Base Cartography Style
-            </label>
-            <select id="gisBaseStyleSelect" class="w-full bg-slate-950 border border-slate-700 rounded-md px-2 py-1 text-xs text-slate-100 focus:outline-none focus:border-teal-400">
-              <option value="parchment">📜 Antiquity Parchment &amp; Engraved Relief</option>
-              <option value="satellite">🛰️ Current / Modern Satellite &amp; Terrain</option>
-              <option value="topo">⛰️ Physical Elevation &amp; Contours (GIS Topo)</option>
-              <option value="dark_gis">🌑 Obsidian Scholarly Vector Base</option>
-            </select>
-          </div>
+          <div id="gisLayerControlCard" class="hidden bg-slate-900/95 backdrop-blur-md border border-slate-700/90 rounded-xl p-3 shadow-2xl w-72 space-y-2.5 text-xs">
+            <!-- Base Map Style Switcher -->
+            <div>
+              <label for="gisBaseStyleSelect" class="block text-[10px] font-semibold uppercase tracking-wider text-slate-400 mb-1">
+                Base Cartography Style
+              </label>
+              <select id="gisBaseStyleSelect" class="w-full bg-slate-950 border border-slate-700 rounded-md px-2 py-1.5 text-xs text-slate-100 focus:outline-none focus:border-teal-400">
+                <option value="google_hybrid">🌍 Google Maps — Satellite &amp; Hybrid</option>
+                <option value="google_terrain">🏔️ Google Maps — Physical Terrain &amp; Relief</option>
+                <option value="google_roadmap">🗺️ Google Maps — Vector Atlas</option>
+                <option value="parchment">📜 Antiquity Parchment &amp; Engraved Relief</option>
+                <option value="satellite">🛰️ Current / Modern Satellite &amp; Terrain (Esri)</option>
+                <option value="topo">⛰️ Physical Elevation &amp; Contours (GIS Topo)</option>
+                <option value="dark_gis">🌑 Obsidian Scholarly Vector Base</option>
+              </select>
+            </div>
 
-          <!-- Ancient Empire & Biblical Period Switcher -->
-          <div>
-            <label for="gisPeriodSelect" class="block text-[10px] font-semibold uppercase tracking-wider text-amber-300 mb-1">
-              Ancient Empire &amp; Biblical Period
-            </label>
-            <select id="gisPeriodSelect" class="w-full bg-slate-950 border border-slate-700 rounded-md px-2 py-1 text-xs text-slate-100 focus:outline-none focus:border-amber-400">
-              <option value="AUTO">⚡ Auto-Sync Era with Active Step (1–36)</option>
-              <option value="BRONZE">🏺 Bronze Age / Patriarchal (c. 2000–1400 BCE)</option>
-              <option value="IRON">⚔️ Iron Age / Monarchic (c. 1000–586 BCE)</option>
-              <option value="SECOND_TEMPLE">🏛️ Second Temple / Persian &amp; Hellenistic (538–63 BCE)</option>
-              <option value="ROMAN">🦅 1st-C. Roman Judea &amp; Apostolic World (Pax Romana)</option>
-            </select>
-          </div>
+            <!-- Ancient Empire & Biblical Period Switcher -->
+            <div>
+              <label for="gisPeriodSelect" class="block text-[10px] font-semibold uppercase tracking-wider text-amber-300 mb-1">
+                Ancient Empire &amp; Biblical Period
+              </label>
+              <select id="gisPeriodSelect" class="w-full bg-slate-950 border border-slate-700 rounded-md px-2 py-1.5 text-xs text-slate-100 focus:outline-none focus:border-amber-400">
+                <option value="AUTO">⚡ Auto-Sync Era with Active Step (1–36)</option>
+                <option value="BRONZE">🏺 Bronze Age / Patriarchal (c. 2000–1400 BCE)</option>
+                <option value="IRON">⚔️ Iron Age / Monarchic (c. 1000–586 BCE)</option>
+                <option value="SECOND_TEMPLE">🏛️ Second Temple / Persian &amp; Hellenistic (538–63 BCE)</option>
+                <option value="ROMAN">🦅 1st-C. Roman Judea &amp; Apostolic World (Pax Romana)</option>
+              </select>
+            </div>
 
-          <!-- Overlay Toggles -->
-          <div class="pt-1 border-t border-slate-800 flex items-center justify-between gap-2 text-[11px] text-slate-300">
-            <label class="inline-flex items-center gap-1.5 cursor-pointer">
-              <input type="checkbox" id="gisShowEmpiresChk" checked class="accent-teal-500 rounded" />
-              <span>Empire Borders &amp; Provinces</span>
-            </label>
-            <label class="inline-flex items-center gap-1.5 cursor-pointer">
-              <input type="checkbox" id="gisCumulativeRoutesChk" checked class="accent-teal-500 rounded" />
-              <span>Cumulative Trail</span>
-            </label>
+            <!-- Overlay Toggles -->
+            <div class="pt-1.5 border-t border-slate-800 flex items-center justify-between gap-2 text-[11px] text-slate-300">
+              <label class="inline-flex items-center gap-1.5 cursor-pointer">
+                <input type="checkbox" id="gisShowEmpiresChk" checked class="accent-teal-500 rounded" />
+                <span>Empire Borders &amp; Provinces</span>
+              </label>
+              <label class="inline-flex items-center gap-1.5 cursor-pointer">
+                <input type="checkbox" id="gisCumulativeRoutesChk" checked class="accent-teal-500 rounded" />
+                <span>Cumulative Trail</span>
+              </label>
+            </div>
           </div>
         </div>
 
         <!-- Bottom-Left Perceptual Legend Overlay -->
         <div class="absolute bottom-3 left-3 z-[400] pointer-events-none hidden sm:block">
-          <div class="pointer-events-auto bg-slate-900/90 border border-slate-800 rounded-lg px-2.5 py-2 text-[11px] flex flex-wrap items-center gap-3 shadow-xl">
+          <div class="pointer-events-auto bg-slate-900/90 border border-slate-800 rounded-lg px-2.5 py-1.5 text-[11px] flex flex-wrap items-center gap-2.5 shadow-xl">
             <span class="font-semibold text-slate-300">Traditions:</span>
             <span class="flex items-center gap-1"><span class="text-amber-400">■</span><span>OT</span></span>
             <span class="flex items-center gap-1"><span class="text-sky-400">●</span><span>Gospels</span></span>
             <span class="flex items-center gap-1"><span class="text-emerald-400">▲</span><span>Acts/Epistles</span></span>
             <span class="flex items-center gap-1"><span class="text-pink-400">◆</span><span>Apocrypha/Egypt/Aksum</span></span>
             <span class="flex items-center gap-1"><span class="text-yellow-300">★</span><span>Apocalyptic</span></span>
-            <span class="text-slate-500">·</span>
-            <span class="text-slate-400">Click any city pin for Ancient vs. Modern name, Archaeology &amp; Voice Narration</span>
           </div>
         </div>
 
@@ -403,9 +621,9 @@
             <button id="nextStepBtn" class="px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-xs font-medium text-slate-200 border border-slate-700">
               Next ▶
             </button>
-            <span class="text-[11px] text-slate-400 ml-2 hidden sm:inline">
-              Keys: <kbd class="kbd">←</kbd> <kbd class="kbd">→</kbd> step · <kbd class="kbd">M</kbd> Zen Map
-            </span>
+            <button type="button" data-open-ws="steps" class="px-2.5 py-1 rounded bg-slate-800/80 hover:bg-slate-700 text-[11px] font-medium text-teal-300 border border-teal-500/30 hidden sm:inline-flex items-center gap-1">
+              <span>🧭 Open Full 36-Step Deck</span>
+            </button>
           </div>
 
           <div class="text-xs font-mono text-slate-300">
@@ -420,88 +638,200 @@
       </div>
     </section>
 
-    <!-- RIGHT INSPECTOR: Book Details, Writer Analysis, Complete Passage Breakdown -->
-    <aside id="journeyRightAside" class="lg:col-span-3 bg-slate-900/60 flex flex-col h-[86vh] overflow-y-auto custom-scroll p-3.5 space-y-4 transition-all">
-      <!-- Active Book Header -->
-      <div class="border-b border-slate-800 pb-3">
+    <!-- RIGHT INSPECTOR: Organized with 4 Interactive Sub-Tabs so it never feels crowded -->
+    <aside id="journeyRightAside" data-insp-tab="step" class="lg:col-span-3 bg-slate-900/60 flex flex-col h-[86vh] overflow-hidden transition-all">
+      <!-- Persistent Active Book Mini-Banner + Quick Book Switcher -->
+      <div class="p-3 border-b border-slate-800 bg-slate-950/80 space-y-2">
         <div class="flex items-center justify-between gap-2">
-          <span id="inspTraditionBadge" class="text-[11px] font-bold uppercase px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/40">
+          <span id="inspTraditionBadge" class="text-[10px] font-bold uppercase px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/40">
             ■ OLD TESTAMENT
           </span>
-          <span id="inspCanonStatus" class="text-[11px] text-slate-400 font-mono">Hebrew / Protestant / Catholic / Orthodox</span>
-        </div>
-        <h2 id="inspBookTitle" class="text-lg font-bold text-white mt-1.5">Genesis (Bereshit)</h2>
-        <p id="inspBookSubtitle" class="text-xs text-slate-400">50 Chapters • c. 1440–1400 BCE (Trad.) / Persian Period Redaction</p>
-      </div>
-
-      <!-- Writer & Attribution Card -->
-      <div class="bg-slate-950/90 border border-slate-800 rounded-lg p-3 space-y-1.5">
-        <div class="text-[11px] font-bold uppercase tracking-wider text-teal-400">Writer &amp; Attribution Analysis</div>
-        <div class="text-xs"><span class="text-slate-400">Traditional Writer:</span> <strong id="inspWriterTrad" class="text-slate-100">Moses</strong></div>
-        <div class="text-xs"><span class="text-slate-400">Historical / Redaction Notes:</span> <span id="inspWriterScholarly" class="text-slate-300">Mosaic core with Yahwist, Elohist &amp; Priestly scribal compilation</span></div>
-        <div class="text-xs"><span class="text-slate-400">Primary Geographic Origin:</span> <span id="inspOriginPlace" class="text-teal-300 font-medium">Sinai / Plains of Moab</span></div>
-      </div>
-
-      <!-- Active Journey Step & Archaeological Stop Card -->
-      <div class="bg-slate-950/90 border border-slate-800 rounded-lg p-3 space-y-1.5">
-        <div class="flex items-center justify-between gap-2">
-          <div class="text-[11px] font-bold uppercase tracking-wider text-sky-400">Active Geospatial Step</div>
-          <button type="button" id="inspFlyToStepBtn" class="text-[11px] font-mono text-teal-300 hover:underline">
-            ✈️ Fly To Stop
+          <button type="button" data-open-ws="reader" class="text-[11px] font-semibold text-teal-300 hover:underline flex items-center gap-1">
+            <span>📜 Full Book Studio ↗</span>
           </button>
         </div>
-        <div id="inspStepTitle" class="text-xs font-bold text-white">Step 1: Ur of the Chaldees to Harran &amp; Shechem</div>
-        <p id="inspStepNarrative" class="text-xs text-slate-300 leading-relaxed">
-          Abram departs Ur along the Euphrates crescent to Harran, then crosses into Canaan (Shechem, Bethel, Hebron) and down to the Nile Delta during famine.
-        </p>
-        <div id="inspStepPathList" class="text-[11px] font-mono text-teal-300 pt-1">Route: Ur → Harran → Shechem → Hebron</div>
-      </div>
-
-      <!-- Every Passage / Section Breakdown of Selected Book -->
-      <div class="space-y-2">
-        <div class="flex items-center justify-between">
-          <h3 class="text-xs font-bold uppercase tracking-wider text-slate-300">Complete Passage Breakdown</h3>
-          <span id="inspPassageCount" class="text-[11px] text-slate-400 font-mono">6 divisions</span>
+        <div class="flex items-center justify-between gap-2">
+          <div class="min-w-0">
+            <h2 id="inspBookTitle" class="text-base font-bold text-white truncate">Genesis (Bereshit)</h2>
+            <p id="inspBookSubtitle" class="text-[11px] text-slate-400 truncate">50 Chapters • c. 1440–1400 BCE</p>
+          </div>
+          <span id="inspCanonStatus" class="hidden xl:inline-block text-[10px] text-slate-400 font-mono shrink-0">All Canons</span>
         </div>
-        <div id="inspPassagesList" class="space-y-2"></div>
+
+        <!-- 4 Clean Inspector Sub-Tabs -->
+        <div class="grid grid-cols-5 gap-1 pt-1" role="tablist" aria-label="Inspector sections">
+          <button type="button" data-insp-tab-btn="step" class="insp-tab-btn px-2 py-1.5 rounded-lg text-[11px] font-bold bg-teal-600 text-white shadow text-center">
+            📍 Stop
+          </button>
+          <button type="button" data-insp-tab-btn="grounding" class="insp-tab-btn px-2 py-1.5 rounded-lg text-[11px] font-semibold bg-slate-900 text-slate-300 hover:text-white border border-slate-800 text-center">
+            ✨ Maps AI
+          </button>
+          <button type="button" data-insp-tab-btn="book" class="insp-tab-btn px-2 py-1.5 rounded-lg text-[11px] font-semibold bg-slate-900 text-slate-300 hover:text-white border border-slate-800 text-center">
+            📖 Passages
+          </button>
+          <button type="button" data-insp-tab-btn="links" class="insp-tab-btn px-2 py-1.5 rounded-lg text-[11px] font-semibold bg-slate-900 text-slate-300 hover:text-white border border-slate-800 text-center">
+            🔗 Links
+          </button>
+          <button type="button" data-insp-tab-btn="all" class="insp-tab-btn px-2 py-1.5 rounded-lg text-[11px] font-semibold bg-slate-900 text-slate-300 hover:text-white border border-slate-800 text-center" title="Show all inspector sections">
+            All
+          </button>
+        </div>
       </div>
 
-      <!-- Cross-Testament & Apocryphal Connections -->
-      <div class="space-y-2 pt-2 border-t border-slate-800">
-        <h3 class="text-xs font-bold uppercase tracking-wider text-pink-300">Connected Canonical &amp; Apocryphal Texts</h3>
-        <div id="inspCrossLinks" class="space-y-1.5"></div>
+      <!-- Scrollable Sub-Tab Content Area -->
+      <div class="flex-1 overflow-y-auto custom-scroll p-3.5 space-y-4">
+        <!-- SUB-TAB 1: Active Geospatial Step & Writer Attribution -->
+        <div data-insp-pane="step" class="insp-pane-item space-y-3">
+          <div class="bg-slate-950/90 border border-slate-800 rounded-xl p-3.5 space-y-2">
+            <div class="flex items-center justify-between gap-2">
+              <div class="text-[11px] font-bold uppercase tracking-wider text-sky-400">Active Geospatial Step</div>
+              <button type="button" id="inspFlyToStepBtn" class="px-2 py-0.5 rounded bg-teal-500/20 text-[11px] font-mono text-teal-300 border border-teal-500/30 hover:bg-teal-500/30">
+                ✈️ Fly To Stop
+              </button>
+            </div>
+            <div id="inspStepTitle" class="text-sm font-bold text-white">Step 1: Ur of the Chaldees to Harran &amp; Shechem</div>
+            <p id="inspStepNarrative" class="text-xs text-slate-300 leading-relaxed">
+              Abram departs Ur along the Euphrates crescent to Harran, then crosses into Canaan (Shechem, Bethel, Hebron) and down to the Nile Delta during famine.
+            </p>
+            <div id="inspStepPathList" class="text-xs font-mono text-teal-300 pt-1.5 border-t border-slate-800/80">Route: Ur → Harran → Shechem → Hebron</div>
+          </div>
+
+          <div class="bg-slate-950/90 border border-slate-800 rounded-xl p-3.5 space-y-2">
+            <div class="text-[11px] font-bold uppercase tracking-wider text-teal-400">Writer &amp; Attribution Analysis</div>
+            <div class="text-xs"><span class="text-slate-400">Traditional Writer:</span> <strong id="inspWriterTrad" class="text-slate-100">Moses</strong></div>
+            <div class="text-xs"><span class="text-slate-400">Historical / Redaction Notes:</span> <span id="inspWriterScholarly" class="text-slate-300">Mosaic core with Yahwist, Elohist &amp; Priestly scribal compilation</span></div>
+            <div class="text-xs"><span class="text-slate-400">Primary Geographic Origin:</span> <span id="inspOriginPlace" class="text-teal-300 font-medium">Sinai / Plains of Moab</span></div>
+          </div>
+        </div>
+
+        <!-- SUB-TAB 2: ✨ Gemini Maps Grounding (Live Archaeological & Place Insights) -->
+        <div data-insp-pane="grounding" class="insp-pane-item space-y-3">
+          <div class="bg-slate-950/95 border border-teal-500/40 rounded-xl p-3.5 space-y-2.5 shadow-lg">
+            <div class="flex items-center justify-between gap-2">
+              <div class="text-xs font-bold uppercase tracking-wider text-teal-300 flex items-center gap-1">
+                <span>✨ Gemini Maps Grounding</span>
+              </div>
+              <button type="button" id="inspGeminiGroundBtn"
+                class="px-2.5 py-1 rounded-lg bg-teal-600 hover:bg-teal-500 text-white font-semibold text-xs transition shadow">
+                Explore Site on Google Maps
+              </button>
+            </div>
+            <div class="flex items-center gap-1.5">
+              <input id="inspGeminiQueryInput" type="text" placeholder="Ask about ruins, museums, or geography here..."
+                class="flex-1 bg-slate-900 border border-slate-700/80 rounded-lg px-2.5 py-1.5 text-xs text-slate-100 placeholder-slate-500 focus:outline-none focus:border-teal-400" />
+            </div>
+            <div id="inspGeminiGroundResult" class="text-xs text-slate-300 leading-relaxed space-y-2 max-h-72 overflow-y-auto custom-scroll">
+              <p class="text-xs text-slate-400">
+                Click <strong>Explore Site on Google Maps</strong> or any city pin's <strong>✨ Gemini Maps Grounding</strong> button to fetch live Google Maps-grounded archaeological landmarks, modern site context, and verified place links.
+              </p>
+            </div>
+            <div id="inspGeminiGroundLinks" class="hidden pt-2 border-t border-slate-800 space-y-1.5"></div>
+          </div>
+        </div>
+
+        <!-- SUB-TAB 3: Complete Passage Breakdown of Selected Book -->
+        <div data-insp-pane="book" class="insp-pane-item space-y-2.5">
+          <div class="flex items-center justify-between">
+            <h3 class="text-xs font-bold uppercase tracking-wider text-slate-300">Complete Passage Breakdown</h3>
+            <span id="inspPassageCount" class="text-[11px] text-slate-400 font-mono">6 divisions</span>
+          </div>
+          <div id="inspPassagesList" class="space-y-2"></div>
+        </div>
+
+        <!-- SUB-TAB 4: Cross-Testament & Apocryphal Connections -->
+        <div data-insp-pane="links" class="insp-pane-item space-y-2.5">
+          <h3 class="text-xs font-bold uppercase tracking-wider text-pink-300">Connected Canonical &amp; Apocryphal Texts</h3>
+          <div id="inspCrossLinks" class="space-y-2"></div>
+        </div>
       </div>
     </aside>
   </main>
 
   <!-- ========================================================= -->
-  <!-- WORKSPACE 2: 📖 LIBRARY (Full 84-Book Searchable Table & Passage Explorer) -->
+  <!-- WORKSPACE 2 (NEW): 🧭 36-STEP CHRONOLOGICAL EXPEDITION DECK -->
   <!-- ========================================================= -->
-  <section id="ws-library" class="hidden flex-1 max-w-[1840px] w-full mx-auto p-4 space-y-4">
-    <div class="bg-slate-900 border border-slate-800 rounded-xl p-4 flex flex-wrap items-center justify-between gap-3">
+  <section id="ws-steps" class="hidden flex-1 max-w-[1840px] w-full mx-auto p-4 sm:p-6 space-y-5">
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-5 flex flex-wrap items-center justify-between gap-4 shadow-xl">
+      <div class="space-y-1">
+        <div class="flex items-center gap-2.5 flex-wrap">
+          <h2 class="text-base sm:text-lg font-bold text-white">🧭 36-Step Biblical &amp; Apocryphal Expedition Deck</h2>
+          <span id="stepsDeckCountBadge" class="text-xs font-mono px-2.5 py-0.5 rounded-full bg-teal-950 text-teal-300 border border-teal-700/60">
+            36 Chronological Steps
+          </span>
+        </div>
+        <p class="text-xs text-slate-400 max-w-3xl">
+          Explore every geographical movement from Abraham's departure from Ur to the Apostolic missions in Rome, Ethiopia, and India—each with interactive map fly-to, voice narration, and Google Maps grounding.
+        </p>
+      </div>
+
+      <div class="flex flex-wrap items-center gap-2">
+        <input id="stepsDeckSearchInput" type="search" placeholder="Search step title, city, book, or era..."
+          class="bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white w-64 focus:outline-none focus:border-teal-400" />
+        <select id="stepsDeckEraSelect" aria-label="Filter steps by route or era" class="bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-200">
+          <option value="ALL">All 36 Expedition Steps</option>
+          <option value="OT">■ Old Testament &amp; Exile</option>
+          <option value="NT_GOSPEL">● Gospels &amp; Galilee Ministry</option>
+          <option value="APOCRYPHA">◆ Apocrypha, Egypt &amp; Ethiopian Canon</option>
+          <option value="NT_EPISTLE">▲ Acts &amp; Apostolic Missions</option>
+          <option value="PROPHECY">★ Apocalyptic &amp; Patmos</option>
+        </select>
+      </div>
+    </div>
+
+    <div id="stepsDeckGrid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4"></div>
+  </section>
+
+  <!-- ========================================================= -->
+  <!-- WORKSPACE 3 (NEW): 📜 BOOK & PASSAGE STUDIO (Spacious 84-Book Reader) -->
+  <!-- ========================================================= -->
+  <section id="ws-reader" class="hidden flex-1 max-w-[1840px] w-full mx-auto p-4 sm:p-6">
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-5">
+      <!-- Left 4 Columns: Spacious 84-Book Navigator -->
+      <div class="lg:col-span-4 bg-slate-900 border border-slate-800 rounded-2xl flex flex-col h-[80vh] overflow-hidden shadow-xl">
+        <div class="p-4 border-b border-slate-800 space-y-2.5 bg-slate-950/60">
+          <div class="flex items-center justify-between">
+            <h2 class="text-xs font-bold uppercase tracking-wider text-teal-300">84-Book Scriptural Navigator</h2>
+            <span id="studioBookCountBadge" class="text-xs font-mono text-slate-400">84 Books</span>
+          </div>
+          <input id="studioBookSearchInput" type="search" placeholder="Search 84 books by title, writer, or city..."
+            class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-teal-400" />
+        </div>
+        <div id="studioBookList" class="flex-1 overflow-y-auto custom-scroll divide-y divide-slate-800/60"></div>
+      </div>
+
+      <!-- Right 8 Columns: Un-crowded Deep Book & Passage Reader -->
+      <div id="studioBookDetailPane" class="lg:col-span-8 bg-slate-900 border border-slate-800 rounded-2xl p-5 sm:p-6 h-[80vh] overflow-y-auto custom-scroll space-y-6 shadow-xl"></div>
+    </div>
+  </section>
+
+  <!-- ========================================================= -->
+  <!-- WORKSPACE 4: 📖 84-BOOK TABLE (Full Searchable Reference Matrix) -->
+  <!-- ========================================================= -->
+  <section id="ws-library" class="hidden flex-1 max-w-[1840px] w-full mx-auto p-4 sm:p-6 space-y-4">
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-5 flex flex-wrap items-center justify-between gap-3">
       <div>
-        <h2 class="text-base font-bold text-white">📖 Complete 84-Book Scriptural &amp; Apocryphal Library</h2>
+        <h2 class="text-base sm:text-lg font-bold text-white">📖 Complete 84-Book Scriptural &amp; Apocryphal Reference Matrix</h2>
         <p class="text-xs text-slate-400">Every Old Testament (39), New Testament (27), and Apocryphal / Deuterocanonical / Ethiopian / Infancy book (18) with writer attributions and passage divisions.</p>
       </div>
       <div class="flex items-center gap-2">
         <input id="libSearchInput" type="search" placeholder="Filter 84 books by title, writer, passage, or city..."
-          class="bg-slate-950 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white w-72" />
+          class="bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white w-72" />
       </div>
     </div>
 
-    <div class="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden">
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-xl">
       <div class="overflow-x-auto max-h-[75vh] custom-scroll">
         <table class="w-full text-left border-collapse text-xs">
           <thead class="bg-slate-950 text-slate-400 uppercase text-[11px] sticky top-0 z-10 border-b border-slate-800">
             <tr>
-              <th class="py-2.5 px-3">#</th>
-              <th class="py-2.5 px-3">Book</th>
-              <th class="py-2.5 px-3">Corpus / Tradition</th>
-              <th class="py-2.5 px-3">Chapters</th>
-              <th class="py-2.5 px-3">Traditional &amp; Scholarly Writer</th>
-              <th class="py-2.5 px-3">Date &amp; Origin</th>
-              <th class="py-2.5 px-3">Complete Passage Divisions</th>
-              <th class="py-2.5 px-3">Map Action</th>
+              <th class="py-3 px-3.5">#</th>
+              <th class="py-3 px-3.5">Book</th>
+              <th class="py-3 px-3.5">Corpus / Tradition</th>
+              <th class="py-3 px-3.5">Chapters</th>
+              <th class="py-3 px-3.5">Traditional &amp; Scholarly Writer</th>
+              <th class="py-3 px-3.5">Date &amp; Origin</th>
+              <th class="py-3 px-3.5">Complete Passage Divisions</th>
+              <th class="py-3 px-3.5">Actions</th>
             </tr>
           </thead>
           <tbody id="libraryTableBody" class="divide-y divide-slate-800/70"></tbody>
@@ -511,23 +841,41 @@
   </section>
 
   <!-- ========================================================= -->
-  <!-- WORKSPACE 3: 🧵 LOOM (Perceptually Honest Bar Charts: Writers, Volume & Canon Matrix) -->
+  <!-- WORKSPACE 5: 🧵 WRITERS & CANON LOOM (With Dedicated Sub-Tabs) -->
   <!-- ========================================================= -->
-  <section id="ws-loom" class="hidden flex-1 max-w-[1840px] w-full mx-auto p-4 space-y-4">
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+  <section id="ws-loom" data-loom-tab="writers" class="hidden flex-1 max-w-[1840px] w-full mx-auto p-4 sm:p-6 space-y-4">
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 flex flex-wrap items-center justify-between gap-3">
+      <div>
+        <h2 class="text-base sm:text-lg font-bold text-white">🧵 Scribal Attribution &amp; Canonical Tradition Loom</h2>
+        <p class="text-xs text-slate-400">Switch between zero-baseline Writer Attribution volume bars and the Canonical Inclusion Matrix.</p>
+      </div>
+      <div class="flex items-center gap-1 bg-slate-950 p-1 rounded-xl border border-slate-800">
+        <button type="button" data-loom-mode="writers" class="loom-mode-btn px-3 py-1.5 rounded-lg text-xs font-semibold bg-teal-600 text-white">
+          📊 Writer Attribution Bars
+        </button>
+        <button type="button" data-loom-mode="canon" class="loom-mode-btn px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-300 hover:text-white">
+          🏛️ Canonical Tradition Matrix
+        </button>
+        <button type="button" data-loom-mode="split" class="loom-mode-btn px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-300 hover:text-white">
+          📐 Side-by-Side View
+        </button>
+      </div>
+    </div>
+
+    <div id="loomGridWrap" class="grid grid-cols-1 lg:grid-cols-2 gap-5">
       <!-- Chart 1: Sorted Horizontal Bar Chart by Writer Attribution -->
-      <div class="bg-slate-900 border border-slate-800 rounded-xl p-4 space-y-3">
+      <div id="loomWritersCard" class="bg-slate-900 border border-slate-800 rounded-2xl p-5 space-y-3 shadow-xl">
         <div>
-          <h2 class="text-sm font-bold text-white">Writer &amp; Scribal Attribution Across All 84 Books (Zero-Baseline Horizontal Bars)</h2>
-          <p class="text-xs text-slate-400">Sorted by chapter volume. Uses position and length from a zero baseline for perceptual honesty rather than pie angles.</p>
+          <h3 class="text-sm font-bold text-white">Writer &amp; Scribal Attribution Across All 84 Books (Zero-Baseline Horizontal Bars)</h3>
+          <p class="text-xs text-slate-400">Sorted by chapter volume. Click any writer bar to filter the 84-Book Studio by that writer.</p>
         </div>
-        <div id="writerBarChart" class="space-y-2 max-h-[520px] overflow-y-auto custom-scroll pr-2"></div>
+        <div id="writerBarChart" class="space-y-2.5 max-h-[65vh] overflow-y-auto custom-scroll pr-2"></div>
       </div>
 
       <!-- Chart 2: Canon Inclusion Matrix & Corpus Distribution -->
-      <div class="bg-slate-900 border border-slate-800 rounded-xl p-4 space-y-3">
+      <div id="loomCanonCard" class="bg-slate-900 border border-slate-800 rounded-2xl p-5 space-y-3 shadow-xl">
         <div>
-          <h2 class="text-sm font-bold text-white">Canonical &amp; Apocryphal Tradition Comparison Matrix</h2>
+          <h3 class="text-sm font-bold text-white">Canonical &amp; Apocryphal Tradition Comparison Matrix</h3>
           <p class="text-xs text-slate-400">Comparing book and chapter inclusion across Hebrew/Protestant, Catholic/Orthodox Deuterocanon, Ethiopian Ge'ez Canon, and Early Christian Apocrypha.</p>
         </div>
         <div id="canonMatrixContainer" class="space-y-3"></div>
@@ -536,14 +884,19 @@
   </section>
 
   <!-- ========================================================= -->
-  <!-- WORKSPACE 4: 🔗 LINKS (Cross-Testament, Prophecy Fulfillment & Apocryphal Parallels) -->
+  <!-- WORKSPACE 6: 🔗 INTERTEXTUAL LINKS (Cross-Testament, Prophecy & Apocryphal Parallels) -->
   <!-- ========================================================= -->
-  <section id="ws-links" class="hidden flex-1 max-w-[1840px] w-full mx-auto p-4 space-y-4">
-    <div class="bg-slate-900 border border-slate-800 rounded-xl p-4">
-      <h2 class="text-base font-bold text-white">🔗 Intertextual Links: Old Testament, New Testament &amp; Apocrypha</h2>
-      <p class="text-xs text-slate-400">Direct citations, prophetic fulfillments, and geographic bridges (including Jude quoting 1 Enoch, Matthew's Flight into Egypt, and Acts in Ethiopia/Arabia).</p>
+  <section id="ws-links" class="hidden flex-1 max-w-[1840px] w-full mx-auto p-4 sm:p-6 space-y-4">
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-5 flex flex-wrap items-center justify-between gap-3">
+      <div>
+        <h2 class="text-base sm:text-lg font-bold text-white">🔗 Intertextual Links: Old Testament, New Testament &amp; Apocrypha</h2>
+        <p class="text-xs text-slate-400">Direct citations, prophetic fulfillments, and geographic bridges (including Jude quoting 1 Enoch, Matthew's Flight into Egypt, and Acts in Ethiopia/Arabia).</p>
+      </div>
+      <button type="button" data-open-ws="mindmap" class="px-3.5 py-2 rounded-xl bg-teal-600 hover:bg-teal-500 text-white text-xs font-bold shadow transition">
+        🕸️ Launch Full 67,000 3D Mind Map →
+      </button>
     </div>
-    <div id="linksGridContainer" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3"></div>
+    <div id="linksGridContainer" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4"></div>
   </section>
 
   <!-- ========================================================= -->
@@ -551,7 +904,7 @@
   <!-- ========================================================= -->
   <section id="ws-mindmap" class="hidden flex-1 max-w-[1840px] w-full mx-auto flex flex-col border-x border-slate-800/80 bg-slate-950">
     <!-- Top Mind Map Control Deck -->
-    <div class="px-4 py-2.5 border-b border-slate-800 bg-slate-900/95 flex flex-wrap items-center justify-between gap-3 z-30">
+    <div id="mmTopControlDeck" class="px-4 py-2.5 border-b border-slate-800 bg-slate-900/95 flex flex-wrap items-center justify-between gap-3 z-30">
       <div>
         <div class="flex items-center gap-2.5 flex-wrap">
           <h2 class="text-sm sm:text-base font-bold text-white">
@@ -562,18 +915,18 @@
           </span>
         </div>
         <p class="text-xs text-slate-400 mt-0.5">
-          Orbit, pan &amp; zoom in 3D space (OT Z=-200 → Covenant Hubs Z=0 → Apocrypha Z=+100 → NT Z=+250). Click any node or cross-link to trace glowing 3D splines &amp; hear Deep Discovery narration.
+          Everything you click reveals a glowing 4-stage pathway (OT Z=-200 → Covenant Hub Z=0 → Apocrypha Z=+100 → NT Z=+250). Click any node again to cycle its connected pathways.
         </p>
       </div>
 
-      <!-- Layout Mode, Pathway Pin & Separate Window Controls -->
+      <!-- Layout Mode, Pathway Pin, Cycle Pathway & Full Screen Controls -->
       <div class="flex flex-wrap items-center gap-2">
         <div class="flex items-center gap-1 bg-slate-950 p-1 rounded-lg border border-slate-800" role="group" aria-label="Mind map spatial mode">
           <button type="button" data-mm-layout="3d-planes" class="mm-layout-btn px-2.5 py-1 rounded text-xs font-semibold bg-teal-600 text-white whitespace-nowrap shrink-0">
-            🧊 3D Depth Planes (Z-Stratified)
+            🧊 3D Depth Planes
           </button>
           <button type="button" data-mm-layout="3d-celestial" class="mm-layout-btn px-2.5 py-1 rounded text-xs font-semibold text-slate-300 hover:text-white whitespace-nowrap shrink-0">
-            🪐 3D Celestial Cylinder
+            🪐 3D Celestial
           </button>
           <button type="button" data-mm-layout="tripartite" class="mm-layout-btn px-2.5 py-1 rounded text-xs font-semibold text-slate-300 hover:text-white whitespace-nowrap shrink-0">
             📐 2D Bridge Flow
@@ -583,6 +936,10 @@
           </button>
         </div>
 
+        <button type="button" id="mmCycleNodePathwayBtn" class="px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-teal-500/20 hover:bg-teal-500/30 text-teal-300 border border-teal-500/40 whitespace-nowrap shrink-0" title="Cycle to the next cross-link pathway connected to the active node">
+          🔄 Next Node Pathway
+        </button>
+
         <button type="button" id="mmPinPathwayBtn" class="px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 whitespace-nowrap shrink-0" title="Pin selected 3D spline pathway & dim unlinked nodes">
           📌 Pathway Pinned
         </button>
@@ -591,8 +948,12 @@
           Reset Camera
         </button>
 
-        <button type="button" id="mmWindowToggleBtn" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-teal-500/20 hover:bg-teal-500/30 text-teal-300 border border-teal-500/40 whitespace-nowrap shrink-0">
-          ⛶ Expand Separate Window
+        <button type="button" id="mmWindowToggleBtn" class="px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 whitespace-nowrap shrink-0" title="Expand Mind Map workspace with side drawers">
+          🗖 Expand Window
+        </button>
+
+        <button type="button" id="mmFullscreenBtn" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-amber-500 hover:bg-amber-400 text-slate-950 shadow-lg whitespace-nowrap shrink-0" title="Launch interactive 100% Full Screen Mind Map (Shortcut: F)">
+          ⛶ Full Screen (F)
         </button>
       </div>
     </div>
@@ -641,7 +1002,7 @@
       <!-- FULL-BLEED CENTER 3D WEBGL & 2D SVG STAGE (100% Width & Height in Background) -->
       <div class="absolute inset-0 flex flex-col z-0">
         <!-- Top Floating Stage Sub-Toolbar -->
-        <div class="px-12 py-2 border-b border-slate-800/80 bg-slate-900/90 flex flex-wrap items-center justify-between gap-2 text-xs z-10">
+        <div id="mmStageSubToolbar" class="px-12 py-2 border-b border-slate-800/80 bg-slate-900/90 flex flex-wrap items-center justify-between gap-2 text-xs z-10">
           <div class="flex items-center gap-2 flex-wrap">
             <span class="text-slate-400">Focused Node:</span>
             <strong id="mmFocusedNodeTitle" class="text-teal-300">1 Enoch (Book of Enoch) ⇄ Jude &amp; Revelation</strong>
@@ -671,15 +1032,74 @@
           <!-- 2D D3 SVG Mind Map Surface (toggled when 2D layouts are chosen) -->
           <svg id="mindmapSvg" class="hidden w-full h-full block relative z-10" role="img" aria-label="Interactive Mind Map of 67,000 Biblical and Apocryphal Cross-Links"></svg>
 
-          <!-- Floating Z-Depth Stratification & Legend HUD -->
-          <div class="absolute bottom-3 left-1/2 -translate-x-1/2 pointer-events-none flex flex-wrap items-center justify-center gap-2 z-20 w-max max-w-[92vw]">
-            <div class="pointer-events-auto bg-slate-900/95 border border-slate-800 rounded-lg px-3 py-1.5 text-[11px] text-slate-300 flex flex-wrap items-center gap-3 shadow-2xl">
-              <span><strong style="color:#E69F00">■</strong> OT Roots (39) <code class="text-[10px] text-slate-400">Z=-200</code></span>
-              <span><strong style="color:#2dd4bf">❖</strong> Covenant Hubs (12) <code class="text-[10px] text-slate-400">Z=0</code></span>
-              <span><strong style="color:#CC79A7">◆</strong> Apocrypha Bridge (18) <code class="text-[10px] text-slate-400">Z=+100</code></span>
-              <span><strong style="color:#56B4E9">●</strong> NT Targets (27) <code class="text-[10px] text-slate-400">Z=+250</code></span>
-              <span class="text-slate-600">|</span>
-              <span class="text-slate-400">Left-Drag: Orbit 3D · Right-Drag: Pan · Scroll: Smooth Zoom · Click Pin: Focus &amp; Trace Spline</span>
+          <!-- FLOATING TOP-CENTER FULL SCREEN & QUICK ACTION BAR ON CANVAS -->
+          <div class="absolute top-3 left-1/2 -translate-x-1/2 z-30 flex flex-wrap items-center justify-center gap-1.5 bg-slate-950/95 border border-slate-700/90 rounded-lg px-2.5 py-1.5 shadow-2xl max-w-[94vw]">
+            <button type="button" id="mmCanvasFullscreenBtn"
+              class="px-2.5 py-1 rounded bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-bold transition flex items-center gap-1 shadow"
+              title="Toggle 100% Full Screen Interactive Mind Map (Shortcut: F or Esc)">
+              <span>⛶ Full Screen (F)</span>
+            </button>
+            <button type="button" id="mmCanvasCyclePathwayBtn"
+              class="px-2.5 py-1 rounded bg-teal-600 hover:bg-teal-500 text-white text-xs font-semibold transition"
+              title="Show next pathway for the currently selected node">
+              🔄 Next Pathway (<span id="mmCorridorStepBadge">1/27</span>)
+            </button>
+            <button type="button" id="mmCanvasPrevLinkBtn"
+              class="px-2 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-medium"
+              title="Previous Cross-Link (Left Arrow)">
+              ◀ Prev
+            </button>
+            <button type="button" id="mmCanvasNextLinkBtn"
+              class="px-2 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-medium"
+              title="Next Cross-Link (Right Arrow)">
+              Next ▶
+            </button>
+            <button type="button" id="mmCanvasNarrateBtn"
+              class="px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-amber-300 border border-slate-700 text-xs font-semibold"
+              title="Narrate active pathway">
+              🎙️ Narrate
+            </button>
+            <button type="button" id="mmCanvasResetCamBtn"
+              class="px-2 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 text-xs font-medium"
+              title="Reset 3D camera orbit">
+              🎯 Center 3D
+            </button>
+          </div>
+
+          <!-- COLLAPSIBLE BOTTOM INTERACTIVE 4-STAGE PATHWAY EXPLORER DOCK -->
+          <div class="absolute bottom-3 left-1/2 -translate-x-1/2 pointer-events-none flex flex-col items-center z-20 w-[min(960px,94vw)]">
+            <!-- Collapse / Expand Bottom HUD Toggle -->
+            <div class="pointer-events-auto flex items-center gap-2 mb-1">
+              <button type="button" id="mmToggleHudDockBtn"
+                class="px-2.5 py-0.5 rounded-t-md bg-slate-900/95 hover:bg-slate-800 text-teal-300 border border-b-0 border-slate-700 text-[11px] font-semibold shadow-lg">
+                ▾ Hide Pathway Dock (H)
+              </button>
+            </div>
+
+            <!-- Interactive Pathway Dock Card -->
+            <div id="mmInteractivePathwayDock" class="pointer-events-auto w-full bg-slate-950/95 border border-slate-700/90 rounded-xl p-2.5 shadow-2xl space-y-2">
+              <!-- Live Clickable 4-Stage Pathway Strip (Filled dynamically on every click) -->
+              <div id="mmInteractivePathwayStages" class="grid grid-cols-1 sm:grid-cols-4 gap-1.5 text-xs"></div>
+
+              <!-- Interactive Clickable Tier Legend & Status Row -->
+              <div class="pt-1.5 border-t border-slate-800/90 flex flex-wrap items-center justify-between gap-2 text-[11px] text-slate-300">
+                <div class="flex flex-wrap items-center gap-1.5">
+                  <span class="text-[10px] uppercase tracking-wider text-slate-400 font-semibold mr-1">Click Tier to Trace:</span>
+                  <button type="button" data-mm-tier="OT" class="px-2 py-0.5 rounded bg-slate-900 hover:bg-slate-800 border border-slate-700 transition">
+                    <strong style="color:#E69F00">■</strong> OT Roots (39) <code class="text-[10px] text-slate-400">Z=-200</code>
+                  </button>
+                  <button type="button" data-mm-tier="HUB" class="px-2 py-0.5 rounded bg-slate-900 hover:bg-slate-800 border border-slate-700 transition">
+                    <strong style="color:#2dd4bf">❖</strong> Covenant Hubs (12) <code class="text-[10px] text-slate-400">Z=0</code>
+                  </button>
+                  <button type="button" data-mm-tier="APOCRYPHA" class="px-2 py-0.5 rounded bg-slate-900 hover:bg-slate-800 border border-slate-700 transition">
+                    <strong style="color:#CC79A7">◆</strong> Apocrypha Bridge (18) <code class="text-[10px] text-slate-400">Z=+100</code>
+                  </button>
+                  <button type="button" data-mm-tier="NT" class="px-2 py-0.5 rounded bg-slate-900 hover:bg-slate-800 border border-slate-700 transition">
+                    <strong style="color:#56B4E9">●</strong> NT Targets (27) <code class="text-[10px] text-slate-400">Z=+250</code>
+                  </button>
+                </div>
+                <span class="text-slate-400 text-[10px] hidden md:inline">Click any 3D Node, Label, Ring, Spline Tube, or Stage Card to illuminate pathway</span>
+              </div>
             </div>
           </div>
 
@@ -793,6 +1213,103 @@
       </aside>
     </div>
   </section>
+
+  <!-- MOBILE THUMB-ZONE BOTTOM NAVIGATION BAR (<1024px) -->
+  <nav id="mobileBottomNav" aria-label="Mobile Bottom Workspace Navigation"
+    class="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-slate-950/95 backdrop-blur-md border-t border-slate-800 px-1.5 pt-1 pb-safe-bottom">
+    <div class="grid grid-cols-7 gap-0.5 max-w-xl mx-auto">
+      <button type="button" data-workspace="journey" class="ws-tab-mobile min-h-[46px] rounded-xl flex flex-col items-center justify-center text-teal-400 bg-teal-950/50 border border-teal-500/40 transition">
+        <span class="text-sm leading-none">🗺️</span>
+        <span class="text-[9px] font-bold tracking-tight mt-1">Atlas</span>
+      </button>
+      <button type="button" data-workspace="steps" class="ws-tab-mobile min-h-[46px] rounded-xl flex flex-col items-center justify-center text-slate-400 hover:text-white transition">
+        <span class="text-sm leading-none">🧭</span>
+        <span class="text-[9px] font-medium tracking-tight mt-1">36 Steps</span>
+      </button>
+      <button type="button" data-workspace="reader" class="ws-tab-mobile min-h-[46px] rounded-xl flex flex-col items-center justify-center text-slate-400 hover:text-white transition">
+        <span class="text-sm leading-none">📜</span>
+        <span class="text-[9px] font-medium tracking-tight mt-1">Studio</span>
+      </button>
+      <button type="button" data-workspace="library" class="ws-tab-mobile min-h-[46px] rounded-xl flex flex-col items-center justify-center text-slate-400 hover:text-white transition">
+        <span class="text-sm leading-none">📖</span>
+        <span class="text-[9px] font-medium tracking-tight mt-1">Table</span>
+      </button>
+      <button type="button" data-workspace="loom" class="ws-tab-mobile min-h-[46px] rounded-xl flex flex-col items-center justify-center text-slate-400 hover:text-white transition">
+        <span class="text-sm leading-none">🧵</span>
+        <span class="text-[9px] font-medium tracking-tight mt-1">Loom</span>
+      </button>
+      <button type="button" data-workspace="links" class="ws-tab-mobile min-h-[46px] rounded-xl flex flex-col items-center justify-center text-slate-400 hover:text-white transition">
+        <span class="text-sm leading-none">🔗</span>
+        <span class="text-[9px] font-medium tracking-tight mt-1">Links</span>
+      </button>
+      <button type="button" data-workspace="mindmap" class="ws-tab-mobile min-h-[46px] rounded-xl flex flex-col items-center justify-center text-slate-400 hover:text-white transition">
+        <span class="text-sm leading-none">🕸️</span>
+        <span class="text-[9px] font-medium tracking-tight mt-1">67K Map</span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- IN-APP PWA INSTALL & MOBILE/PC SETUP MODAL (No window.alert) -->
+  <div id="pwaInstallModal" class="hidden fixed inset-0 z-[999] bg-black/75 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4">
+    <div class="w-full max-w-md bg-slate-900 border border-slate-700 rounded-t-3xl sm:rounded-2xl p-5 shadow-2xl space-y-4">
+      <div class="w-10 h-1.5 bg-slate-700 rounded-full mx-auto sm:hidden"></div>
+      <div class="flex items-start justify-between gap-3">
+        <div class="flex items-center gap-3">
+          <img src="/icon.svg" alt="Codex Geographica Icon" class="w-12 h-12 rounded-xl border border-teal-500/40 shadow-md" />
+          <div>
+            <h3 class="text-base font-bold text-white">Install Codex Geographica PWA</h3>
+            <p class="text-xs text-teal-300 font-mono">Phone &amp; PC Standalone Experience • Offline Ready</p>
+          </div>
+        </div>
+        <button type="button" id="closePwaModalBtn" class="min-w-[36px] min-h-[36px] rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-sm font-bold">
+          ✕
+        </button>
+      </div>
+
+      <p class="text-xs text-slate-300 leading-relaxed">
+        Enjoy full-screen interactive cartography, the 84-Book Library, 36-Step Journey, and the 3D 67,000 Cross-Links Mind Map directly from your home screen or desktop dock—with offline caching.
+      </p>
+
+      <!-- Native Chromium / Android / Desktop One-Click Install CTA -->
+      <div id="pwaNativePromptBox" class="hidden">
+        <button type="button" id="pwaTriggerNativeInstallBtn"
+          class="w-full py-2.5 px-4 rounded-xl bg-teal-600 hover:bg-teal-500 text-white font-bold text-xs shadow-lg transition flex items-center justify-center gap-2">
+          <span>📲 Install Standalone App Now</span>
+        </button>
+      </div>
+
+      <!-- Platform-Specific Instructions (iOS Safari / Android / Desktop) -->
+      <div class="space-y-2.5 text-xs bg-slate-950/90 border border-slate-800 rounded-xl p-3.5">
+        <div class="flex items-start gap-2.5">
+          <span class="text-base leading-none">🍎</span>
+          <div>
+            <div class="font-bold text-white">iPhone / iPad (Safari):</div>
+            <p class="text-slate-300 mt-0.5">Tap the <strong>Share</strong> button <span class="px-1.5 py-0.5 rounded bg-slate-800 text-teal-300 font-mono text-[10px]">⎋</span> in the bottom bar, then select <strong>"Add to Home Screen"</strong> <span class="px-1.5 py-0.5 rounded bg-slate-800 text-teal-300 font-mono text-[10px]">⊞</span>.</p>
+          </div>
+        </div>
+        <div class="flex items-start gap-2.5 pt-2 border-t border-slate-800/80">
+          <span class="text-base leading-none">🤖</span>
+          <div>
+            <div class="font-bold text-white">Android (Chrome / Edge):</div>
+            <p class="text-slate-300 mt-0.5">Tap the browser menu <span class="px-1.5 py-0.5 rounded bg-slate-800 text-teal-300 font-mono text-[10px]">⋮</span> and tap <strong>"Install app"</strong> or <strong>"Add to Home screen"</strong>.</p>
+          </div>
+        </div>
+        <div class="flex items-start gap-2.5 pt-2 border-t border-slate-800/80">
+          <span class="text-base leading-none">💻</span>
+          <div>
+            <div class="font-bold text-white">PC / Mac (Chrome / Edge):</div>
+            <p class="text-slate-300 mt-0.5">Click the <strong>Install Codex Geographica</strong> icon <span class="px-1.5 py-0.5 rounded bg-slate-800 text-teal-300 font-mono text-[10px]">⊕</span> on the right side of your address bar.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex justify-end">
+        <button type="button" id="dismissPwaModalBtn" class="px-4 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-slate-200">
+          Continue to Atlas
+        </button>
+      </div>
+    </div>
+  </div>
 
   <!-- APPLICATION SCRIPT (Single IIFE, Zero Duplicate Declarations, Safe DOM Bindings) -->
   <script>
@@ -1224,7 +1741,7 @@
       }
     }
 
-    // 8. INTERACTIVE GIS LEAFLET MAP ENGINE + 3D ORTHOGRAPHIC GLOBE
+    // 8. INTERACTIVE GOOGLE MAPS PLATFORM + GIS LEAFLET ENGINE + 3D GLOBE
     let svg, mapGroup, landGroup, graticuleGroup, routeGroup, nodeGroup, labelGroup, zoomBehavior;
     const mapWidth = 960;
     const mapHeight = 560;
@@ -1239,6 +1756,345 @@
       markerById: new Map(),
       initialized: false
     };
+
+    const gmpEngine = {
+      apiKey: "",
+      geminiConfigured: false,
+      bootstrapLoaded: false,
+      initialized: false,
+      initializing: false,
+      map: null,
+      infoWindow: null,
+      MapClass: null,
+      InfoWindowClass: null,
+      PolylineClass: null,
+      PolygonClass: null,
+      AdvancedMarkerElementClass: null,
+      polygons: [],
+      polylines: [],
+      markers: [],
+      markerById: new Map()
+    };
+
+    function isGoogleMapsStyle(styleKey) {
+      return (
+         Boolean(gmpEngine.apiKey) &&
+        (styleKey === "google_hybrid" || styleKey === "google_terrain" || styleKey === "google_roadmap")
+      );
+    }
+
+    function loadGoogleMapsBootstrap(apiKey) {
+      if (!apiKey) return Promise.reject(new Error("Missing Google Maps API key"));
+      if (window.google && window.google.maps && typeof window.google.maps.importLibrary === "function") {
+        gmpEngine.bootstrapLoaded = true;
+        return Promise.resolve();
+      }
+      return new Promise((resolve, reject) => {
+        try {
+          (g => {
+            var h, a, k, p = "The Google Maps JavaScript API", c = "google", l = "importLibrary", q = "__ib__", m = document, b = window;
+            b = b[c] || (b[c] = {});
+            var d = b.maps || (b.maps = {}), r = new Set, e = new URLSearchParams,
+              u = () => h || (h = new Promise(async (f, n) => {
+                await (a = m.createElement("script"));
+                e.set("libraries", [...r] + "");
+                for (k in g) e.set(k.replace(/[A-Z]/g, t => "_" + t[0].toLowerCase()), g[k]);
+                e.set("callback", c + ".maps." + q);
+                a.src = `https://maps.${c}apis.com/maps/api/js?` + e;
+                d[q] = f;
+                a.onerror = () => h = n(Error(p + " could not load."));
+                a.nonce = m.querySelector("script[nonce]")?.nonce || "";
+                m.head.append(a);
+              }));
+            d[l] ? console.warn(p + " only loads once.") : d[l] = (f, ...n) => r.add(f) && u().then(() => d[l](f, ...n));
+          })({
+            key: apiKey,
+            v: "weekly"
+          });
+          gmpEngine.bootstrapLoaded = true;
+          resolve();
+        } catch (err) {
+          reject(err);
+        }
+      });
+    }
+
+    async function initGmpMap() {
+      if (gmpEngine.initialized || gmpEngine.initializing || !gmpEngine.apiKey) return;
+      const gmpEl = $("gmpMapCanvas");
+      if (!gmpEl) return;
+
+      gmpEngine.initializing = true;
+      try {
+        await loadGoogleMapsBootstrap(gmpEngine.apiKey);
+        const mapsLib = await window.google.maps.importLibrary("maps");
+        const markerLib = await window.google.maps.importLibrary("marker");
+
+        gmpEngine.MapClass = mapsLib.Map;
+        gmpEngine.InfoWindowClass = mapsLib.InfoWindow;
+        gmpEngine.PolylineClass = mapsLib.Polyline;
+        gmpEngine.PolygonClass = mapsLib.Polygon;
+        gmpEngine.AdvancedMarkerElementClass = markerLib.AdvancedMarkerElement;
+
+        const mapTypeId =
+          state.gisBaseStyle === "google_terrain"
+            ? "terrain"
+            : state.gisBaseStyle === "google_roadmap"
+              ? "roadmap"
+              : "hybrid";
+
+        gmpEngine.map = new gmpEngine.MapClass(gmpEl, {
+          center: { lat: 32.2, lng: 36.2 },
+          zoom: 5,
+          mapId: "DEMO_MAP_ID",
+          mapTypeId,
+          gestureHandling: "greedy",
+          mapTypeControl: false,
+          streetViewControl: true,
+          fullscreenControl: false,
+          internalUsageAttributionIds: ["gmp_mcp_codeassist_v1_aistudio"]
+        });
+
+        gmpEngine.infoWindow = new gmpEngine.InfoWindowClass({
+          maxWidth: 320
+        });
+
+        gmpEngine.map.addListener("zoom_changed", () => {
+          const zBadge = $("gisZoomLevelBadge");
+          if (zBadge && gmpEngine.map) {
+            zBadge.textContent = `Zoom ${gmpEngine.map.getZoom()}x`;
+          }
+        });
+
+        gmpEngine.initialized = true;
+        gmpEngine.initializing = false;
+        renderGmpMap();
+      } catch (err) {
+        console.error("Unable to load Google Maps JS SDK:", err);
+        gmpEngine.initializing = false;
+      }
+    }
+
+    function clearGmpOverlays() {
+      gmpEngine.polygons.forEach(p => p.setMap(null));
+      gmpEngine.polygons = [];
+      gmpEngine.polylines.forEach(l => l.setMap(null));
+      gmpEngine.polylines = [];
+      gmpEngine.markers.forEach(m => { m.map = null; });
+      gmpEngine.markers = [];
+      gmpEngine.markerById.clear();
+    }
+
+    function buildPopupContentHtml(place, booksHere, stepsHere) {
+      const booksListHtml = booksHere.length > 0
+        ? booksHere.slice(0, 6).map(b =>
+            `<button type="button" onclick="window.__codexInspectBook('${b.id}')" class="px-1.5 py-0.5 rounded bg-slate-900 hover:bg-teal-950 text-teal-300 border border-slate-700 text-[10px] font-mono transition">${b.title}</button>`
+          ).join(" ")
+        : `<span class="text-[10px] text-slate-400">Waystation along biblical route</span>`;
+
+      const stepsListHtml = stepsHere.slice(0, 3).map(s =>
+        `<button type="button" onclick="window.__codexJumpStep(${s.step})" class="block text-left text-[11px] text-sky-300 hover:underline font-mono">→ Step ${s.step}: ${s.title} (${s.ref})</button>`
+      ).join("");
+
+      return `
+        <div class="w-72 space-y-2 text-xs bg-slate-950 text-slate-100 p-2 rounded-lg">
+          <div class="border-b border-slate-800 pb-1.5">
+            <div class="flex items-center justify-between gap-1">
+              <span class="text-[10px] font-mono uppercase tracking-wider text-teal-400">${place.region}</span>
+              <span class="text-[10px] font-mono text-slate-400">${place.lat.toFixed(2)}°N, ${place.lon.toFixed(2)}°E</span>
+            </div>
+            <div class="text-sm font-bold text-white mt-0.5">${place.name}</div>
+            <div class="text-[11px] text-amber-300 font-medium">Modern: ${place.modernName || place.region}</div>
+          </div>
+
+          <div class="text-[11px] text-slate-300 leading-relaxed">
+            <strong class="text-slate-100">Archaeological &amp; Historical Context:</strong> ${place.arch || "Key biblical and Second Temple geographical center."}
+          </div>
+
+          <div class="space-y-1">
+            <div class="text-[10px] font-semibold uppercase tracking-wider text-slate-400">Associated Books (${booksHere.length}):</div>
+            <div class="flex flex-wrap gap-1">${booksListHtml}</div>
+          </div>
+
+          ${stepsListHtml ? `<div class="space-y-0.5 pt-1 border-t border-slate-800/80"><div class="text-[10px] font-semibold uppercase tracking-wider text-slate-400">Journey Steps:</div>${stepsListHtml}</div>` : ""}
+
+          <div class="pt-1.5 border-t border-slate-800 grid grid-cols-2 gap-1.5">
+            <button type="button" onclick="window.__codexNarrateStop('${place.id}')"
+              class="py-1.5 px-2 rounded-md bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 font-semibold text-[11px] text-center transition">
+              🎙️ Narrate Stop
+            </button>
+            <button type="button" onclick="window.__codexGroundStop('${place.id}')"
+              class="py-1.5 px-2 rounded-md bg-teal-500/20 hover:bg-teal-500/30 text-teal-300 border border-teal-500/40 font-semibold text-[11px] text-center transition">
+              ✨ Maps Grounding
+            </button>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderGmpMap() {
+      if (!gmpEngine.initialized) {
+        initGmpMap();
+        return;
+      }
+      if (!gmpEngine.map) return;
+
+      const desiredType =
+        state.gisBaseStyle === "google_terrain"
+          ? "terrain"
+          : state.gisBaseStyle === "google_roadmap"
+            ? "roadmap"
+            : "hybrid";
+      if (gmpEngine.map.getMapTypeId() !== desiredType) {
+        gmpEngine.map.setMapTypeId(desiredType);
+      }
+
+      clearGmpOverlays();
+
+      const activeEra = getActiveHistoricalEra();
+      const currentStepObj = JOURNEY_STEPS.find(s => s.step === state.currentStep) || JOURNEY_STEPS[0];
+      const fromP = PLACES[currentStepObj.from];
+      const toP = PLACES[currentStepObj.to];
+
+      const eraTerritoryEl = $("activeStepEraTerritory");
+      if (eraTerritoryEl) {
+        eraTerritoryEl.innerHTML = `
+          <span>🏛️ ${activeEra.name}</span>
+          <span class="text-slate-400">${fromP ? fromP.name.split(" (")[0] : ""} → ${toP ? toP.name.split(" (")[0] : ""}</span>
+        `;
+      }
+
+      // 1. Draw Period-Accurate Ancient Empire / Province Polygons on Google Map
+      if (state.showEmpirePolygons && activeEra && activeEra.territories && gmpEngine.PolygonClass) {
+        activeEra.territories.forEach((terr) => {
+          const paths = terr.coords.map(c => ({ lat: c[0], lng: c[1] }));
+          const poly = new gmpEngine.PolygonClass({
+            paths,
+            strokeColor: terr.color,
+            strokeOpacity: 0.85,
+            strokeWeight: 1.8,
+            fillColor: terr.color,
+            fillOpacity: 0.14,
+            map: gmpEngine.map
+          });
+          gmpEngine.polygons.push(poly);
+        });
+      }
+
+      // 2. Draw Glowing Travel Routes on Google Map
+      const visibleSteps = JOURNEY_STEPS.filter(s => {
+        if (state.routeLayer !== "ALL") return matchesRouteLayer(s);
+        const withinStep = state.cumulativeMode ? s.step <= state.currentStep : s.step === state.currentStep;
+        if (!withinStep) return false;
+        if (state.tradition !== "ALL" && s.tradition !== state.tradition) return false;
+        return true;
+      });
+
+      const egyptSteps = (state.holyFamilyOverlay && state.routeLayer === "ALL")
+        ? JOURNEY_STEPS.filter(s => [15, 16, 17].includes(s.step) && !visibleSteps.some(v => v.step === s.step))
+        : [];
+
+      const allArcs = [...visibleSteps, ...egyptSteps];
+
+      allArcs.forEach((stepArc) => {
+        const p1 = PLACES[stepArc.from];
+        const p2 = PLACES[stepArc.to];
+        if (!p1 || !p2 || !gmpEngine.PolylineClass) return;
+
+        const isCurrent = stepArc.step === state.currentStep;
+        const trad = getTradition(stepArc.tradition);
+        const curvePts = buildCurvedLatLngs(p1, p2, 32).map(pt => ({ lat: pt[0], lng: pt[1] }));
+
+        if (isCurrent) {
+          const glowLine = new gmpEngine.PolylineClass({
+            path: curvePts,
+            strokeColor: trad.color,
+            strokeOpacity: 0.32,
+            strokeWeight: 9,
+            map: gmpEngine.map
+          });
+          gmpEngine.polylines.push(glowLine);
+        }
+
+        const routeLine = new gmpEngine.PolylineClass({
+          path: curvePts,
+          strokeColor: trad.color,
+          strokeOpacity: isCurrent ? 1.0 : 0.68,
+          strokeWeight: isCurrent ? 3.8 : 2.2,
+          map: gmpEngine.map
+        });
+
+        routeLine.addListener("click", () => {
+          setStep(stepArc.step, true, true);
+        });
+
+        gmpEngine.polylines.push(routeLine);
+      });
+
+      // 3. Draw AdvancedMarkerElement City Pins on Google Map
+      const activePlaceIds = new Set();
+      allArcs.forEach(s => {
+        activePlaceIds.add(s.from);
+        activePlaceIds.add(s.to);
+      });
+      BOOKS.forEach(b => {
+        if (state.tradition === "ALL" || b.tradition === state.tradition) {
+          activePlaceIds.add(b.placeId);
+        }
+      });
+
+      const placeList = Object.values(PLACES).filter(p => activePlaceIds.has(p.id));
+
+      placeList.forEach((place) => {
+        if (!gmpEngine.AdvancedMarkerElementClass) return;
+        const booksHere = BOOKS.filter(b => b.placeId === place.id);
+        const stepsHere = JOURNEY_STEPS.filter(s => s.from === place.id || s.to === place.id);
+        const primaryBook = booksHere[0];
+        const tradKey = primaryBook ? primaryBook.tradition : "OT";
+        const trad = getTradition(tradKey);
+        const isStepEndpoint = place.id === currentStepObj.from || place.id === currentStepObj.to;
+
+        const pinContainer = document.createElement("div");
+        pinContainer.className = "relative flex items-center justify-center cursor-pointer";
+        pinContainer.style.width = "28px";
+        pinContainer.style.height = "28px";
+        pinContainer.innerHTML = `
+          ${isStepEndpoint ? `<span class="absolute inset-0 rounded-full border-2 border-teal-300 animate-ping opacity-75"></span>` : ""}
+          <span class="relative flex items-center justify-center rounded-full shadow-lg font-bold text-xs"
+            style="width:${isStepEndpoint ? 24 : 18}px;height:${isStepEndpoint ? 24 : 18}px;background:#090d16;border:2px solid ${trad.color};color:${trad.color};">
+            ${trad.symbol}
+          </span>
+          <span class="absolute left-7 whitespace-nowrap px-1.5 py-0.5 rounded bg-slate-950/90 border border-slate-800 text-[10px] font-bold ${isStepEndpoint ? "text-white border-teal-500/60" : "text-slate-200"} shadow">
+            ${place.name.split(" (")[0]}
+          </span>
+        `;
+
+        const advMarker = new gmpEngine.AdvancedMarkerElementClass({
+          map: gmpEngine.map,
+          position: { lat: place.lat, lng: place.lon },
+          title: `${place.name} (${place.modernName || place.region})`
+        });
+        advMarker.append(pinContainer);
+
+        const openPlaceInfoWindow = () => {
+          if (!gmpEngine.infoWindow) return;
+          gmpEngine.infoWindow.setContent(buildPopupContentHtml(place, booksHere, stepsHere));
+          gmpEngine.infoWindow.open({
+            anchor: advMarker,
+            map: gmpEngine.map
+          });
+        };
+
+        pinContainer.addEventListener("click", (ev) => {
+          ev.stopPropagation();
+          inspectPlace(place.id, false);
+          openPlaceInfoWindow();
+        });
+
+        gmpEngine.markers.push(advMarker);
+        gmpEngine.markerById.set(place.id, { marker: advMarker, openPopup: openPlaceInfoWindow });
+      });
+    }
 
     function updateGisTileLayer() {
       if (!gisEngine.map || !window.L) return;
@@ -1255,12 +2111,11 @@
           "gis-style-second_temple",
           "gis-style-roman"
         );
-        if (state.gisBaseStyle === "satellite") {
+        if (state.gisBaseStyle === "satellite" || state.gisBaseStyle === "google_hybrid") {
           mapEl.classList.add("gis-style-satellite");
-        } else if (state.gisBaseStyle === "parchment") {
-          // Blend warm parchment with active historical period hue
+        } else if (state.gisBaseStyle === "parchment" || state.gisBaseStyle === "google_roadmap") {
           mapEl.classList.add(state.gisPeriodMode === "AUTO" ? "gis-style-parchment" : era.cssClass);
-        } else if (state.gisBaseStyle === "topo") {
+        } else if (state.gisBaseStyle === "topo" || state.gisBaseStyle === "google_terrain") {
           mapEl.classList.add(era.cssClass);
         }
       }
@@ -1274,7 +2129,7 @@
         gisEngine.labelOverlayLayer = null;
       }
 
-      if (state.gisBaseStyle === "satellite") {
+      if (state.gisBaseStyle === "satellite" || state.gisBaseStyle === "google_hybrid") {
         gisEngine.baseTileLayer = L.tileLayer(
           "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
           {
@@ -1290,7 +2145,7 @@
             opacity: 0.85
           }
         ).addTo(gisEngine.map);
-      } else if (state.gisBaseStyle === "topo") {
+      } else if (state.gisBaseStyle === "topo" || state.gisBaseStyle === "google_terrain") {
         gisEngine.baseTileLayer = L.tileLayer(
           "https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}",
           {
@@ -1364,7 +2219,6 @@
       const midLon = (lon1 + lon2) * 0.5;
       const dLat = lat2 - lat1;
       const dLon = lon2 - lon1;
-      // Perpendicular offset for graceful cartographic curve
       const ctrlLat = midLat + dLon * 0.16;
       const ctrlLon = midLon - dLat * 0.16;
 
@@ -1379,7 +2233,7 @@
       return pts;
     }
 
-    // Global Popup Action Helpers for City Pins
+    // Global Popup Action Helpers for City Pins & Gemini Maps Grounding
     window.__codexNarrateStop = function (placeId) {
       const place = PLACES[placeId];
       if (!place) return;
@@ -1398,6 +2252,118 @@
 
     window.__codexJumpStep = function (stepNum) {
       setStep(Number(stepNum), true, true);
+    };
+
+    async function groundStopWithGemini(placeId, customQuery = "") {
+      const stepObj = JOURNEY_STEPS.find(s => s.step === state.currentStep) || JOURNEY_STEPS[0];
+      const place = PLACES[placeId] || PLACES[stepObj.to] || PLACES.jerusalem;
+      if (!place) return;
+
+      const resEl = $("inspGeminiGroundResult");
+      const linksEl = $("inspGeminiGroundLinks");
+      const btnEl = $("inspGeminiGroundBtn");
+
+      if (resEl) {
+        resEl.innerHTML = `<div class="text-teal-300 font-mono text-[11px] animate-pulse">✨ Querying Gemini 3.8 Flash with Google Maps Grounding at ${place.name} (${place.lat.toFixed(2)}°N, ${place.lon.toFixed(2)}°E)...</div>`;
+      }
+      if (linksEl) {
+        linksEl.classList.add("hidden");
+        linksEl.innerHTML = "";
+      }
+      if (btnEl) {
+        btnEl.disabled = true;
+        btnEl.textContent = "Grounding...";
+      }
+
+      try {
+        const era = getActiveHistoricalEra();
+        const response = await fetch("/api/gemini-maps-grounding", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            placeName: place.name,
+            modernName: place.modernName || place.region,
+            era: era.name,
+            scriptureRefs: `${stepObj.title} (${stepObj.ref})`,
+            query: customQuery,
+            lat: place.lat,
+            lon: place.lon
+          })
+        });
+
+        const data = await response.json();
+        if (!response.ok || data.error) {
+          throw new Error(data.error || "Unable to load Google Maps Grounding data.");
+        }
+
+        const safeText = String(data.text || "")
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/\*\*([^*]+)\*\*/g, "<strong class='text-white'>$1</strong>")
+          .replace(/\n/g, "<br/>");
+
+        if (resEl) {
+          resEl.innerHTML = `
+            <div class="text-[11px] font-bold text-amber-300">${place.name} — ${place.modernName || place.region}</div>
+            <div class="text-xs text-slate-200 leading-relaxed">${safeText}</div>
+            <div class="pt-1">
+              <button type="button" id="narrateGroundedInsightBtn" class="px-2 py-1 rounded bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 text-[10px] font-semibold">
+                🎙️ Narrate Grounded Report
+              </button>
+            </div>
+          `;
+          const narrBtn = $("narrateGroundedInsightBtn");
+          if (narrBtn) {
+            narrBtn.addEventListener("click", () => {
+              speakDeepDiscovery(String(data.text || "").replace(/[*#]/g, ""), true);
+            });
+          }
+        }
+
+        if (linksEl && Array.isArray(data.mapsLinks) && data.mapsLinks.length > 0) {
+          linksEl.classList.remove("hidden");
+          linksEl.innerHTML = `
+            <div class="text-[10px] font-bold uppercase tracking-wider text-teal-400">Verified Google Maps Sources:</div>
+            <div class="flex flex-col gap-1">
+              ${data.mapsLinks.map(item => `
+                <div class="text-[11px] bg-slate-900/90 border border-slate-800 rounded px-2 py-1">
+                  ${item.uri
+                    ? `<a href="${item.uri}" target="_blank" rel="noopener noreferrer" class="text-teal-300 hover:underline font-semibold flex items-center justify-between">
+                        <span>📍 ${item.title}</span>
+                        <span class="text-[10px] font-mono">Open Maps ↗</span>
+                      </a>`
+                    : `<span class="text-teal-300 font-semibold">📍 ${item.title}</span>`
+                  }
+                  ${Array.isArray(item.reviewSnippets) && item.reviewSnippets.length > 0
+                    ? `<div class="mt-1 space-y-0.5 border-t border-slate-800/80 pt-1">
+                        ${item.reviewSnippets.slice(0, 2).map(snip => `
+                          <div class="text-[10px] text-slate-400 italic">
+                            "${snip.text}" ${snip.uri ? `<a href="${snip.uri}" target="_blank" rel="noopener noreferrer" class="text-sky-400 underline not-italic">Review ↗</a>` : ""}
+                          </div>
+                        `).join("")}
+                      </div>`
+                    : ""
+                  }
+                </div>
+              `).join("")}
+            </div>
+          `;
+        }
+      } catch (err) {
+        if (resEl) {
+          resEl.innerHTML = `<div class="text-xs text-rose-300">${err instanceof Error ? err.message : String(err)}</div>`;
+        }
+      } finally {
+        if (btnEl) {
+          btnEl.disabled = false;
+          btnEl.textContent = "Explore Site on Google Maps";
+        }
+      }
+    }
+
+    window.__codexGroundStop = function (placeId) {
+      groundStopWithGemini(placeId, "");
     };
 
     function renderGisLeafletMap() {
@@ -1470,7 +2436,6 @@
         const trad = getTradition(stepArc.tradition);
         const curvePts = buildCurvedLatLngs(p1, p2, 32);
 
-        // Outer luminous glow for active route
         if (isCurrent) {
           L.polyline(curvePts, {
             color: trad.color,
@@ -1480,7 +2445,6 @@
           }).addTo(gisEngine.routeLayerGroup);
         }
 
-        // Primary animated caravan / royal road / maritime shipping lane polyline
         const routeLine = L.polyline(curvePts, {
           color: trad.color,
           weight: isCurrent ? 3.8 : 2.1,
@@ -1546,47 +2510,7 @@
         });
 
         const marker = L.marker([place.lat, place.lon], { icon });
-
-        const booksListHtml = booksHere.length > 0
-          ? booksHere.slice(0, 6).map(b =>
-              `<button type="button" onclick="window.__codexInspectBook('${b.id}')" class="px-1.5 py-0.5 rounded bg-slate-900 hover:bg-teal-950 text-teal-300 border border-slate-700 text-[10px] font-mono transition">${b.title}</button>`
-            ).join(" ")
-          : `<span class="text-[10px] text-slate-400">Waystation along biblical route</span>`;
-
-        const stepsListHtml = stepsHere.slice(0, 3).map(s =>
-          `<button type="button" onclick="window.__codexJumpStep(${s.step})" class="block text-left text-[11px] text-sky-300 hover:underline font-mono">→ Step ${s.step}: ${s.title} (${s.ref})</button>`
-        ).join("");
-
-        const popupHtml = `
-          <div class="w-72 space-y-2 text-xs">
-            <div class="border-b border-slate-800 pb-1.5">
-              <div class="flex items-center justify-between gap-1">
-                <span class="text-[10px] font-mono uppercase tracking-wider text-teal-400">${place.region}</span>
-                <span class="text-[10px] font-mono text-slate-400">${place.lat.toFixed(2)}°N, ${place.lon.toFixed(2)}°E</span>
-              </div>
-              <div class="text-sm font-bold text-white mt-0.5">${place.name}</div>
-              <div class="text-[11px] text-amber-300 font-medium">Modern: ${place.modernName || place.region}</div>
-            </div>
-
-            <div class="text-[11px] text-slate-300 leading-relaxed">
-              <strong class="text-slate-100">Archaeological &amp; Historical Context:</strong> ${place.arch || "Key biblical and Second Temple geographical center."}
-            </div>
-
-            <div class="space-y-1">
-              <div class="text-[10px] font-semibold uppercase tracking-wider text-slate-400">Associated Books (${booksHere.length}):</div>
-              <div class="flex flex-wrap gap-1">${booksListHtml}</div>
-            </div>
-
-            ${stepsListHtml ? `<div class="space-y-0.5 pt-1 border-t border-slate-800/80"><div class="text-[10px] font-semibold uppercase tracking-wider text-slate-400">Journey Steps:</div>${stepsListHtml}</div>` : ""}
-
-            <div class="pt-1.5 border-t border-slate-800 flex items-center justify-between gap-2">
-              <button type="button" onclick="window.__codexNarrateStop('${place.id}')"
-                class="w-full py-1.5 px-2.5 rounded-md bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 font-semibold text-[11px] text-center transition">
-                🎙️ Audio Narrate Stop (Deep Discovery)
-              </button>
-            </div>
-          </div>
-        `;
+        const popupHtml = buildPopupContentHtml(place, booksHere, stepsHere);
 
         marker.bindPopup(popupHtml, { maxWidth: 310 });
         marker.on("click", () => {
@@ -1599,13 +2523,29 @@
     }
 
     function flyToActiveStep(openTargetPopup = false) {
-      if (state.projectionMode !== "2d" || !gisEngine.map || !window.L) return;
-      const L = window.L;
+      if (state.projectionMode !== "2d") return;
       const stepObj = JOURNEY_STEPS.find(s => s.step === state.currentStep) || JOURNEY_STEPS[0];
       const p1 = PLACES[stepObj.from];
       const p2 = PLACES[stepObj.to];
       if (!p1 || !p2) return;
 
+      if (isGoogleMapsStyle(state.gisBaseStyle) && gmpEngine.map && window.google?.maps) {
+        const bounds = new window.google.maps.LatLngBounds();
+        bounds.extend({ lat: p1.lat, lng: p1.lon });
+        bounds.extend({ lat: p2.lat, lng: p2.lon });
+        gmpEngine.map.fitBounds(bounds, 75);
+        if (gmpEngine.map.getZoom() > 7) gmpEngine.map.setZoom(7);
+        if (openTargetPopup) {
+          setTimeout(() => {
+            const entry = gmpEngine.markerById.get(p2.id);
+            if (entry && entry.openPopup) entry.openPopup();
+          }, 500);
+        }
+        return;
+      }
+
+      if (!gisEngine.map || !window.L) return;
+      const L = window.L;
       const bounds = L.latLngBounds([[p1.lat, p1.lon], [p2.lat, p2.lon]]);
       gisEngine.map.flyToBounds(bounds.pad(0.45), {
         maxZoom: 7,
@@ -1622,9 +2562,23 @@
     }
 
     function flyToPlaceOnGis(placeId, openPopup = true) {
-      if (state.projectionMode !== "2d" || !gisEngine.map) return;
+      if (state.projectionMode !== "2d") return;
       const p = PLACES[placeId];
       if (!p) return;
+
+      if (isGoogleMapsStyle(state.gisBaseStyle) && gmpEngine.map) {
+        gmpEngine.map.panTo({ lat: p.lat, lng: p.lon });
+        if ((gmpEngine.map.getZoom() || 5) < 6) gmpEngine.map.setZoom(6);
+        if (openPopup) {
+          setTimeout(() => {
+            const entry = gmpEngine.markerById.get(placeId);
+            if (entry && entry.openPopup) entry.openPopup();
+          }, 400);
+        }
+        return;
+      }
+
+      if (!gisEngine.map) return;
       gisEngine.map.flyTo([p.lat, p.lon], Math.max(gisEngine.map.getZoom(), 6), {
         duration: 1.15,
         animate: true
@@ -1687,6 +2641,26 @@
 
     function initMap() {
       initGisLeafletMap();
+
+      // Fetch Google Maps Platform API Key & Gemini Status from server
+      fetch("/api/maps-config")
+        .then(r => r.ok ? r.json() : Promise.reject())
+        .then(cfg => {
+          gmpEngine.apiKey = cfg.googleMapsApiKey || "";
+          gmpEngine.geminiConfigured = Boolean(cfg.geminiConfigured);
+          const badge = $("gmpStatusBadge");
+          if (badge) {
+            badge.textContent = gmpEngine.apiKey ? "Google Maps + Gemini Active" : (gmpEngine.geminiConfigured ? "Gemini Grounding Active" : "GIS Atlas Ready");
+          }
+          if (gmpEngine.apiKey) {
+            state.gisBaseStyle = "google_hybrid";
+            const sel = $("gisBaseStyleSelect");
+            if (sel) sel.value = "google_hybrid";
+            initGmpMap();
+            renderMap();
+          }
+        })
+        .catch(() => {});
 
       const svgNode = $("atlasSvg");
       if (!svgNode) return;
@@ -1787,14 +2761,23 @@
     }
 
     function renderMap() {
+      const gmpEl = $("gmpMapCanvas");
       const gisEl = $("gisLeafletMap");
       const svgEl = $("atlasSvg");
-      const isGisMode = state.projectionMode === "2d";
+      const is2D = state.projectionMode === "2d";
+      const useGmp = is2D && isGoogleMapsStyle(state.gisBaseStyle);
+      const useLeaflet = is2D && !useGmp;
 
-      if (gisEl) gisEl.classList.toggle("hidden", !isGisMode);
-      if (svgEl) svgEl.classList.toggle("hidden", isGisMode);
+      if (gmpEl) gmpEl.classList.toggle("hidden", !useGmp);
+      if (gisEl) gisEl.classList.toggle("hidden", !useLeaflet);
+      if (svgEl) svgEl.classList.toggle("hidden", is2D);
 
-      if (isGisMode) {
+      if (useGmp) {
+        renderGmpMap();
+        return;
+      }
+
+      if (useLeaflet) {
         updateGisTileLayer();
         renderGisLeafletMap();
         return;
@@ -2604,17 +3587,22 @@
       };
     }
 
-    // Mind Map State (Upgraded with 3D Spatial Field, Collapsible Panels, Pathway Pinning & Deep Discovery Narration)
+    // Mind Map State (Upgraded with 3D Spatial Field, Full Screen Mode, Universal Pathway Tracing & Deep Discovery Narration)
     const mmState = {
       layout: "3d-planes",        // '3d-planes' | '3d-celestial' | 'tripartite' | 'force' | 'radial'
       bridgeFilter: "ALL",        // 'ALL' | 'APOC_NT' | 'OT_APOC_NT' | 'OT_NT'
       hubFilter: "ALL",           // 'ALL' | hubId
       searchQuery: "",
       focusedNodeId: "1EN",       // bookId or hubId
+      nodeCorridorIndex: 0,       // Cycles through all corridors connected to focusedNodeId
+      tierCycleIndex: { OT: 0, HUB: 0, APOCRYPHA: 0, NT: 0 },
       selectedLinkId: 1,          // 1..67000
       pathwayPinned: true,        // Keep active OT->Hub->Apoc->NT spline pinned & dim unlinked nodes
       leftPanelCollapsed: false,
       rightPanelCollapsed: false,
+      fullScreenMode: false,      // 100% Full Screen Interactive Mind Map mode
+      hudDockCollapsed: false,    // Collapsible bottom 4-stage pathway dock
+      savedPanelsBeforeFs: null,
       autoNarrate: true,
       ttsEngine: "webspeech",     // 'webspeech' | 'neural'
       lastNarrationText: "",
@@ -2633,7 +3621,7 @@
     };
 
     // =========================================================
-    // UPGRADE 1: COLLAPSIBLE / RETRACTABLE SIDE PANELS
+    // UPGRADE 1: COLLAPSIBLE SIDE PANELS & 100% FULL SCREEN MODE
     // =========================================================
     function updateCollapsiblePanelsUI() {
       const leftPanel = $("mmLeftPanel");
@@ -2667,6 +3655,73 @@
     function toggleRightMindMapPanel(forceState) {
       mmState.rightPanelCollapsed = typeof forceState === "boolean" ? forceState : !mmState.rightPanelCollapsed;
       updateCollapsiblePanelsUI();
+    }
+
+    function toggleMindMapHudDock(forceState) {
+      mmState.hudDockCollapsed = typeof forceState === "boolean" ? forceState : !mmState.hudDockCollapsed;
+      const dock = $("mmInteractivePathwayDock");
+      const btn = $("mmToggleHudDockBtn");
+      if (dock) {
+        dock.classList.toggle("hidden", mmState.hudDockCollapsed);
+      }
+      if (btn) {
+        btn.textContent = mmState.hudDockCollapsed ? "▴ Show Pathway Dock (H)" : "▾ Hide Pathway Dock (H)";
+      }
+    }
+
+    function toggleMindMapFullScreen(forceState) {
+      mmState.fullScreenMode = typeof forceState === "boolean" ? forceState : !mmState.fullScreenMode;
+      const wsEl = $("ws-mindmap");
+      const topDeck = $("mmTopControlDeck");
+      const narrBar = $("mmNarrationBar");
+      const subBar = $("mmStageSubToolbar");
+      const mainHdr = $("mainAppHeader");
+      const mobNav = $("mobileBottomNav");
+      const fsBtnTop = $("mmFullscreenBtn");
+      const fsBtnCanvas = $("mmCanvasFullscreenBtn");
+
+      if (mmState.fullScreenMode) {
+        mmState.savedPanelsBeforeFs = {
+          left: mmState.leftPanelCollapsed,
+          right: mmState.rightPanelCollapsed
+        };
+        mmState.leftPanelCollapsed = true;
+        mmState.rightPanelCollapsed = true;
+
+        if (wsEl) {
+          wsEl.classList.add("fixed", "inset-0", "z-50", "max-w-none", "w-screen", "h-screen");
+        }
+        if (topDeck) topDeck.classList.add("hidden");
+        if (narrBar) narrBar.classList.add("hidden");
+        if (subBar) subBar.classList.add("hidden");
+        if (mainHdr) mainHdr.classList.add("hidden");
+        if (mobNav) mobNav.classList.add("hidden");
+      } else {
+        if (mmState.savedPanelsBeforeFs) {
+          mmState.leftPanelCollapsed = mmState.savedPanelsBeforeFs.left;
+          mmState.rightPanelCollapsed = mmState.savedPanelsBeforeFs.right;
+          mmState.savedPanelsBeforeFs = null;
+        }
+        if (wsEl) {
+          wsEl.classList.remove("w-screen", "h-screen");
+          if (!mmState.windowExpanded) {
+            wsEl.classList.remove("fixed", "inset-0", "z-50", "max-w-none");
+          }
+        }
+        if (topDeck) topDeck.classList.remove("hidden");
+        if (narrBar) narrBar.classList.remove("hidden");
+        if (subBar) subBar.classList.remove("hidden");
+        if (mainHdr && !state.zenMapMode) mainHdr.classList.remove("hidden");
+        if (mobNav && !state.zenMapMode) mobNav.classList.remove("hidden");
+      }
+
+      const labelText = mmState.fullScreenMode ? "✕ Exit Full Screen (Esc / F)" : "⛶ Full Screen (F)";
+      if (fsBtnTop) fsBtnTop.textContent = labelText;
+      if (fsBtnCanvas) fsBtnCanvas.innerHTML = `<span>${labelText}</span>`;
+
+      updateCollapsiblePanelsUI();
+      renderMindMapCanvas();
+      setTimeout(resizeMindMap3D, 80);
     }
 
     // =========================================================
@@ -2947,28 +4002,59 @@
       listEl.querySelectorAll("[data-mm-node]").forEach(btn => {
         btn.addEventListener("click", () => {
           const nid = btn.getAttribute("data-mm-node");
-          focusMindMapNode(nid, true);
+          focusMindMapNode(nid, true, true);
         });
       });
     }
 
-    function focusMindMapNode(nodeId, triggerAudio = true) {
-      mmState.focusedNodeId = nodeId;
-      mmState.pageOffset = 0;
-
-      // Find first corridor involving this node and select its primary cross-link
-      const firstCorr = CORRIDORS_67K.find(c =>
+    function getCorridorsForNode(nodeId) {
+      const matches = CORRIDORS_67K.filter(c =>
         c.hub.id === nodeId || c.apocBook.id === nodeId || c.ntBook.id === nodeId || c.otBook.id === nodeId
       );
-      if (firstCorr) {
-        mmState.selectedLinkId = firstCorr.startId;
+      return matches.length > 0 ? matches : CORRIDORS_67K;
+    }
+
+    function focusMindMapNode(nodeId, triggerAudio = true, cycleIfSame = true) {
+      if (!nodeId) return;
+      const isSameNode = mmState.focusedNodeId === nodeId;
+      mmState.focusedNodeId = nodeId;
+      mmState.pathwayPinned = true;
+      mmState.pageOffset = 0;
+
+      // Ensure filters don't hide the clicked node's pathways
+      if (mmState.hubFilter !== "ALL" && mmState.hubFilter !== nodeId) {
+        mmState.hubFilter = "ALL";
+        const hubSel = $("mmHubFilter");
+        if (hubSel) hubSel.value = "ALL";
+        updateFilteredCorridors();
+      }
+
+      const nodeCorridors = getCorridorsForNode(nodeId);
+      if (isSameNode && cycleIfSame && nodeCorridors.length > 1) {
+        mmState.nodeCorridorIndex = (mmState.nodeCorridorIndex + 1) % nodeCorridors.length;
+      } else {
+        mmState.nodeCorridorIndex = 0;
+      }
+
+      const chosenCorr = nodeCorridors[mmState.nodeCorridorIndex] || nodeCorridors[0];
+      if (chosenCorr) {
+        mmState.selectedLinkId = chosenCorr.startId;
+        const jumpInput = $("mmJumpInput");
+        if (jumpInput) jumpInput.value = String(chosenCorr.startId);
+      }
+
+      const stepBadge = $("mmCorridorStepBadge");
+      if (stepBadge) {
+        stepBadge.textContent = `${mmState.nodeCorridorIndex + 1}/${nodeCorridors.length}`;
       }
 
       renderMindMapLeftList();
       renderMindMapActiveLink();
       renderMindMapStream();
       renderMindMapCanvas();
-      focus3DCameraOnNode(nodeId);
+
+      const activeLink = getCrossLinkByNumber(mmState.selectedLinkId);
+      focus3DCameraOnPathway(activeLink, nodeId);
 
       const script = buildDeepDiscoveryScript("node", nodeId);
       if (triggerAudio) {
@@ -2980,9 +4066,30 @@
       }
     }
 
+    function cycleActiveNodePathway() {
+      focusMindMapNode(mmState.focusedNodeId || "1EN", true, true);
+    }
+
+    function cycleTierPathway(tier) {
+      const otBooks = BOOKS.filter(b => b.tradition === "OT");
+      const apocBooks = BOOKS.filter(b => b.tradition === "APOCRYPHA");
+      const ntBooks = BOOKS.filter(b => b.tradition !== "OT" && b.tradition !== "APOCRYPHA");
+      let list = [];
+      if (tier === "OT") list = otBooks.map(b => b.id);
+      else if (tier === "HUB") list = MINDMAP_HUBS.map(h => h.id);
+      else if (tier === "APOCRYPHA") list = apocBooks.map(b => b.id);
+      else list = ntBooks.map(b => b.id);
+
+      if (!list.length) return;
+      const idx = (mmState.tierCycleIndex[tier] || 0) % list.length;
+      mmState.tierCycleIndex[tier] = (idx + 1) % list.length;
+      focusMindMapNode(list[idx], true, false);
+    }
+
     function selectCrossLinkNumber(linkNum, recenterNode = false, triggerAudio = true) {
       const linkObj = getCrossLinkByNumber(linkNum);
       mmState.selectedLinkId = linkObj.id;
+      mmState.pathwayPinned = true;
       const jumpInput = $("mmJumpInput");
       if (jumpInput) jumpInput.value = String(linkObj.id);
 
@@ -2990,14 +4097,20 @@
         mmState.focusedNodeId = linkObj.apocBook.id;
       }
 
+      const nodeCorridors = getCorridorsForNode(mmState.focusedNodeId);
+      const corrIdx = nodeCorridors.findIndex(c => c.corridorId === linkObj.corridorId);
+      if (corrIdx >= 0) {
+        mmState.nodeCorridorIndex = corrIdx;
+      }
+      const stepBadge = $("mmCorridorStepBadge");
+      if (stepBadge) {
+        stepBadge.textContent = `${mmState.nodeCorridorIndex + 1}/${nodeCorridors.length}`;
+      }
+
       renderMindMapActiveLink();
       renderMindMapStream();
       renderMindMapCanvas();
-      if (recenterNode) {
-        focus3DCameraOnNode(linkObj.apocBook.id);
-      } else {
-        focus3DCameraOnPathway(linkObj);
-      }
+      focus3DCameraOnPathway(linkObj, recenterNode ? linkObj.apocBook.id : null);
 
       const script = buildDeepDiscoveryScript("link", linkObj);
       if (triggerAudio) {
@@ -3009,11 +4122,12 @@
       }
     }
 
-    // Render Right Top Inspector for the Currently Selected Cross-Link (#1..#67,000)
+    // Render Right Top Inspector AND the Bottom Interactive 4-Stage Pathway Dock
     function renderMindMapActiveLink() {
       const card = $("mmActiveLinkCard");
       const splineBadge = $("mmPinnedPathwayBadge");
       const pinBtn = $("mmPinPathwayBtn");
+      const stagesEl = $("mmInteractivePathwayStages");
       const lnk = getCrossLinkByNumber(mmState.selectedLinkId);
 
       if (splineBadge) {
@@ -3026,11 +4140,75 @@
           : "px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 whitespace-nowrap shrink-0";
       }
 
-      if (!card) return;
-
       const tOt = getTradition(lnk.otBook.tradition);
       const tAp = getTradition(lnk.apocBook.tradition);
       const tNt = getTradition(lnk.ntBook.tradition);
+
+      // Populate Interactive 4-Stage Pathway Explorer Dock on the Canvas
+      if (stagesEl) {
+        const stages = [
+          {
+            num: "1",
+            tier: "OT ROOT · Z=-200",
+            nodeId: lnk.otBook.id,
+            cite: lnk.otCite,
+            sub: lnk.otBook.title,
+            color: tOt.color,
+            symbol: tOt.symbol
+          },
+          {
+            num: "2",
+            tier: "COVENANT HUB · Z=0",
+            nodeId: lnk.hub.id,
+            cite: lnk.hub.shortTitle,
+            sub: `${lnk.hub.count.toLocaleString()} Cross-Links`,
+            color: "#2dd4bf",
+            symbol: "❖"
+          },
+          {
+            num: "3",
+            tier: "APOCRYPHA BRIDGE · Z=+100",
+            nodeId: lnk.apocBook.id,
+            cite: lnk.apCite,
+            sub: lnk.apocBook.canon.split(" /")[0],
+            color: tAp.color,
+            symbol: tAp.symbol
+          },
+          {
+            num: "4",
+            tier: "NT TARGET · Z=+250",
+            nodeId: lnk.ntBook.id,
+            cite: lnk.ntCite,
+            sub: lnk.ntBook.title,
+            color: tNt.color,
+            symbol: tNt.symbol
+          }
+        ];
+
+        stagesEl.innerHTML = stages.map((st, idx) => {
+          const isFocused = mmState.focusedNodeId === st.nodeId;
+          return `
+            <button type="button" data-mm-stage-node="${st.nodeId}"
+              class="text-left p-2 rounded-lg border transition flex flex-col justify-between ${isFocused ? "bg-teal-950/80 border-teal-400 ring-1 ring-teal-400/50" : "bg-slate-900/95 hover:bg-slate-800 border-slate-800"}">
+              <div class="flex items-center justify-between gap-1 text-[10px] font-mono">
+                <span class="font-bold" style="color:${st.color}">${st.symbol} ${st.num}. ${st.tier}</span>
+                <span class="text-slate-400">${idx < 3 ? "➔" : "★"}</span>
+              </div>
+              <div class="font-bold text-white text-xs truncate mt-0.5">${st.cite}</div>
+              <div class="text-[10px] text-slate-400 truncate">${st.sub} · <span class="text-teal-300">Click to cycle</span></div>
+            </button>
+          `;
+        }).join("");
+
+        stagesEl.querySelectorAll("[data-mm-stage-node]").forEach(btn => {
+          btn.addEventListener("click", () => {
+            const nid = btn.getAttribute("data-mm-stage-node");
+            focusMindMapNode(nid, true, true);
+          });
+        });
+      }
+
+      if (!card) return;
 
       card.innerHTML = `
         <div class="flex items-center justify-between gap-2 text-[11px] text-slate-400">
@@ -3085,13 +4263,14 @@
 
       card.querySelectorAll("[data-mm-inspect-book]").forEach(btn => {
         btn.addEventListener("click", () => {
-          focusMindMapNode(btn.getAttribute("data-mm-inspect-book"), true);
+          focusMindMapNode(btn.getAttribute("data-mm-inspect-book"), true, true);
         });
       });
 
       card.querySelectorAll("[data-mm-atlas-jump]").forEach(btn => {
         btn.addEventListener("click", () => {
           const bid = btn.getAttribute("data-mm-atlas-jump");
+          if (mmState.fullScreenMode) toggleMindMapFullScreen(false);
           switchWorkspace("journey");
           selectBook(bid, true);
           const st = JOURNEY_STEPS.find(s => s.books.includes(bid));
@@ -3404,7 +4583,7 @@
       scene.add(mm3D.splineGroup);
       scene.add(mm3D.nodeGroup);
 
-      // Pointer click & hover raycasting on 3D nodes
+      // Pointer click & hover raycasting on ALL 3D objects (nodes, labels, rings, corridor tubes, spline stages, stratum headers)
       let downPos = { x: 0, y: 0 };
       renderer.domElement.addEventListener("pointerdown", (e) => {
         downPos = { x: e.clientX, y: e.clientY };
@@ -3428,23 +4607,43 @@
                 <div class="font-bold text-yellow-300">Cross-Link #${meta.data.id.toLocaleString()}</div>
                 <div class="text-[11px] font-mono text-teal-300 mt-0.5">${meta.data.otCite} → ${meta.data.apCite} → ${meta.data.ntCite}</div>
                 <div class="text-[11px] text-slate-200 mt-1">${meta.data.title}</div>
+                <div class="text-[10px] text-amber-300 mt-1">Click to pin &amp; illuminate this pathway</div>
+              `;
+            } else if (meta.kind === "corridor") {
+              tooltip.innerHTML = `
+                <div class="font-bold text-sky-300">3D Pathway Corridor (${meta.corridor.count.toLocaleString()} Links)</div>
+                <div class="text-[11px] font-mono text-teal-300 mt-0.5">${meta.data.otCite} → ${meta.corridor.hub.shortTitle} → ${meta.data.apCite} → ${meta.data.ntCite}</div>
+                <div class="text-[11px] text-slate-200 mt-1">${meta.data.title}</div>
+                <div class="text-[10px] text-amber-300 mt-1">Click tube to activate &amp; trace this 4-stage spline</div>
+              `;
+            } else if (meta.kind === "pathway-stage") {
+              tooltip.innerHTML = `
+                <div class="font-bold text-amber-300">📌 Active Spline: ${meta.stageTitle}</div>
+                <div class="text-[11px] font-mono text-teal-300 mt-0.5">${meta.data.otCite} → ${meta.data.hub.shortTitle} → ${meta.data.apCite} → ${meta.data.ntCite}</div>
+                <div class="text-[10px] text-slate-300 mt-1">Click to focus stage &amp; cycle connected pathways</div>
+              `;
+            } else if (meta.kind === "tier") {
+              tooltip.innerHTML = `
+                <div class="font-bold text-teal-300">${meta.title}</div>
+                <div class="text-[11px] text-slate-300 mt-0.5">Click stratum banner to cycle pathways across this canonical tier</div>
               `;
             } else if (meta.kind === "hub") {
               tooltip.innerHTML = `
                 <div class="font-bold text-teal-300">❖ ${meta.data.title} (Z=0 Hub)</div>
                 <div class="text-[11px] font-mono text-slate-300">${meta.data.count.toLocaleString()} Cross-Links</div>
                 <div class="text-[11px] text-slate-400 mt-1">${meta.data.desc}</div>
+                <div class="text-[10px] text-amber-300 mt-1">Click to illuminate hub pathways (click again to cycle)</div>
               `;
             } else if (meta.data) {
               const zDepth = meta.data.tradition === "OT" ? "Z = -200" : (meta.data.tradition === "APOCRYPHA" ? "Z = +100" : "Z = +250");
               tooltip.innerHTML = `
                 <div class="font-bold text-white">${meta.data.title} <span class="text-teal-300 font-mono text-[10px]">(${zDepth})</span></div>
                 <div class="text-[11px] text-teal-300">${meta.data.writerTrad} · ${meta.data.date}</div>
-                <div class="text-[11px] text-slate-400 mt-0.5">${meta.data.canon} — Click to focus 3D camera &amp; trace spline</div>
+                <div class="text-[11px] text-slate-400 mt-0.5">${meta.data.canon} — Click to trace 4-stage spline (click again for next pathway)</div>
               `;
             }
             tooltip.classList.remove("hidden");
-            tooltip.style.left = `${Math.min(rect.width - 250, e.clientX - rect.left + 14)}px`;
+            tooltip.style.left = `${Math.min(rect.width - 260, e.clientX - rect.left + 14)}px`;
             tooltip.style.top = `${Math.max(12, e.clientY - rect.top - 12)}px`;
           }
         } else {
@@ -3464,10 +4663,14 @@
         if (hits.length > 0) {
           const meta = hits[0].object.userData;
           if (!meta) return;
-          if (meta.kind === "verse" && meta.linkId) {
+          if ((meta.kind === "verse" || meta.kind === "corridor") && meta.linkId) {
             selectCrossLinkNumber(meta.linkId, false, true);
+          } else if (meta.kind === "pathway-stage" && meta.id) {
+            focusMindMapNode(meta.id, true, true);
+          } else if (meta.kind === "tier" && meta.tier) {
+            cycleTierPathway(meta.tier);
           } else if (meta.id) {
-            focusMindMapNode(meta.id, true);
+            focusMindMapNode(meta.id, true, true);
           }
         }
       });
@@ -3533,25 +4736,36 @@
     }
 
     function focus3DCameraOnNode(nodeId) {
-      if (!mm3D.initialized || !window.THREE) return;
-      const entry = mm3D.nodeMap3D.get(nodeId);
-      if (!entry) return;
-      const p = entry.pos;
-      mm3D.desiredTarget.set(p.x, p.y, p.z);
-      mm3D.desiredCamPos.set(p.x * 0.85 + 45, p.y * 0.85 + 28, p.z + 185);
-      mm3D.cameraLerpActive = true;
+      const activeLink = getCrossLinkByNumber(mmState.selectedLinkId);
+      focus3DCameraOnPathway(activeLink, nodeId);
     }
 
-    function focus3DCameraOnPathway(lnk) {
+    // Frame both the clicked node and its complete 4-stage glowing pathway across Z=-200 .. Z=+250
+    function focus3DCameraOnPathway(lnk, highlightNodeId) {
       if (!mm3D.initialized || !window.THREE || !lnk) return;
-      const apEntry = mm3D.nodeMap3D.get(lnk.apocBook.id);
+      const otEntry = mm3D.nodeMap3D.get(lnk.otBook.id);
       const hubEntry = mm3D.nodeMap3D.get(lnk.hub.id);
-      if (apEntry && hubEntry) {
-        const mx = (apEntry.pos.x + hubEntry.pos.x) / 2;
-        const my = (apEntry.pos.y + hubEntry.pos.y) / 2;
-        const mz = (apEntry.pos.z + hubEntry.pos.z) / 2;
-        mm3D.desiredTarget.set(mx, my, mz);
-        mm3D.desiredCamPos.set(mx + 140, my + 65, mz + 360);
+      const apEntry = mm3D.nodeMap3D.get(lnk.apocBook.id);
+      const ntEntry = mm3D.nodeMap3D.get(lnk.ntBook.id);
+      const clickedEntry = highlightNodeId ? mm3D.nodeMap3D.get(highlightNodeId) : null;
+
+      if (otEntry && hubEntry && apEntry && ntEntry) {
+        const cx = (otEntry.pos.x + hubEntry.pos.x + apEntry.pos.x + ntEntry.pos.x) / 4;
+        const cy = (otEntry.pos.y + hubEntry.pos.y + apEntry.pos.y + ntEntry.pos.y) / 4;
+        const cz = (otEntry.pos.z + hubEntry.pos.z + apEntry.pos.z + ntEntry.pos.z) / 4;
+
+        // Blend centroid with clicked node so the clicked node is prominent while all 4 stages stay visible
+        const tx = clickedEntry ? (cx * 0.65 + clickedEntry.pos.x * 0.35) : cx;
+        const ty = clickedEntry ? (cy * 0.65 + clickedEntry.pos.y * 0.35) : cy;
+        const tz = clickedEntry ? (cz * 0.75 + clickedEntry.pos.z * 0.25) : cz;
+
+        mm3D.desiredTarget.set(tx, ty, tz);
+        mm3D.desiredCamPos.set(tx + 165, ty + 75, tz + 440);
+        mm3D.cameraLerpActive = true;
+      } else if (clickedEntry) {
+        const p = clickedEntry.pos;
+        mm3D.desiredTarget.set(p.x, p.y, p.z);
+        mm3D.desiredCamPos.set(p.x * 0.85 + 95, p.y * 0.85 + 45, p.z + 290);
         mm3D.cameraLerpActive = true;
       }
     }
@@ -3581,10 +4795,10 @@
       // Draw translucent Z-depth reference frames in 3D Depth Planes mode
       if (mmState.layout === "3d-planes") {
         const planes = [
-          { z: -200, color: 0xe69f00, title: "OLD TESTAMENT ROOTS (Z = -200)" },
-          { z: 0,    color: 0x2dd4bf, title: "12 COVENANT HUBS (Z = 0)" },
-          { z: 100,  color: 0xcc79a7, title: "APOCRYPHA & ETHIOPIAN BRIDGE (Z = +100)" },
-          { z: 250,  color: 0x56b4e9, title: "NEW TESTAMENT TARGETS (Z = +250)" }
+          { z: -200, tier: "OT",        color: 0xe69f00, title: "OLD TESTAMENT ROOTS (Z = -200)" },
+          { z: 0,    tier: "HUB",       color: 0x2dd4bf, title: "12 COVENANT HUBS (Z = 0)" },
+          { z: 100,  tier: "APOCRYPHA", color: 0xcc79a7, title: "APOCRYPHA & ETHIOPIAN BRIDGE (Z = +100)" },
+          { z: 250,  tier: "NT",        color: 0x56b4e9, title: "NEW TESTAMENT TARGETS (Z = +250)" }
         ];
         planes.forEach((pl) => {
           const frameGeo = new THREE.EdgesGeometry(new THREE.PlaneGeometry(460, 290));
@@ -3597,10 +4811,12 @@
           frame.position.set(0, 0, pl.z);
           mm3D.planeGuidesGroup.add(frame);
 
-          const hdrSprite = createLabelSprite(THREE, pl.title, "", `#${pl.color.toString(16).padStart(6, "0")}`, true);
+          const hdrSprite = createLabelSprite(THREE, pl.title, "Click to cycle tier pathways", `#${pl.color.toString(16).padStart(6, "0")}`, true);
           hdrSprite.position.set(0, 162, pl.z);
           hdrSprite.scale.set(58, 12, 1);
+          hdrSprite.userData = { kind: "tier", tier: pl.tier, title: pl.title };
           mm3D.planeGuidesGroup.add(hdrSprite);
+          mm3D.pickables.push(hdrSprite);
         });
       }
 
@@ -3611,13 +4827,13 @@
       function add3DNode(id, kind, label, subLabel, colorHex, pos, data) {
         const isPinnedNode = pinnedIds.has(id);
         const dimmed = mmState.pathwayPinned && !isPinnedNode && kind !== "verse";
-        const opacityVal = dimmed ? 0.22 : 1.0;
+        const opacityVal = dimmed ? 0.30 : 1.0;
 
         const group = new THREE.Group();
         group.position.set(pos.x, pos.y, pos.z);
 
         // Multi-part composite node geometry: Core + Equatorial Collar Ring + Pedestal
-        const radius = kind === "hub" ? 7.8 : (kind === "verse" ? 4.4 : 5.6);
+        const radius = kind === "hub" ? 8.2 : (kind === "verse" ? 4.8 : (isPinnedNode ? 7.2 : 5.8));
         const coreGeo = kind === "hub"
           ? new THREE.OctahedronGeometry(radius, 1)
           : (data?.tradition === "APOCRYPHA"
@@ -3627,42 +4843,46 @@
         const coreMat = new THREE.MeshStandardMaterial({
           color: new THREE.Color(colorHex),
           emissive: new THREE.Color(colorHex),
-          emissiveIntensity: isPinnedNode ? 0.65 : (dimmed ? 0.08 : 0.28),
-          roughness: 0.28,
+          emissiveIntensity: isPinnedNode ? 0.78 : (dimmed ? 0.14 : 0.34),
+          roughness: 0.25,
           metalness: 0.45,
           transparent: true,
           opacity: opacityVal
         });
 
+        const nodeMeta = { id, kind, data, linkId: data?.id };
         const coreMesh = new THREE.Mesh(coreGeo, coreMat);
-        coreMesh.userData = { id, kind, data, linkId: data?.id };
+        coreMesh.userData = nodeMeta;
         group.add(coreMesh);
         mm3D.pickables.push(coreMesh);
 
-        // Equatorial metallic ring on hubs and pinned pathway endpoints
+        // Equatorial metallic ring on hubs and pinned pathway endpoints (also clickable!)
         let ringMesh = null;
         if (kind === "hub" || isPinnedNode) {
-          const ringGeo = new THREE.TorusGeometry(radius + 3.2, isPinnedNode ? 0.75 : 0.45, 12, 32);
+          const ringGeo = new THREE.TorusGeometry(radius + 3.4, isPinnedNode ? 0.85 : 0.5, 12, 32);
           const ringMat = new THREE.MeshStandardMaterial({
             color: isPinnedNode ? 0xfbbf24 : new THREE.Color(colorHex),
             emissive: isPinnedNode ? 0xf59e0b : new THREE.Color(colorHex),
-            emissiveIntensity: isPinnedNode ? 0.8 : 0.35,
+            emissiveIntensity: isPinnedNode ? 0.85 : 0.38,
             roughness: 0.2,
             metalness: 0.8,
             transparent: true,
-            opacity: dimmed ? 0.25 : 0.95
+            opacity: dimmed ? 0.30 : 0.98
           });
           ringMesh = new THREE.Mesh(ringGeo, ringMat);
+          ringMesh.userData = nodeMeta;
           group.add(ringMesh);
+          mm3D.pickables.push(ringMesh);
         }
 
-        // Title Sprite above each 3D node
+        // Title Sprite above each 3D node (also clickable in mm3D.pickables!)
         if (mmState.showEdgeTitles || isPinnedNode || kind === "hub") {
-          const sprite = createLabelSprite(THREE, label, subLabel, colorHex, kind === "hub");
-          sprite.position.set(0, radius + 7.5, 0);
-          sprite.material.opacity = dimmed ? 0.26 : 0.98;
-          sprite.userData = { id, kind, data, linkId: data?.id };
+          const sprite = createLabelSprite(THREE, label, subLabel, colorHex, kind === "hub" || isPinnedNode);
+          sprite.position.set(0, radius + 8.0, 0);
+          sprite.material.opacity = dimmed ? 0.38 : 1.0;
+          sprite.userData = nodeMeta;
           group.add(sprite);
+          mm3D.pickables.push(sprite);
         }
 
         mm3D.nodeGroup.add(group);
@@ -3712,14 +4932,17 @@
             new THREE.Vector3(focusedEntry.pos.x, focusedEntry.pos.y, focusedEntry.pos.z),
             new THREE.Vector3(satPos.x, satPos.y, satPos.z)
           ]);
-          const satGeo = new THREE.TubeGeometry(satCurve, 12, 0.45, 6, false);
-          const satMat = new THREE.MeshBasicMaterial({ color: 0xf0e442, transparent: true, opacity: 0.65 });
-          mm3D.splineGroup.add(new THREE.Mesh(satGeo, satMat));
+          const satGeo = new THREE.TubeGeometry(satCurve, 12, 0.65, 6, false);
+          const satMat = new THREE.MeshBasicMaterial({ color: 0xf0e442, transparent: true, opacity: 0.72 });
+          const satMesh = new THREE.Mesh(satGeo, satMat);
+          satMesh.userData = { kind: "verse", linkId: lnk.id, data: lnk };
+          mm3D.splineGroup.add(satMesh);
+          mm3D.pickables.push(satMesh);
         });
       }
 
-      // 6. Draw Background Context Corridors & the Pinned Luminous 4-Stage 3D Spline
-      const focusCorridors = getFocusedStreamCorridors().slice(0, 20);
+      // 6. Draw Clickable 3D Context Corridor Tubes for the Focused Node's Connected Pathways
+      const focusCorridors = getFocusedStreamCorridors().slice(0, 18);
       focusCorridors.forEach((c) => {
         const otE = mm3D.nodeMap3D.get(c.otBook.id);
         const hubE = mm3D.nodeMap3D.get(c.hub.id);
@@ -3736,14 +4959,21 @@
           new THREE.Vector3(apE.pos.x, apE.pos.y, apE.pos.z),
           new THREE.Vector3(ntE.pos.x, ntE.pos.y, ntE.pos.z)
         ]);
-        const pts = curve.getPoints(36);
-        const lineGeo = new THREE.BufferGeometry().setFromPoints(pts);
-        const lineMat = new THREE.LineBasicMaterial({
+        const corrGeo = new THREE.TubeGeometry(curve, 28, 0.72, 6, false);
+        const corrMat = new THREE.MeshBasicMaterial({
           color: 0x38bdf8,
           transparent: true,
-          opacity: mmState.pathwayPinned ? 0.16 : 0.38
+          opacity: mmState.pathwayPinned ? 0.24 : 0.42
         });
-        mm3D.splineGroup.add(new THREE.Line(lineGeo, lineMat));
+        const corrMesh = new THREE.Mesh(corrGeo, corrMat);
+        corrMesh.userData = {
+          kind: "corridor",
+          linkId: c.startId,
+          corridor: c,
+          data: getCrossLinkByNumber(c.startId)
+        };
+        mm3D.splineGroup.add(corrMesh);
+        mm3D.pickables.push(corrMesh);
       });
 
       // 7. Highlighted & Pinned 4-Stage Luminous Spline (OT Z=-200 -> Hub Z=0 -> Apocrypha Z=+100 -> NT Z=+250)
@@ -3778,28 +5008,43 @@
         ]);
 
         [
-          { curve: c1, color: 0xe69f00 },
-          { curve: c2, color: 0xcc79a7 },
-          { curve: c3, color: 0x56b4e9 }
+          { curve: c1, color: 0xe69f00, nodeId: activeLink.otBook.id, stageTitle: `${activeLink.otCite} → ${activeLink.hub.shortTitle}` },
+          { curve: c2, color: 0xcc79a7, nodeId: activeLink.apocBook.id, stageTitle: `${activeLink.hub.shortTitle} → ${activeLink.apCite}` },
+          { curve: c3, color: 0x56b4e9, nodeId: activeLink.ntBook.id, stageTitle: `${activeLink.apCite} → ${activeLink.ntCite}` }
         ].forEach((seg) => {
-          const tubeGeo = new THREE.TubeGeometry(seg.curve, 32, 1.65, 10, false);
+          const tubeGeo = new THREE.TubeGeometry(seg.curve, 36, 2.05, 12, false);
           const tubeMat = new THREE.MeshStandardMaterial({
             color: seg.color,
             emissive: seg.color,
-            emissiveIntensity: 0.85,
-            roughness: 0.2,
-            metalness: 0.3
+            emissiveIntensity: 0.92,
+            roughness: 0.18,
+            metalness: 0.35
           });
-          mm3D.splineGroup.add(new THREE.Mesh(tubeGeo, tubeMat));
+          const segMesh = new THREE.Mesh(tubeGeo, tubeMat);
+          segMesh.userData = {
+            kind: "pathway-stage",
+            id: seg.nodeId,
+            linkId: activeLink.id,
+            data: activeLink,
+            stageTitle: seg.stageTitle
+          };
+          mm3D.splineGroup.add(segMesh);
+          mm3D.pickables.push(segMesh);
         });
 
         // Full continuous spline for traveling luminous energy pulses
         const fullSpline = new THREE.CatmullRomCurve3([vOt, vHub, vApoc, vNt]);
         for (let i = 0; i < 4; i++) {
-          const orbGeo = new THREE.SphereGeometry(2.8, 14, 14);
+          const orbGeo = new THREE.SphereGeometry(3.1, 14, 14);
           const orbMat = new THREE.MeshBasicMaterial({ color: 0xfef08a });
           const orbMesh = new THREE.Mesh(orbGeo, orbMat);
+          orbMesh.userData = {
+            kind: "verse",
+            linkId: activeLink.id,
+            data: activeLink
+          };
           mm3D.splineGroup.add(orbMesh);
+          mm3D.pickables.push(orbMesh);
           mm3D.pulseOrbs.push({
             mesh: orbMesh,
             curve: fullSpline,
@@ -4079,25 +5324,30 @@
 
       const allEdges = [...edges, ...satelliteEdges];
 
-      // Column headers in tripartite layout
+      // Clickable Column headers in tripartite layout
       if (mmState.layout === "tripartite") {
         const headers = [
-          { x: 125, text: "OLD TESTAMENT ROOTS (39)", color: "#E69F00" },
-          { x: 395, text: "12 COVENANT HUBS", color: "#2dd4bf" },
-          { x: 625, text: "APOCRYPHA & ETHIOPIAN BRIDGE (18)", color: "#CC79A7" },
-          { x: 915, text: "NEW TESTAMENT TARGETS (27)", color: "#56B4E9" }
+          { x: 125, tier: "OT",        text: "OLD TESTAMENT ROOTS (39)", color: "#E69F00" },
+          { x: 395, tier: "HUB",       text: "12 COVENANT HUBS", color: "#2dd4bf" },
+          { x: 625, tier: "APOCRYPHA", text: "APOCRYPHA & ETHIOPIAN BRIDGE (18)", color: "#CC79A7" },
+          { x: 915, tier: "NT",        text: "NEW TESTAMENT TARGETS (27)", color: "#56B4E9" }
         ];
         mmState.rootG.append("g")
           .selectAll("text.mm-col-hdr")
           .data(headers)
           .join("text")
+          .attr("class", "mm-col-hdr cursor-pointer")
           .attr("x", d => d.x)
           .attr("y", 18)
           .attr("text-anchor", "middle")
           .attr("fill", d => d.color)
           .attr("font-size", "10px")
           .attr("font-weight", "700")
-          .text(d => d.text);
+          .text(d => d.text)
+          .on("click", (event, d) => {
+            event.stopPropagation();
+            cycleTierPathway(d.tier);
+          });
       }
 
       const edgeGroup = mmState.rootG.append("g").attr("class", "mm-edges");
@@ -4290,10 +5540,395 @@
       renderMindMapCanvas();
     }
 
-    // 16. WORKSPACE SWITCHING & EVENT LISTENERS
+    // 16. WORKSPACE SWITCHING, NEW DEDICATED TABS, SUB-TABS & PWA LIFECYCLE
+    let stepsDeckSearch = "";
+    let stepsDeckEra = "ALL";
+    let studioBookSearch = "";
+
+    function renderStepsDeck() {
+      const gridEl = $("stepsDeckGrid");
+      if (!gridEl) return;
+
+      const q = stepsDeckSearch.trim().toLowerCase();
+      const filtered = JOURNEY_STEPS.filter(s => {
+        if (state.tradition !== "ALL" && s.tradition !== state.tradition) return false;
+        if (stepsDeckEra !== "ALL" && s.tradition !== stepsDeckEra) return false;
+        if (!q) return true;
+        const p1 = PLACES[s.from];
+        const p2 = PLACES[s.to];
+        const bookTitles = (s.books || []).map(bid => BOOKS.find(b => b.id === bid)?.title || bid).join(" ");
+        const hay = `${s.step} ${s.title} ${s.date} ${s.ref} ${s.summary} ${p1?.name || ""} ${p1?.modernName || ""} ${p2?.name || ""} ${p2?.modernName || ""} ${bookTitles}`.toLowerCase();
+        return hay.includes(q);
+      });
+
+      const badge = $("stepsDeckCountBadge");
+      if (badge) {
+        badge.textContent = `${filtered.length} of 36 Chronological Steps`;
+      }
+
+      gridEl.innerHTML = filtered.map(s => {
+        const t = getTradition(s.tradition);
+        const fromP = PLACES[s.from];
+        const toP = PLACES[s.to];
+        const isCurrent = s.step === state.currentStep;
+        return `
+          <article class="bg-slate-900/95 border ${isCurrent ? "border-teal-400 ring-1 ring-teal-400/50" : "border-slate-800 hover:border-slate-700"} rounded-2xl p-4 flex flex-col justify-between gap-3 shadow-lg transition">
+            <div class="space-y-2">
+              <div class="flex items-center justify-between gap-2 flex-wrap">
+                <span class="px-2 py-0.5 rounded text-[11px] font-bold uppercase border ${t.badgeClass}">
+                  ${t.symbol} STEP ${s.step} / 36
+                </span>
+                <span class="text-xs font-mono text-amber-300">${s.date}</span>
+              </div>
+              <h3 class="text-sm sm:text-base font-bold text-white leading-snug">${s.title}</h3>
+              <div class="text-xs font-mono text-teal-300 bg-slate-950/90 border border-slate-800/80 rounded-lg px-2.5 py-1.5">
+                <div>📍 ${fromP ? fromP.name : s.from} → ${toP ? toP.name : s.to}</div>
+                <div class="text-[11px] text-slate-400 mt-0.5">Modern: ${toP?.modernName || ""} • ${s.ref}</div>
+              </div>
+              <p class="text-xs text-slate-300 leading-relaxed">${s.summary}</p>
+              ${toP?.arch ? `<p class="text-[11px] text-slate-400 italic border-l-2 border-slate-700 pl-2.5">${toP.arch}</p>` : ""}
+            </div>
+
+            <div class="pt-2.5 border-t border-slate-800/80 space-y-2">
+              <div class="flex flex-wrap items-center gap-1">
+                ${(s.books || []).map(bid => {
+                  const bk = BOOKS.find(b => b.id === bid);
+                  return `<button type="button" data-step-open-book="${bid}" class="px-2 py-0.5 rounded bg-slate-950 hover:bg-slate-800 text-[11px] font-mono text-slate-300 border border-slate-800 transition">📜 ${bk ? bk.title : bid}</button>`;
+                }).join("")}
+              </div>
+              <div class="flex flex-wrap items-center gap-1.5 pt-1">
+                <button type="button" data-step-fly="${s.step}"
+                  class="flex-1 px-2.5 py-1.5 rounded-lg bg-teal-600 hover:bg-teal-500 text-white text-xs font-semibold shadow transition text-center">
+                  🗺️ Fly on Atlas
+                </button>
+                <button type="button" data-step-narrate="${s.step}"
+                  class="px-2.5 py-1.5 rounded-lg bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 text-xs font-semibold transition">
+                  🎙️ Narrate
+                </button>
+                <button type="button" data-step-ground="${s.to}" data-step-num="${s.step}"
+                  class="px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-teal-300 border border-teal-500/30 text-xs font-semibold transition">
+                  ✨ Ground
+                </button>
+              </div>
+            </div>
+          </article>
+        `;
+      }).join("");
+
+      gridEl.querySelectorAll("[data-step-fly]").forEach(btn => {
+        btn.addEventListener("click", () => {
+          const stNum = Number(btn.getAttribute("data-step-fly"));
+          switchWorkspace("journey");
+          if (window.innerWidth < 1024) setMobileJourneyPane("map");
+          setStep(stNum, true, true);
+        });
+      });
+
+      gridEl.querySelectorAll("[data-step-narrate]").forEach(btn => {
+        btn.addEventListener("click", () => {
+          const stNum = Number(btn.getAttribute("data-step-narrate"));
+          const stepObj = JOURNEY_STEPS.find(x => x.step === stNum) || JOURNEY_STEPS[0];
+          const fromP = PLACES[stepObj.from];
+          const toP = PLACES[stepObj.to];
+          const script = `Step ${stepObj.step} of 36: ${stepObj.title}, dated ${stepObj.date}. Route from ${fromP ? fromP.name : stepObj.from} to ${toP ? toP.name : stepObj.to} (${toP?.modernName || ""}). ${stepObj.summary} Scriptural witness: ${stepObj.ref}. ${toP?.arch || ""}`;
+          speakDeepDiscovery(script, true);
+        });
+      });
+
+      gridEl.querySelectorAll("[data-step-ground]").forEach(btn => {
+        btn.addEventListener("click", () => {
+          const pid = btn.getAttribute("data-step-ground");
+          const stNum = Number(btn.getAttribute("data-step-num") || 1);
+          switchWorkspace("journey");
+          setStep(stNum, false, false);
+          setInspectorSubTab("grounding");
+          if (window.innerWidth < 1024) setMobileJourneyPane("inspector");
+          groundStopWithGemini(pid, "");
+        });
+      });
+
+      gridEl.querySelectorAll("[data-step-open-book]").forEach(btn => {
+        btn.addEventListener("click", () => {
+          const bid = btn.getAttribute("data-step-open-book");
+          selectBook(bid, false);
+          switchWorkspace("reader");
+        });
+      });
+    }
+
+    function renderBookStudio() {
+      const listEl = $("studioBookList");
+      const detailEl = $("studioBookDetailPane");
+      if (!listEl || !detailEl) return;
+
+      const q = studioBookSearch.trim().toLowerCase();
+      const filtered = BOOKS.filter(b => {
+        if (state.tradition !== "ALL" && b.tradition !== state.tradition) return false;
+        if (!q) return true;
+        const placeName = PLACES[b.placeId]?.name || "";
+        const hay = `${b.title} ${b.id} ${b.writerTrad} ${b.writerSch} ${placeName} ${b.canon}`.toLowerCase();
+        return hay.includes(q);
+      });
+
+      const countBadge = $("studioBookCountBadge");
+      if (countBadge) countBadge.textContent = `${filtered.length} Books`;
+
+      listEl.innerHTML = filtered.map(b => {
+        const t = getTradition(b.tradition);
+        const place = PLACES[b.placeId];
+        const isSel = b.id === state.selectedBookId;
+        return `
+          <button type="button" data-studio-book="${b.id}"
+            class="w-full text-left px-4 py-3 transition flex items-start justify-between gap-2 ${isSel ? "bg-teal-950/60 border-l-4 border-teal-400" : "hover:bg-slate-800/50"}">
+            <div class="min-w-0 flex-1">
+              <div class="flex items-center gap-2">
+                <span class="text-xs font-bold" style="color:${t.color}">${t.symbol}</span>
+                <span class="text-sm font-bold text-white truncate">${b.title}</span>
+              </div>
+              <div class="text-xs text-slate-400 truncate mt-0.5">✍️ ${b.writerTrad}</div>
+              <div class="text-[11px] text-teal-300/90 truncate mt-0.5">📍 ${place ? place.name : b.placeId} • ${b.date}</div>
+            </div>
+            <span class="text-xs font-mono px-2 py-0.5 rounded bg-slate-950 text-slate-300 border border-slate-800 shrink-0">
+              ${b.chapters} ch
+            </span>
+          </button>
+        `;
+      }).join("");
+
+      listEl.querySelectorAll("[data-studio-book]").forEach(btn => {
+        btn.addEventListener("click", () => {
+          const bid = btn.getAttribute("data-studio-book");
+          selectBook(bid, false);
+          renderBookStudio();
+        });
+      });
+
+      const book = BOOKS.find(b => b.id === state.selectedBookId) || BOOKS[0];
+      const t = getTradition(book.tradition);
+      const place = PLACES[book.placeId];
+      const relLinks = CROSS_LINKS.filter(l => l.fromBook === book.id || l.toBook === book.id);
+      const linksToShow = relLinks.length > 0 ? relLinks : CROSS_LINKS.slice(0, 3);
+      const relatedSteps = JOURNEY_STEPS.filter(s => (s.books || []).includes(book.id));
+
+      detailEl.innerHTML = `
+        <div class="border-b border-slate-800 pb-4 flex flex-wrap items-start justify-between gap-4">
+          <div class="space-y-1.5">
+            <div class="flex items-center gap-2 flex-wrap">
+              <span class="text-xs font-bold uppercase px-2.5 py-0.5 rounded border ${t.badgeClass}">
+                ${t.symbol} ${t.label}
+              </span>
+              <span class="text-xs font-mono text-slate-400 bg-slate-950 px-2.5 py-0.5 rounded border border-slate-800">
+                ${book.canon}
+              </span>
+            </div>
+            <h2 class="text-xl sm:text-2xl font-bold text-white">${book.title}</h2>
+            <p class="text-xs sm:text-sm text-slate-400">${book.chapters} Chapters • Composed ${book.date} • Primary Geographic Setting: <strong class="text-teal-300">${place ? place.name : book.placeId}</strong></p>
+          </div>
+
+          <div class="flex flex-wrap items-center gap-2">
+            <button type="button" id="studioLocateMapBtn"
+              class="px-3 py-2 rounded-xl bg-teal-600 hover:bg-teal-500 text-white text-xs font-bold shadow transition">
+              🗺️ Fly to ${place ? place.name.split(" (")[0] : "Origin"} on Map
+            </button>
+            <button type="button" id="studioNarrateBookBtn"
+              class="px-3 py-2 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 text-xs font-bold transition">
+              🎙️ Narrate Book Overview
+            </button>
+            <button type="button" id="studioOpenMindMapBtn"
+              class="px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-teal-300 border border-slate-700 text-xs font-semibold transition">
+              🕸️ View in 3D Mind Map
+            </button>
+          </div>
+        </div>
+
+        <!-- Writer, Redaction & Archaeological Setting Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="bg-slate-950/90 border border-slate-800 rounded-xl p-4 space-y-2">
+            <div class="text-xs font-bold uppercase tracking-wider text-teal-400">✍️ Writer &amp; Scribal Attribution</div>
+            <div class="text-xs sm:text-sm"><span class="text-slate-400">Traditional Attribution:</span> <strong class="text-white">${book.writerTrad}</strong></div>
+            <div class="text-xs leading-relaxed"><span class="text-slate-400">Historical / Redaction Scholarship:</span> <span class="text-slate-200">${book.writerSch}</span></div>
+          </div>
+
+          <div class="bg-slate-950/90 border border-slate-800 rounded-xl p-4 space-y-2">
+            <div class="text-xs font-bold uppercase tracking-wider text-amber-300">🏺 Geographic &amp; Archaeological Context</div>
+            <div class="text-xs sm:text-sm font-bold text-white">📍 ${place ? place.name : book.placeId} <span class="text-xs font-normal text-slate-400">(${place?.modernName || ""})</span></div>
+            <p class="text-xs text-slate-300 leading-relaxed">${place?.arch || "Key scriptural and historical center."}</p>
+          </div>
+        </div>
+
+        <!-- Spacious 2-Column Complete Passage Breakdown -->
+        <div class="space-y-3">
+          <div class="flex items-center justify-between">
+            <h3 class="text-xs sm:text-sm font-bold uppercase tracking-wider text-white">📖 Complete Literary &amp; Passage Breakdown (${book.passages.length} Major Divisions)</h3>
+            <span class="text-xs font-mono text-teal-300">${book.chapters} Total Chapters</span>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+            ${book.passages.map((p, idx) => `
+              <div class="p-3.5 rounded-xl bg-slate-950/90 border border-slate-800/90 hover:border-teal-500/40 transition space-y-1.5">
+                <div class="flex items-center justify-between gap-2">
+                  <span class="text-xs font-mono font-bold text-teal-300 bg-teal-950/80 px-2 py-0.5 rounded border border-teal-800/60">
+                    Chapters ${p.range}
+                  </span>
+                  <span class="text-[11px] font-mono text-slate-500">Division ${idx + 1}</span>
+                </div>
+                <p class="text-xs sm:text-sm text-slate-200 leading-relaxed">${p.summary}</p>
+              </div>
+            `).join("")}
+          </div>
+        </div>
+
+        <!-- Connected Journey Steps & Cross-References -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2 border-t border-slate-800">
+          <div class="space-y-2.5">
+            <h3 class="text-xs font-bold uppercase tracking-wider text-sky-300">🧭 Associated Chronological Expedition Steps</h3>
+            <div class="space-y-2">
+              ${(relatedSteps.length ? relatedSteps : JOURNEY_STEPS.slice(0, 2)).map(st => `
+                <div class="p-3 rounded-xl bg-slate-950/80 border border-slate-800 flex items-center justify-between gap-2">
+                  <div class="min-w-0">
+                    <div class="text-xs font-bold text-white truncate">Step ${st.step}: ${st.title}</div>
+                    <div class="text-[11px] text-slate-400 font-mono">${st.date} • ${st.ref}</div>
+                  </div>
+                  <button type="button" data-studio-step="${st.step}" class="px-2.5 py-1 rounded-lg bg-teal-600/20 hover:bg-teal-600/40 text-teal-300 border border-teal-500/30 text-xs font-semibold shrink-0">
+                    Fly to Step →
+                  </button>
+                </div>
+              `).join("")}
+            </div>
+          </div>
+
+          <div class="space-y-2.5">
+            <h3 class="text-xs font-bold uppercase tracking-wider text-pink-300">🔗 Intertextual &amp; Apocryphal Parallels</h3>
+            <div class="space-y-2">
+              ${linksToShow.map(l => {
+                const otherId = l.fromBook === book.id ? l.toBook : l.fromBook;
+                const otherBook = BOOKS.find(b => b.id === otherId) || BOOKS[0];
+                return `
+                  <div class="p-3 rounded-xl bg-slate-950/80 border border-slate-800 space-y-1">
+                    <div class="flex items-center justify-between gap-2">
+                      <span class="text-xs font-bold text-pink-300">${l.theme}</span>
+                      <button type="button" data-studio-switch-book="${otherBook.id}" class="text-xs font-mono text-teal-300 hover:underline">
+                        Open ${otherBook.title} →
+                      </button>
+                    </div>
+                    <div class="text-[11px] font-mono text-slate-400">${l.fromRef} ⇄ ${l.toRef}</div>
+                    <p class="text-xs text-slate-300 leading-snug">${l.desc}</p>
+                  </div>
+                `;
+              }).join("")}
+            </div>
+          </div>
+        </div>
+      `;
+
+      bindOn("studioLocateMapBtn", "click", () => {
+        switchWorkspace("journey");
+        if (window.innerWidth < 1024) setMobileJourneyPane("map");
+        selectBook(book.id, true);
+      });
+
+      bindOn("studioNarrateBookBtn", "click", () => {
+        const script = `${book.title}. Composed in the ${book.writerTrad} tradition around ${book.date}, preserved in ${book.canon}. Geographic origin: ${place ? place.name : book.placeId} (${place?.modernName || ""}). Key literary divisions include: ${book.passages.map(p => `Chapters ${p.range}: ${p.summary}`).join(". ")}`;
+        speakDeepDiscovery(script, true);
+      });
+
+      bindOn("studioOpenMindMapBtn", "click", () => {
+        mmState.focusedNodeId = book.id;
+        switchWorkspace("mindmap");
+        setTimeout(() => focus3DCameraOnNode(book.id), 120);
+      });
+
+      detailEl.querySelectorAll("[data-studio-step]").forEach(btn => {
+        btn.addEventListener("click", () => {
+          const stNum = Number(btn.getAttribute("data-studio-step"));
+          switchWorkspace("journey");
+          if (window.innerWidth < 1024) setMobileJourneyPane("map");
+          setStep(stNum, true, true);
+        });
+      });
+
+      detailEl.querySelectorAll("[data-studio-switch-book]").forEach(btn => {
+        btn.addEventListener("click", () => {
+          selectBook(btn.getAttribute("data-studio-switch-book"), false);
+          renderBookStudio();
+        });
+      });
+    }
+
+    function setAtlasLayoutMode(mode) {
+      const wsJourney = $("ws-journey");
+      if (!wsJourney) return;
+      const target = mode || "spacious";
+      wsJourney.setAttribute("data-atlas-layout", target);
+
+      document.querySelectorAll(".atlas-mode-btn").forEach(btn => {
+        const active = btn.getAttribute("data-atlas-mode") === target;
+        btn.className = active
+          ? "atlas-mode-btn px-2 py-1 rounded text-[11px] font-semibold bg-teal-600 text-white"
+          : "atlas-mode-btn px-2 py-1 rounded text-[11px] font-medium text-slate-300 hover:text-white";
+      });
+
+      setTimeout(() => {
+        if (gisEngine.map) gisEngine.map.invalidateSize({ animate: false });
+        if (isGoogleMapsStyle(state.gisBaseStyle) && gmpEngine.map && window.google?.maps) {
+          window.google.maps.event.trigger(gmpEngine.map, "resize");
+        }
+      }, 60);
+    }
+
+    function setInspectorSubTab(tabName) {
+      const rightAside = $("journeyRightAside");
+      if (!rightAside) return;
+      const target = tabName || "step";
+      rightAside.setAttribute("data-insp-tab", target);
+
+      document.querySelectorAll(".insp-tab-btn").forEach(btn => {
+        const active = btn.getAttribute("data-insp-tab-btn") === target;
+        btn.className = active
+          ? "insp-tab-btn px-2 py-1.5 rounded-lg text-[11px] font-bold bg-teal-600 text-white shadow text-center"
+          : "insp-tab-btn px-2 py-1.5 rounded-lg text-[11px] font-semibold bg-slate-900 text-slate-300 hover:text-white border border-slate-800 text-center";
+      });
+    }
+
+    function setLoomSubTab(mode) {
+      const wsLoom = $("ws-loom");
+      if (!wsLoom) return;
+      const target = mode || "writers";
+      wsLoom.setAttribute("data-loom-tab", target);
+
+      document.querySelectorAll(".loom-mode-btn").forEach(btn => {
+        const active = btn.getAttribute("data-loom-mode") === target;
+        btn.className = active
+          ? "loom-mode-btn px-3 py-1.5 rounded-lg text-xs font-semibold bg-teal-600 text-white"
+          : "loom-mode-btn px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-300 hover:text-white";
+      });
+    }
+
+    function setMobileJourneyPane(pane) {
+      const wsJourney = $("ws-journey");
+      if (!wsJourney) return;
+      const targetPane = pane || "map";
+      wsJourney.setAttribute("data-mobile-pane", targetPane);
+
+      document.querySelectorAll(".journey-pane-btn").forEach(btn => {
+        const active = btn.getAttribute("data-journey-pane") === targetPane;
+        btn.className = active
+          ? "journey-pane-btn min-h-[40px] px-2 py-1.5 rounded-lg text-xs font-bold bg-teal-600 text-white shadow flex items-center justify-center gap-1"
+          : "journey-pane-btn min-h-[40px] px-2 py-1.5 rounded-lg text-xs font-semibold bg-slate-900 text-slate-300 border border-slate-800 flex items-center justify-center gap-1";
+      });
+
+      if (targetPane === "map" || targetPane === "stack") {
+        setTimeout(() => {
+          if (gisEngine.map) gisEngine.map.invalidateSize({ animate: false });
+          if (isGoogleMapsStyle(state.gisBaseStyle) && gmpEngine.map && window.google && window.google.maps) {
+            window.google.maps.event.trigger(gmpEngine.map, "resize");
+          }
+        }, 60);
+      }
+    }
+
     function switchWorkspace(ws) {
       state.workspace = ws;
-      ["journey", "library", "loom", "links", "mindmap"].forEach(id => {
+      ["journey", "steps", "reader", "library", "loom", "links", "mindmap"].forEach(id => {
         const panel = $(`ws-${id}`);
         if (panel) {
           panel.classList.toggle("hidden", id !== ws);
@@ -4303,8 +5938,15 @@
       document.querySelectorAll(".ws-tab").forEach(btn => {
         const active = btn.getAttribute("data-workspace") === ws;
         btn.className = active
-          ? "ws-tab px-3 py-1.5 rounded-md text-xs font-semibold transition bg-teal-600 text-white shadow whitespace-nowrap shrink-0"
-          : "ws-tab px-3 py-1.5 rounded-md text-xs font-semibold transition text-slate-300 hover:text-white hover:bg-slate-800/70 whitespace-nowrap shrink-0";
+          ? "ws-tab px-3 py-1.5 rounded-lg text-xs font-semibold transition bg-teal-600 text-white shadow whitespace-nowrap shrink-0"
+          : "ws-tab px-3 py-1.5 rounded-lg text-xs font-semibold transition text-slate-300 hover:text-white hover:bg-slate-800/70 whitespace-nowrap shrink-0";
+      });
+
+      document.querySelectorAll(".ws-tab-mobile").forEach(btn => {
+        const active = btn.getAttribute("data-workspace") === ws;
+        btn.className = active
+          ? "ws-tab-mobile min-h-[46px] rounded-xl flex flex-col items-center justify-center text-teal-400 bg-teal-950/50 border border-teal-500/40 transition"
+          : "ws-tab-mobile min-h-[46px] rounded-xl flex flex-col items-center justify-center text-slate-400 hover:text-white transition";
       });
 
       if (ws === "journey") {
@@ -4313,12 +5955,112 @@
           if (gisEngine.map) gisEngine.map.invalidateSize({ animate: false });
         }, 60);
       }
+      if (ws === "steps") renderStepsDeck();
+      if (ws === "reader") renderBookStudio();
       if (ws === "library") renderLibrary();
       if (ws === "loom") renderLoom();
       if (ws === "links") renderLinks();
       if (ws === "mindmap") {
         renderMindMap();
         setTimeout(resizeMindMap3D, 50);
+      }
+    }
+
+    let deferredPwaPrompt = null;
+
+    function initPwaAndMobileSupport() {
+      // 1. Register Service Worker for offline resilience & installability
+      if ("serviceWorker" in navigator) {
+        window.addEventListener("load", () => {
+          navigator.serviceWorker.register("/sw.js").catch(() => null);
+        });
+      }
+
+      // 2. Detect Standalone mode (installed PWA on Android, iOS, or Desktop)
+      const isStandalone =
+        window.matchMedia("(display-mode: standalone)").matches ||
+        window.navigator.standalone === true;
+
+      const installBtn = $("pwaInstallBtn");
+      const installedBadge = $("pwaInstalledBadge");
+      const nativePromptBox = $("pwaNativePromptBox");
+
+      if (isStandalone) {
+        if (installBtn) installBtn.classList.add("hidden");
+        if (installedBadge) installedBadge.classList.remove("hidden");
+      }
+
+      // 3. Capture Chromium beforeinstallprompt event
+      window.addEventListener("beforeinstallprompt", (e) => {
+        e.preventDefault();
+        deferredPwaPrompt = e;
+        if (installBtn && !isStandalone) {
+          installBtn.classList.remove("hidden");
+        }
+        if (nativePromptBox) {
+          nativePromptBox.classList.remove("hidden");
+        }
+      });
+
+      window.addEventListener("appinstalled", () => {
+        deferredPwaPrompt = null;
+        if (installBtn) installBtn.classList.add("hidden");
+        if (installedBadge) installedBadge.classList.remove("hidden");
+        if (nativePromptBox) nativePromptBox.classList.add("hidden");
+        $("pwaInstallModal")?.classList.add("hidden");
+      });
+
+      // 4. Wire Install App Button & Modal
+      bindOn("pwaInstallBtn", "click", async () => {
+        if (deferredPwaPrompt) {
+          try {
+            deferredPwaPrompt.prompt();
+            const choice = await deferredPwaPrompt.userChoice;
+            if (choice && choice.outcome === "accepted") {
+              deferredPwaPrompt = null;
+              return;
+            }
+          } catch (_err) {}
+        }
+        $("pwaInstallModal")?.classList.remove("hidden");
+      });
+
+      bindOn("pwaTriggerNativeInstallBtn", "click", async () => {
+        if (!deferredPwaPrompt) return;
+        try {
+          deferredPwaPrompt.prompt();
+          await deferredPwaPrompt.userChoice;
+          deferredPwaPrompt = null;
+          $("pwaInstallModal")?.classList.add("hidden");
+        } catch (_err) {}
+      });
+
+      bindOn("closePwaModalBtn", "click", () => {
+        $("pwaInstallModal")?.classList.add("hidden");
+      });
+      bindOn("dismissPwaModalBtn", "click", () => {
+        $("pwaInstallModal")?.classList.add("hidden");
+      });
+      bindOn("pwaInstallModal", "click", (e) => {
+        if (e.target && e.target.id === "pwaInstallModal") {
+          $("pwaInstallModal")?.classList.add("hidden");
+        }
+      });
+
+      // 5. Offline / Online Status Banner
+      function syncOnlineBanner() {
+        const banner = $("offlineStatusBanner");
+        if (!banner) return;
+        banner.classList.toggle("hidden", navigator.onLine !== false);
+      }
+      window.addEventListener("online", syncOnlineBanner);
+      window.addEventListener("offline", syncOnlineBanner);
+      syncOnlineBanner();
+
+      // 6. Auto-collapse Mind Map side overlays on compact mobile viewports so 3D canvas is immediately unobstructed
+      if (window.innerWidth < 1024) {
+        mmState.leftCollapsed = true;
+        mmState.rightCollapsed = true;
       }
     }
 
@@ -4347,11 +6089,102 @@
         }
       });
 
-      // Workspace tabs
-      document.querySelectorAll(".ws-tab").forEach(btn => {
+      // Workspace tabs (Top Header + Mobile Bottom Thumb-Zone Bar)
+      document.querySelectorAll(".ws-tab, .ws-tab-mobile").forEach(btn => {
         btn.addEventListener("click", () => {
           switchWorkspace(btn.getAttribute("data-workspace"));
         });
+      });
+
+      // Quick cross-workspace jump buttons ([data-open-ws])
+      document.querySelectorAll("[data-open-ws]").forEach(btn => {
+        btn.addEventListener("click", () => {
+          switchWorkspace(btn.getAttribute("data-open-ws") || "journey");
+        });
+      });
+
+      // Collapsible Top Header Tradition Filter Drawer
+      bindOn("toggleTraditionDrawerBtn", "click", () => {
+        const drawer = $("headerTraditionDrawer");
+        if (drawer) {
+          drawer.classList.toggle("hidden");
+        }
+      });
+
+      // Desktop Atlas Layout Mode Switcher (Spacious 2-Col | +84 Books 3-Col | Full-Width Map)
+      document.querySelectorAll(".atlas-mode-btn").forEach(btn => {
+        btn.addEventListener("click", () => {
+          setAtlasLayoutMode(btn.getAttribute("data-atlas-mode") || "spacious");
+        });
+      });
+      bindOn("closeLeftBookDrawerBtn", "click", () => {
+        setAtlasLayoutMode("spacious");
+      });
+
+      // Right Inspector Sub-Tabs (Stop | Maps AI | Passages | Links | All)
+      document.querySelectorAll(".insp-tab-btn").forEach(btn => {
+        btn.addEventListener("click", () => {
+          setInspectorSubTab(btn.getAttribute("data-insp-tab-btn") || "step");
+        });
+      });
+
+      // Loom Sub-Tabs (Writer Attribution Bars | Canonical Matrix | Side-by-Side Split)
+      document.querySelectorAll(".loom-mode-btn").forEach(btn => {
+        btn.addEventListener("click", () => {
+          setLoomSubTab(btn.getAttribute("data-loom-mode") || "writers");
+        });
+      });
+
+      // Floating Map Style & Era Layers Popover Toggle on Map Canvas
+      bindOn("toggleGisLayersPopoverBtn", "click", () => {
+        const card = $("gisLayerControlCard");
+        const chev = $("gisLayersChevron");
+        if (!card) return;
+        const hidden = card.classList.toggle("hidden");
+        if (chev) chev.textContent = hidden ? "▾" : "▴";
+      });
+
+      // Top-Left Active Step Banner Description Collapse/Expand Toggle
+      bindOn("toggleStepBannerDetailsBtn", "click", () => {
+        const body = $("stepBannerCollapsibleBody");
+        const btn = $("toggleStepBannerDetailsBtn");
+        if (!body) return;
+        const hidden = body.classList.toggle("hidden");
+        if (btn) btn.textContent = hidden ? "▸ Info" : "▾ Info";
+      });
+
+      // 36-Step Expedition Deck Search & Era Filter
+      bindOn("stepsDeckSearchInput", "input", (e) => {
+        stepsDeckSearch = e.target.value || "";
+        renderStepsDeck();
+      });
+      bindOn("stepsDeckEraSelect", "change", (e) => {
+        stepsDeckEra = e.target.value || "ALL";
+        renderStepsDeck();
+      });
+
+      // Book & Passage Studio Search
+      bindOn("studioBookSearchInput", "input", (e) => {
+        studioBookSearch = e.target.value || "";
+        renderBookStudio();
+      });
+
+      // Mobile Sub-Panel Switcher in Codex Geographica (Map | Stop Info | 84 Books | All 3)
+      document.querySelectorAll(".journey-pane-btn").forEach(btn => {
+        btn.addEventListener("click", () => {
+          setMobileJourneyPane(btn.getAttribute("data-journey-pane") || "map");
+        });
+      });
+
+      // Mobile HUD Overlay Compact/Expand Toggle on Map Canvas
+      bindOn("mobileHudToggleBtn", "click", () => {
+        const mc = $("mapContainer");
+        const btn = $("mobileHudToggleBtn");
+        if (!mc) return;
+        const isCompact = mc.classList.toggle("mobile-hud-compact");
+        if (btn) {
+          btn.textContent = isCompact ? "🎛️ Info" : "✕ Hide Info";
+        }
       });
 
       // Global tradition filter pills
@@ -4363,8 +6196,14 @@
             b.classList.toggle("ring-2", isAct);
             b.classList.toggle("ring-teal-400", isAct);
           });
+          const pillTxt = $("activeTraditionPillText");
+          if (pillTxt) {
+            pillTxt.textContent = btn.textContent.trim();
+          }
           renderBookCatalog();
           renderMap();
+          renderStepsDeck();
+          renderBookStudio();
           renderLibrary();
           renderLoom();
           if (state.workspace === "mindmap") renderMindMap();
@@ -4378,8 +6217,8 @@
           document.querySelectorAll(".route-pill").forEach(b => {
             const active = b.getAttribute("data-route") === state.routeLayer;
             b.className = active
-              ? "route-pill px-2 py-1 rounded text-xs font-medium bg-teal-600 text-white"
-              : "route-pill px-2 py-1 rounded text-xs font-medium bg-slate-800 text-slate-300 hover:bg-slate-700";
+              ? "route-pill px-2.5 py-1 rounded-md text-xs font-medium bg-teal-600 text-white whitespace-nowrap shrink-0"
+              : "route-pill px-2.5 py-1 rounded-md text-xs font-medium bg-slate-800 text-slate-300 hover:bg-slate-700 whitespace-nowrap shrink-0";
           });
           if (state.routeLayer === "OT_PATRIARCHS") setStep(1, true, true);
           else if (state.routeLayer === "NT_JESUS") setStep(14, true, true);
@@ -4398,7 +6237,7 @@
       bindOn("gisPeriodSelect", "change", (e) => {
         state.gisPeriodMode = e.target.value || "AUTO";
         renderMap();
-        if (state.gisPeriodMode !== "AUTO" && gisEngine.map) {
+        if (state.gisPeriodMode !== "AUTO") {
           const eraCenters = {
             BRONZE: { center: [33.2, 40.5], zoom: 5 },
             IRON: { center: [33.0, 38.5], zoom: 5 },
@@ -4407,7 +6246,12 @@
           };
           const target = eraCenters[state.gisPeriodMode];
           if (target) {
-            gisEngine.map.flyTo(target.center, target.zoom, { duration: 1.1 });
+            if (isGoogleMapsStyle(state.gisBaseStyle) && gmpEngine.map) {
+              gmpEngine.map.panTo({ lat: target.center[0], lng: target.center[1] });
+              gmpEngine.map.setZoom(target.zoom);
+            } else if (gisEngine.map) {
+              gisEngine.map.flyTo(target.center, target.zoom, { duration: 1.1 });
+            }
           }
         }
       });
@@ -4433,13 +6277,46 @@
 
       // Fly-To Active Step button in Right Inspector
       bindOn("inspFlyToStepBtn", "click", () => {
+        if (window.innerWidth < 1024) {
+          setMobileJourneyPane("map");
+        }
         if (state.projectionMode !== "2d") {
           state.projectionMode = "2d";
           const btn = $("toggleProjectionBtn");
-          if (btn) btn.textContent = "🌐 3D Globe View";
+          if (btn) btn.textContent = "🌐 3D Globe";
           renderMap();
         }
         flyToActiveStep(true);
+      });
+
+      // Gemini Maps Grounding buttons & query input
+      bindOn("groundActiveStepBtn", "click", () => {
+        setInspectorSubTab("grounding");
+        if (window.innerWidth < 1024) {
+          setMobileJourneyPane("inspector");
+        }
+        const stepObj = JOURNEY_STEPS.find(s => s.step === state.currentStep) || JOURNEY_STEPS[0];
+        groundStopWithGemini(stepObj.to, "");
+      });
+
+      bindOn("inspGeminiGroundBtn", "click", () => {
+        setInspectorSubTab("grounding");
+        const stepObj = JOURNEY_STEPS.find(s => s.step === state.currentStep) || JOURNEY_STEPS[0];
+        const book = BOOKS.find(b => b.id === state.selectedBookId);
+        const placeId = book?.placeId || stepObj.to;
+        const customQuery = $("inspGeminiQueryInput")?.value || "";
+        groundStopWithGemini(placeId, customQuery);
+      });
+
+      bindOn("inspGeminiQueryInput", "keydown", (e) => {
+        if (e.key === "Enter") {
+          e.preventDefault();
+          setInspectorSubTab("grounding");
+          const stepObj = JOURNEY_STEPS.find(s => s.step === state.currentStep) || JOURNEY_STEPS[0];
+          const book = BOOKS.find(b => b.id === state.selectedBookId);
+          const placeId = book?.placeId || stepObj.to;
+          groundStopWithGemini(placeId, e.target.value || "");
+        }
       });
 
       // Audio Narrate Active Step on Map Overlay
@@ -4447,9 +6324,8 @@
         const stepObj = JOURNEY_STEPS.find(s => s.step === state.currentStep) || JOURNEY_STEPS[0];
         const fromP = PLACES[stepObj.from];
         const toP = PLACES[stepObj.to];
-        const eraKey = getActiveEraKey();
-        const eraDef = HISTORICAL_ERAS[eraKey] || HISTORICAL_ERAS.BRONZE;
-        const script = `Step ${stepObj.step} of 36: ${stepObj.title}. Historical Period: ${eraDef.label}, dated ${stepObj.date}. Route from ${fromP ? fromP.name : stepObj.from} (${fromP?.modernName || ""}) to ${toP ? toP.name : stepObj.to} (${toP?.modernName || ""}). ${stepObj.summary} Scriptural witness: ${stepObj.ref}. ${toP?.arch || ""}`;
+        const eraDef = getActiveHistoricalEra();
+        const script = `Step ${stepObj.step} of 36: ${stepObj.title}. Historical Period: ${eraDef.name}, dated ${stepObj.date}. Route from ${fromP ? fromP.name : stepObj.from} (${fromP?.modernName || ""}) to ${toP ? toP.name : stepObj.to} (${toP?.modernName || ""}). ${stepObj.summary} Scriptural witness: ${stepObj.ref}. ${toP?.arch || ""}`;
         speakDeepDiscovery(script, true);
       });
 
@@ -4475,7 +6351,7 @@
         state.projectionMode = state.projectionMode === "2d" ? "3d" : "2d";
         const btn = $("toggleProjectionBtn");
         if (btn) {
-          btn.textContent = state.projectionMode === "3d" ? "🗺️ Switch to 2D GIS Atlas" : "🌐 3D Globe View";
+          btn.textContent = state.projectionMode === "3d" ? "🗺️ 2D GIS Map" : "🌐 3D Globe";
         }
         renderMap();
         if (state.projectionMode === "2d" && gisEngine.map) {
@@ -4490,8 +6366,13 @@
       bindOn("resetZoomBtn", "click", () => {
         state.zoomTransform = d3.zoomIdentity;
         state.globeRotation = [-35.2, -30.2, 0];
-        if (state.projectionMode === "2d" && gisEngine.map) {
-          gisEngine.map.flyTo([32.2, 36.2], 5, { duration: 0.95 });
+        if (state.projectionMode === "2d") {
+          if (isGoogleMapsStyle(state.gisBaseStyle) && gmpEngine.map) {
+            gmpEngine.map.panTo({ lat: 32.2, lng: 36.2 });
+            gmpEngine.map.setZoom(5);
+          } else if (gisEngine.map) {
+            gisEngine.map.flyTo([32.2, 36.2], 5, { duration: 0.95 });
+          }
         } else if (svg && zoomBehavior) {
           svg.transition().duration(450).call(zoomBehavior.transform, d3.zoomIdentity);
           renderMap();
@@ -4511,18 +6392,40 @@
         renderLibrary();
       });
 
-      // Collapsible / Retractable Side Panels (Left & Right)
+      // Collapsible / Retractable Side Panels (Left & Right) + Bottom Pathway Dock
       bindOn("mmCollapseLeftBtn", "click", () => toggleLeftMindMapPanel(true));
       bindOn("mmRestoreLeftBtn", "click", () => toggleLeftMindMapPanel(false));
       bindOn("mmCollapseRightBtn", "click", () => toggleRightMindMapPanel(true));
       bindOn("mmRestoreRightBtn", "click", () => toggleRightMindMapPanel(false));
+      bindOn("mmToggleHudDockBtn", "click", () => toggleMindMapHudDock());
 
-      // Pathway Pinning Toggle
+      // Pathway Pinning & Node Pathway Cycling Controls
       bindOn("mmPinPathwayBtn", "click", () => {
         mmState.pathwayPinned = !mmState.pathwayPinned;
         renderMindMapActiveLink();
         renderMindMapCanvas();
       });
+      bindOn("mmCycleNodePathwayBtn", "click", () => cycleActiveNodePathway());
+      bindOn("mmCanvasCyclePathwayBtn", "click", () => cycleActiveNodePathway());
+      bindOn("mmCanvasPrevLinkBtn", "click", () => selectCrossLinkNumber(mmState.selectedLinkId - 1, false, true));
+      bindOn("mmCanvasNextLinkBtn", "click", () => selectCrossLinkNumber(mmState.selectedLinkId + 1, false, true));
+      bindOn("mmCanvasNarrateBtn", "click", () => {
+        const script = mmState.lastNarrationText || buildDeepDiscoveryScript("link");
+        speakDeepDiscovery(script, true);
+      });
+      bindOn("mmCanvasResetCamBtn", "click", () => $("mmResetViewBtn")?.click());
+
+      // Clickable Tier Legend Buttons (OT / HUB / APOCRYPHA / NT)
+      document.querySelectorAll("[data-mm-tier]").forEach(btn => {
+        btn.addEventListener("click", () => {
+          const tier = btn.getAttribute("data-mm-tier") || "APOCRYPHA";
+          cycleTierPathway(tier);
+        });
+      });
+
+      // Full Screen Mind Map Mode (100% Interactive Viewport)
+      bindOn("mmFullscreenBtn", "click", () => toggleMindMapFullScreen());
+      bindOn("mmCanvasFullscreenBtn", "click", () => toggleMindMapFullScreen());
 
       // "Wil Brimner / Deep Discovery" Narration Bar Controls
       bindOn("mmNarratePlayBtn", "click", () => {
@@ -4617,6 +6520,10 @@
 
       // Separate Window / Full-Viewport Toggle
       bindOn("mmWindowToggleBtn", "click", () => {
+        if (mmState.fullScreenMode) {
+          toggleMindMapFullScreen(false);
+          return;
+        }
         mmState.windowExpanded = !mmState.windowExpanded;
         const wsEl = $("ws-mindmap");
         const btn = $("mmWindowToggleBtn");
@@ -4627,7 +6534,7 @@
           wsEl.classList.toggle("max-w-none", mmState.windowExpanded);
         }
         if (btn) {
-          btn.textContent = mmState.windowExpanded ? "✕ Dock Back to Tab" : "⛶ Expand Separate Window";
+          btn.textContent = mmState.windowExpanded ? "✕ Dock Back to Tab" : "🗖 Expand Window";
         }
         renderMindMapCanvas();
         setTimeout(resizeMindMap3D, 60);
@@ -4646,10 +6553,22 @@
         }
       });
 
-      // Keyboard navigation for 36-step timeline, Zen Map Mode ('M' / 'Escape'), & 67,000 Mind Map
+      // Keyboard navigation for 36-step timeline, Zen Map Mode ('M' / 'Escape'), & Full-Screen 67,000 Mind Map ('F' / 'H')
       window.addEventListener("keydown", (e) => {
         if (["INPUT", "SELECT", "TEXTAREA"].includes(document.activeElement?.tagName)) return;
         if (e.key === "Escape") {
+          if (!$("pwaInstallModal")?.classList.contains("hidden")) {
+            $("pwaInstallModal")?.classList.add("hidden");
+            return;
+          }
+          if (!$("gisLayerControlCard")?.classList.contains("hidden")) {
+            $("gisLayerControlCard")?.classList.add("hidden");
+            return;
+          }
+          if (mmState.fullScreenMode) {
+            toggleMindMapFullScreen(false);
+            return;
+          }
           if (state.zenMapMode) {
             toggleZenMapMode(false);
             return;
@@ -4662,6 +6581,16 @@
         if ((e.key === "m" || e.key === "M") && state.workspace === "journey") {
           e.preventDefault();
           toggleZenMapMode();
+          return;
+        }
+        if ((e.key === "f" || e.key === "F") && state.workspace === "mindmap") {
+          e.preventDefault();
+          toggleMindMapFullScreen();
+          return;
+        }
+        if ((e.key === "h" || e.key === "H") && state.workspace === "mindmap") {
+          e.preventDefault();
+          toggleMindMapHudDock();
           return;
         }
         if (e.key === "ArrowRight") {
@@ -4689,12 +6618,15 @@
 
     // 17. BOOTSTRAP APPLICATION ON DOM READY
     function boot() {
+      initPwaAndMobileSupport();
       initWriterFilter();
       initMindMapFilters();
       initMap();
       wireEvents();
       setStep(1, false);
       selectBook("GEN", false);
+      renderStepsDeck();
+      renderBookStudio();
       renderLibrary();
       renderLoom();
       renderLinks();
